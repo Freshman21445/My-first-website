@@ -6,7 +6,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs } 
+    import { getFirestore, collection, query, where, getDocs, addDoc } 
     from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -21,10 +21,10 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // LOGIN FUNCTION (phone + password)
+    // LOGIN
     window.login = async function () {
-      let phone = document.getElementById("phone").value;
-      let password = document.getElementById("password").value;
+      let phone = document.getElementById("loginPhone").value;
+      let password = document.getElementById("loginPassword").value;
 
       const q = query(
         collection(db, "users"),
@@ -32,17 +32,40 @@
         where("password", "==", password)
       );
 
-      const querySnapshot = await getDocs(q);
+      const snap = await getDocs(q);
 
-      if (!querySnapshot.empty) {
-        document.getElementById("msg").innerHTML = "Login success ✔";
-
-        // show exam after login
+      if (!snap.empty) {
+        document.getElementById("msg").innerHTML = "Welcome ✔ Login success";
+        document.getElementById("authBox").style.display = "none";
         document.getElementById("examBox").style.display = "block";
-
       } else {
-        document.getElementById("msg").innerHTML = "Wrong phone or password ❌";
+        document.getElementById("msg").innerHTML = "Wrong details ❌";
       }
+    };
+
+    // REGISTER
+    window.register = async function () {
+      let phone = document.getElementById("regPhone").value;
+      let password = document.getElementById("regPassword").value;
+
+      await addDoc(collection(db, "users"), {
+        phone: phone,
+        password: password
+      });
+
+      document.getElementById("msg").innerHTML = "Registered ✔ now login";
+      showLogin();
+    };
+
+    // UI SWITCH
+    window.showRegister = function () {
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("registerBox").style.display = "block";
+    };
+
+    window.showLogin = function () {
+      document.getElementById("registerBox").style.display = "none";
+      document.getElementById("loginBox").style.display = "block";
     };
 
   </script>
@@ -51,59 +74,40 @@
 
 <body>
 
-<h2>Login</h2>
-
-<input id="phone" placeholder="Phone (+251...)"><br><br>
-<input id="password" type="password" placeholder="Password"><br><br>
-
-<button onclick="login()">Login</button>
+<h1>Welcome to Online Exam System</h1>
 
 <p id="msg"></p>
 
-<hr>
+<div id="authBox">
 
-<!-- EXAM AREA (hidden until login) -->
+  <!-- LOGIN -->
+  <div id="loginBox">
+    <h2>Login</h2>
+    <input id="loginPhone" placeholder="Phone"><br><br>
+    <input id="loginPassword" type="password" placeholder="Password"><br><br>
+    <button onclick="login()">Login</button><br><br>
+
+    <p>Don't have an account?</p>
+    <button onclick="showRegister()">Register</button>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="registerBox" style="display:none;">
+    <h2>Register</h2>
+    <input id="regPhone" placeholder="Phone"><br><br>
+    <input id="regPassword" type="password" placeholder="Password"><br><br>
+    <button onclick="register()">Create Account</button><br><br>
+
+    <p>Already have account?</p>
+    <button onclick="showLogin()">Login</button>
+  </div>
+
+</div>
+
+<!-- EXAM AREA -->
 <div id="examBox" style="display:none;">
-
-<h2>Online Exam</h2>
-
-<div id="quiz"></div>
-<p id="explanation"></p>
-
-<script>
-const questions = [
-  {
-    question: "Ethiopia is in Africa",
-    answer: true,
-    explanation: "Correct. Ethiopia is in East Africa."
-  }
-];
-
-function showQuestion(){
-  let q = questions[0];
-
-  document.getElementById("quiz").innerHTML = `
-    <h3>${q.question}</h3>
-    <button onclick="check(true)">True</button>
-    <button onclick="check(false)">False</button>
-  `;
-}
-
-function check(ans){
-  let q = questions[0];
-
-  if(ans == q.answer){
-    document.getElementById("explanation").innerHTML =
-    "✔ Correct - " + q.explanation;
-  } else {
-    document.getElementById("explanation").innerHTML =
-    "❌ Wrong - " + q.explanation;
-  }
-}
-
-showQuestion();
-</script>
-
+  <h2>Online Exam</h2>
+  <p>Exam will appear here after login</p>
 </div>
 
 </body>
