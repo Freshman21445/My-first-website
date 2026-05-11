@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Exam System</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Make body full screen, no zoom, with motivational background image */
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow-x: hidden;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      /* Motivational background image for students */
+      background-image: url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format'); /* students walking to graduation */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    /* Semi-transparent overlay for better text readability */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    h1 {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+
+    #msg {
+      text-align: center;
+      font-size: 1.2em;
+      margin-bottom: 20px;
+      padding: 10px;
+      border-radius: 5px;
+      min-height: 20px;
+      color: white;
+      font-weight: bold;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(4px);
+    }
+
+    /* AUTH BOX STYLES - semi-transparent white */
+    #authBox {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 70vh;
+    }
+
+    .auth-box {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 400px;
+      transition: all 0.3s;
+    }
+
+    .auth-box h2 {
+      margin-bottom: 30px;
+      color: #1e3c72;
+      text-align: center;
+    }
+
+    .auth-box input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 30px;
+      font-size: 1em;
+      background: white;
+    }
+
+    .auth-box input:focus {
+      outline: none;
+      border-color: #ff9800;
+      box-shadow: 0 0 5px rgba(255, 152, 0, 0.5);
+    }
+
+    .auth-box button {
+      width: 100%;
+      padding: 12px;
+      background: #ff9800;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-size: 1em;
+      cursor: pointer;
+      margin-bottom: 15px;
+      transition: background 0.3s;
+      font-weight: bold;
+    }
+
+    .auth-box button:hover {
+      background: #e68900;
+    }
+
+    .auth-box p {
+      text-align: center;
+      margin: 20px 0 10px;
+      color: #555;
+    }
+
+    /* DASHBOARD STYLES - also fits full screen */
+    #examBox {
+      display: none;
+      width: 100%;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 20px;
+      backdrop-filter: blur(5px);
+    }
+
+    .dashboard-header h2 {
+      color: #1e3c72;
+      font-size: 1.8em;
+    }
+
+    .logout-btn {
+      padding: 10px 20px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: background 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: #c0392b;
+    }
+
+    /* COURSES GRID */
+    .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+      margin-top: 30px;
+      margin-bottom: 40px;
+    }
+
+    .course-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(4px);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s, box-shadow 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      cursor: pointer;
+      border-bottom: 4px solid #ff9800;
+    }
+
+    .course-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .course-icon {
+      font-size: 3.5em;
+      background: rgba(255, 152, 0, 0.2);
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+
+    .course-info h3 {
+      color: #1e3c72;
+      margin-bottom: 8px;
+    }
+
+    .infographic-fact {
+      font-size: 0.85rem;
+      background: #fff3e0;
+      padding: 10px 12px;
+      border-radius: 20px;
+      margin-top: 14px;
+      text-align: left;
+      border-left: 4px solid #ff9800;
+    }
+
+    /* MODAL, MATERIAL, EXAM - light background for readability */
+    #courseModal .modal-content,
+    #materialSection,
+    #examSection {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+    }
+
+    /* Ensure all other elements are readable */
+    .modal-content h2, .material-header h2, .exam-header h2 {
+      color: #1e3c72;
+    }
+
+    /* Keep responsiveness and no zoom */
+    @media (max-width: 600px) {
+      .container {
+        padding: 15px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+  </style>
+
+  <!-- Firebase imports (same as before) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs, addDoc } 
+    from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAavkqPwNgzo3UASsz-feaQvTjobxwkj-s",
+      authDomain: "student-quiz-platform-9439a.firebaseapp.com",
+      projectId: "student-quiz-platform-9439a",
+      storageBucket: "student-quiz-platform-9439a.firebasestorage.app",
+      messagingSenderId: "815750551646",
+      appId: "1:815750551646:web:1c48edb729252bd667bccf"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // LOGIN
+    window.login = async function () {
+      let phone = document.getElementById("loginPhone").value;
+      let password = document.getElementById("loginPassword").value;
+
+      const q = query(
+        collection(db, "users"),
+        where("phone", "==", phone),
+        where("password", "==", password)
+      );
+
+      const snap = await getDocs(q);
+
+      if (!snap.empty) {
+        document.getElementById("msg").innerHTML = "✔ Welcome! Login successful";
+        document.getElementById("authBox").style.display = "none";
+        document.getElementById("examBox").style.display = "block";
+      } else {
+        document.getElementById("msg").innerHTML = "❌ Wrong phone or password";
+      }
+    };
+
+    // REGISTER
+    window.register = async function () {
+      let phone = document.getElementById("regPhone").value;
+      let password = document.getElementById("regPassword").value;
+
+      if (!phone || !password) {
+        document.getElementById("msg").innerHTML = "❌ Please fill all fields";
+        return;
+      }
+
+      await addDoc(collection(db, "users"), {
+        phone: phone,
+        password: password
+      });
+
+      document.getElementById("msg").innerHTML = "✔ Registered successfully! Now login";
+      showLogin();
+    };
+
+    // UI SWITCH
+    window.showRegister = function () {
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("registerBox").style.display = "block";
+    };
+
+    window.showLogin = function () {
+      document.getElementById("registerBox").style.display = "none";
+      document.getElementById("loginBox").style.display = "block";
+    };
+
+    // LOGOUT
+    window.logout = function () {
+      document.getElementById("authBox").style.display = "flex";
+      document.getElementById("examBox").style.display = "none";
+      document.getElementById("msg").innerHTML = "";
+      document.getElementById("loginPhone").value = "";
+      document.getElementById("loginPassword").value = "";
+      document.getElementById("regPhone").value = "";
+      document.getElementById("regPassword").value = "";
+      closeMaterial();
+      closeExam();
+    };
+  </script>
+</head>
+
+<body>
+<div class="container">
+  <h1>📚 Online Exam System</h1>
+  <p id="msg"></p>
+
+  <div id="authBox">
+    <!-- LOGIN -->
+    <div id="loginBox" class="auth-box">
+      <h2>Login</h2>
+      <input id="loginPhone" placeholder="Phone" type="text"><br>
+      <input id="loginPassword" type="password" placeholder="Password"><br>
+      <button onclick="login()">Login</button><br>
+      <p>Don't have an account?</p>
+      <button onclick="showRegister()">Register</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="registerBox" class="auth-box" style="display:none;">
+      <h2>Register</h2>
+      <input id="regPhone" placeholder="Phone" type="text"><br>
+      <input id="regPassword" type="password" placeholder="Password"><br>
+      <button onclick="register()">Create Account</button><br>
+      <p>Already have account?</p>
+      <button onclick="showLogin()">Login</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="examBox">
+    <div class="dashboard-header">
+      <h2>📖 Available Courses</h2>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="courses-grid">
+      <!-- All courses with infographic facts as before, unchanged -->
+      <div class="course-card" onclick="openCourseModal('Anthropology', '🧬')">
+        <div class="course-icon">🧬</div>
+        <div class="course-info">
+          <h3>Anthropology</h3>
+          <p>Study of human cultures and societies</p>
+          <div class="infographic-fact">🌍 Over 7,000 distinct cultures exist — each with unique rituals & languages.</div>
+        </div>
+      </div>
+      <div class="course-card" onclick="openCourseModal('Emerging Technology', '💻')">
+        <div class="course-icon">💻</div>
+        <div class="course-info">
+          <h3>Emerging Technology</h3>
+          <p>Latest developments in technology</p>
+          <div class="infographic-fact">⚡ AI & IoT market to hit $1.5 trillion by 2030 — shaping every industry.</div>
+        </div>
+      </div>
+      <div class="course-card" onclick="openCourseModal('Entrepreneurship', '🚀')">
+        <div class="course-icon">🚀</div>
+        <div class="course-info">
+          <h3>Entrepreneurship</h3>
+          <p>Learn business creation skills</p>
+          <div class="infographic-fact">📊 90% of unicorn startups focus on solving a real world problem first.</div>
+        </div>
+      </div>
+      <div class="course-card" onclick="openCourseModal('Applied Mathematics', '📐')">
+        <div class="course-icon">📐</div>
+        <div class="course-info">
+          <h3>Applied Mathematics</h3>
+          <p>Mathematics in real-world applications</p>
+          <div class="infographic-fact">🧮 Cryptography & climate modeling rely on advanced calculus & linear algebra.</div>
+        </div>
+      </div>
+      <div class="course-card" onclick="openCourseModal('Computer Programming', '⌨️')">
+        <div class="course-icon">⌨️</div>
+        <div class="course-info">
+          <h3>Computer Programming</h3>
+          <p>Learn coding and software development</p>
+          <div class="infographic-fact">🐍 700+ programming languages exist — Python & JavaScript power modern AI.</div>
+        </div>
+      </div>
+      <div class="course-card" onclick="openCourseModal('English', '📝')">
+        <div class="course-icon">📝</div>
+        <div class="course-info">
+          <h3>English</h3>
+          <p>Language and communication skills</p>
+          <div class="infographic-fact">🗣️ 1.5 billion speakers worldwide — the global language of science & aviation.</div>
+        </div>
+      </div>
+      <div class="course-card" onclick="openCourseModal('History of Ethiopia and the Horn', '🏛️')">
+        <div class="course-icon">🏛️</div>
+        <div class="course-info">
+          <h3>History of Ethiopia and the Horn</h3>
+          <p>Regional history and heritage</p>
+          <div class="infographic-fact">👑 One of the oldest kingdoms (Aksum) — origin of coffee & unique Ge'ez script.</div>
+        </div>
+      </div>
+      <div class="course-card" onclick="openCourseModal('Moral and Civic Education', '⚖️')">
+        <div class="course-icon">⚖️</div>
+        <div class="course-info">
+          <h3>Moral and Civic Education</h3>
+          <p>Ethics and citizenship values</p>
+          <div class="infographic-fact">🤝 Democratic participation & human rights — foundation of just societies.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COURSE MODAL -->
+    <div id="courseModal">
+      <div class="modal-content">
+        <h2 id="modalTitle"></h2>
+        <p id="modalDescription"></p>
+        <div class="modal-buttons">
+          <button class="modal-material-btn" onclick="handleMaterialClick()">📖 Material</button>
+          <button class="modal-exam-btn" onclick="handleExamClick()">✏️ Exam</button>
+        </div>
+        <br>
+        <button class="modal-close-btn" onclick="closeCourseModal()">Close</button>
+      </div>
+    </div>
+
+    <!-- MATERIAL SECTION -->
+    <div id="materialSection">
+      <div class="material-header">
+        <h2 id="materialTitle">📚 Course Material</h2>
+        <button class="close-material-btn" onclick="closeMaterial()">Close</button>
+      </div>
+      <div id="materialContent" class="material-content">You will upload your material here.</div>
+    </div>
+
+    <!-- EXAM SECTION -->
+    <div id="examSection">
+      <div class="exam-header">
+        <h2 id="examTitle">✏️ Exam</h2>
+        <button class="close-exam-btn" onclick="closeExam()">Close</button>
+      </div>
+      <div id="examContent" class="exam-content">You will upload your exam questions here.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Course materials data (for you to replace with your own content)
+  const coursesMaterials = {
+    'Anthropology': '📘 Replace with your own material content for Anthropology. You can paste lecture notes, PDF links, or any text here.',
+    'Emerging Technology': '🤖 Your custom material for Emerging Technology goes here.',
+    'Entrepreneurship': '📈 Your custom material for Entrepreneurship.',
+    'Applied Mathematics': '📐 Your custom Applied Mathematics content.',
+    'Computer Programming': '💻 Your custom Programming material (code examples, slides).',
+    'English': '📖 Your custom English material.',
+    'History of Ethiopia and the Horn': '🏛️ Your custom history material.',
+    'Moral and Civic Education': '⚖️ Your custom civic education material.'
+  };
+
+  const courseDescriptions = {
+    'Anthropology': 'Study of human cultures and societies — Explore traditions, evolution, and human diversity.',
+    'Emerging Technology': 'Latest developments in tech — AI, Blockchain, IoT, and future innovations.',
+    'Entrepreneurship': 'Learn business creation skills — From idea to startup, marketing & finance.',
+    'Applied Mathematics': 'Mathematics in real-world applications — Physics, engineering, data science.',
+    'Computer Programming': 'Learn coding and software development — Build apps, websites, and algorithms.',
+    'English': 'Language and communication skills — Writing, speaking, grammar & literature.',
+    'History of Ethiopia and the Horn': 'Regional history and heritage — Ancient kingdoms, culture, and key events.',
+    'Moral and Civic Education': 'Ethics and citizenship values — Rights, duties, democracy & social justice.'
+  };
+
+  let currentCourse = '';
+
+  // Modal functions
+  window.openCourseModal = function (courseName, icon) {
+    currentCourse = courseName;
+    document.getElementById('modalTitle').innerHTML = icon + ' ' + courseName;
+    document.getElementById('modalDescription').innerHTML = courseDescriptions[courseName];
+    document.getElementById('courseModal').style.display = 'flex';
+  };
+
+  window.closeCourseModal = function () {
+    document.getElementById('courseModal').style.display = 'none';
+  };
+
+  window.handleMaterialClick = function () {
+    closeCourseModal();
+    showMaterial(currentCourse);
+  };
+
+  window.handleExamClick = function () {
+    closeCourseModal();
+    showExam(currentCourse);
+  };
+
+  window.showMaterial = function (courseName) {
+    document.getElementById('materialTitle').innerHTML = '📚 ' + courseName + ' - Material';
+    document.getElementById('materialContent').innerHTML = coursesMaterials[courseName] || 'You will upload your material here.';
+    document.getElementById('materialSection').style.display = 'block';
+    document.getElementById('examSection').style.display = 'none';
+    window.scrollTo(0, document.getElementById('materialSection').offsetTop);
+  };
+
+  window.closeMaterial = function () {
+    document.getElementById('materialSection').style.display = 'none';
+  };
+
+  window.showExam = function (courseName) {
+    document.getElementById('examTitle').innerHTML = '✏️ ' + courseName + ' - Exam';
+    document.getElementById('examContent').innerHTML = `<p>You will upload your exam questions for ${courseName} here.</p><button class="submit-exam-btn" onclick="submitExam('${courseName}')">Submit Exam</button>`;
+    document.getElementById('examSection').style.display = 'block';
+    document.getElementById('materialSection').style.display = 'none';
+    window.scrollTo(0, document.getElementById('examSection').offsetTop);
+  };
+
+  window.closeExam = function () {
+    document.getElementById('examSection').style.display = 'none';
+  };
+
+  window.submitExam = function (courseName) {
+    alert('Exam submitted for ' + courseName + '!\n\nThank you for completing the exam.');
+    closeExam();
+  };
+
+  // Close modal when clicking outside
+  window.onclick = function (event) {
+    const modal = document.getElementById('courseModal');
+    if (event.target === modal) {
+      closeCourseModal();
+    }
+  };
+</script>
+
+<!-- Additional CSS for modal buttons (keeping same as before) -->
+<style>
+  .modal-content .modal-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  .modal-material-btn, .modal-exam-btn, .modal-close-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .modal-material-btn { background: #3498db; color: white; }
+  .modal-exam-btn { background: #27ae60; color: white; }
+  .modal-close-btn { background: #95a5a6; color: white; }
+  .submit-exam-btn {
+    background: #ff9800;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 40px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+  .close-material-btn, .close-exam-btn {
+    background: #7f8c8d;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 30px;
+    cursor: pointer;
+  }
+  #courseModal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+  }
+  #materialSection, #examSection {
+    margin-top: 30px;
+  }
+</style>
+</body>
+          </html>
