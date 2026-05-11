@@ -151,8 +151,12 @@
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
       transition: transform 0.3s, box-shadow 0.3s;
       display: flex;
+      flex-direction: column;
       align-items: center;
       gap: 20px;
+      min-height: 320px;
+      cursor: pointer;
+      justify-content: flex-start;
     }
 
     .course-card:hover {
@@ -167,7 +171,8 @@
 
     .course-info {
       flex: 1;
-      text-align: left;
+      text-align: center;
+      width: 100%;
     }
 
     .course-card h3 {
@@ -186,6 +191,8 @@
       display: flex;
       gap: 10px;
       flex-shrink: 0;
+      width: 100%;
+      justify-content: center;
     }
 
     .material-btn,
@@ -197,6 +204,7 @@
       font-size: 0.9em;
       transition: background 0.3s;
       white-space: nowrap;
+      flex: 1;
     }
 
     .material-btn {
@@ -215,6 +223,104 @@
 
     .exam-btn:hover {
       background: #229954;
+    }
+
+    /* EXPANDED COURSE MODAL */
+    #courseModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 15px;
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-content h2 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 1.8em;
+    }
+
+    .modal-content p {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 1em;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .modal-material-btn,
+    .modal-exam-btn,
+    .modal-close-btn {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: bold;
+      transition: all 0.3s;
+      flex: 1;
+    }
+
+    .modal-material-btn {
+      background: #3498db;
+      color: white;
+    }
+
+    .modal-material-btn:hover {
+      background: #2980b9;
+      transform: scale(1.05);
+    }
+
+    .modal-exam-btn {
+      background: #27ae60;
+      color: white;
+    }
+
+    .modal-exam-btn:hover {
+      background: #229954;
+      transform: scale(1.05);
+    }
+
+    .modal-close-btn {
+      background: #95a5a6;
+      color: white;
+      width: 100%;
+    }
+
+    .modal-close-btn:hover {
+      background: #7f8c8d;
     }
 
     /* MATERIAL SECTION */
@@ -484,107 +590,89 @@
     <!-- ROW 1: COURSES -->
     <div class="courses-grid">
       <!-- Anthropology -->
-      <div class="course-card">
+      <div class="course-card" onclick="openCourseModal('Anthropology', '🧬')">
         <div class="course-icon">🧬</div>
         <div class="course-info">
           <h3>Anthropology</h3>
           <p>Study of human cultures and societies</p>
         </div>
-        <div class="course-buttons">
-          <button class="material-btn" onclick="showMaterial('Anthropology')">📖 Or</button>
-          <button class="exam-btn" onclick="showExam('Anthropology')">✏️ Exam</button>
-        </div>
       </div>
 
       <!-- Emerging Technology -->
-      <div class="course-card">
+      <div class="course-card" onclick="openCourseModal('Emerging Technology', '💻')">
         <div class="course-icon">💻</div>
         <div class="course-info">
           <h3>Emerging Technology</h3>
           <p>Latest developments in technology</p>
         </div>
-        <div class="course-buttons">
-          <button class="material-btn" onclick="showMaterial('Emerging Technology')">📖 Or</button>
-          <button class="exam-btn" onclick="showExam('Emerging Technology')">✏️ Exam</button>
-        </div>
       </div>
 
       <!-- Entrepreneurship -->
-      <div class="course-card">
+      <div class="course-card" onclick="openCourseModal('Entrepreneurship', '🚀')">
         <div class="course-icon">🚀</div>
         <div class="course-info">
           <h3>Entrepreneurship</h3>
           <p>Learn business creation skills</p>
         </div>
-        <div class="course-buttons">
-          <button class="material-btn" onclick="showMaterial('Entrepreneurship')">📖 Or</button>
-          <button class="exam-btn" onclick="showExam('Entrepreneurship')">✏️ Exam</button>
-        </div>
       </div>
 
       <!-- Applied Mathematics -->
-      <div class="course-card">
+      <div class="course-card" onclick="openCourseModal('Applied Mathematics', '📐')">
         <div class="course-icon">📐</div>
         <div class="course-info">
           <h3>Applied Mathematics</h3>
           <p>Mathematics in real-world applications</p>
         </div>
-        <div class="course-buttons">
-          <button class="material-btn" onclick="showMaterial('Applied Mathematics')">📖 Or</button>
-          <button class="exam-btn" onclick="showExam('Applied Mathematics')">✏️ Exam</button>
-        </div>
       </div>
 
       <!-- Computer Programming -->
-      <div class="course-card">
+      <div class="course-card" onclick="openCourseModal('Computer Programming', '⌨️')">
         <div class="course-icon">⌨️</div>
         <div class="course-info">
           <h3>Computer Programming</h3>
           <p>Learn coding and software development</p>
         </div>
-        <div class="course-buttons">
-          <button class="material-btn" onclick="showMaterial('Computer Programming')">📖 Or</button>
-          <button class="exam-btn" onclick="showExam('Computer Programming')">✏️ Exam</button>
-        </div>
       </div>
 
       <!-- English -->
-      <div class="course-card">
+      <div class="course-card" onclick="openCourseModal('English', '📝')">
         <div class="course-icon">📝</div>
         <div class="course-info">
           <h3>English</h3>
           <p>Language and communication skills</p>
         </div>
-        <div class="course-buttons">
-          <button class="material-btn" onclick="showMaterial('English')">📖 Or</button>
-          <button class="exam-btn" onclick="showExam('English')">✏️ Exam</button>
-        </div>
       </div>
 
       <!-- History of Ethiopia and the Horn -->
-      <div class="course-card">
+      <div class="course-card" onclick="openCourseModal('History of Ethiopia and the Horn', '🏛️')">
         <div class="course-icon">🏛️</div>
         <div class="course-info">
           <h3>History of Ethiopia and the Horn</h3>
           <p>Regional history and heritage</p>
         </div>
-        <div class="course-buttons">
-          <button class="material-btn" onclick="showMaterial('History of Ethiopia and the Horn')">📖 Or</button>
-          <button class="exam-btn" onclick="showExam('History of Ethiopia and the Horn')">✏️ Exam</button>
-        </div>
       </div>
 
       <!-- Moral and Civic Education -->
-      <div class="course-card">
+      <div class="course-card" onclick="openCourseModal('Moral and Civic Education', '⚖️')">
         <div class="course-icon">⚖️</div>
         <div class="course-info">
           <h3>Moral and Civic Education</h3>
           <p>Ethics and citizenship values</p>
         </div>
-        <div class="course-buttons">
-          <button class="material-btn" onclick="showMaterial('Moral and Civic Education')">📖 Or</button>
-          <button class="exam-btn" onclick="showExam('Moral and Civic Education')">✏️ Exam</button>
+      </div>
+    </div>
+
+    <!-- COURSE MODAL -->
+    <div id="courseModal">
+      <div class="modal-content">
+        <h2 id="modalTitle"></h2>
+        <p id="modalDescription"></p>
+        <div class="modal-buttons">
+          <button class="modal-material-btn" onclick="handleMaterialClick()">📖 Material</button>
+          <button class="modal-exam-btn" onclick="handleExamClick()">✏️ Exam</button>
         </div>
+        <br>
+        <button class="modal-close-btn" onclick="closeCourseModal()">Close</button>
       </div>
     </div>
 
@@ -617,14 +705,53 @@
 <script>
   // Course materials data
   const coursesMaterials = {
-    'Anthropology': 'Anthropology is the study of human societies, cultures, and their behaviors. Topics include: Cultural practices, Social structures, Evolution of human societies, and Ethnographic research methods.',
-    'Emerging Technology': 'Emerging Technology covers the latest innovations including: Artificial Intelligence, Machine Learning, Blockchain, Internet of Things (IoT), Cloud Computing, and Quantum Computing.',
-    'Entrepreneurship': 'Entrepreneurship teaches business creation and management: Business planning, Market analysis, Financial management, Risk assessment, and Scaling strategies.',
-    'Applied Mathematics': 'Applied Mathematics includes: Calculus, Linear Algebra, Differential Equations, Statistics, and their applications in engineering and science.',
-    'Computer Programming': 'Computer Programming fundamentals: Variables and data types, Control structures, Functions, Object-oriented programming, and Data structures.',
-    'English': 'English language skills: Grammar and syntax, Vocabulary development, Reading comprehension, Writing skills, and Communication techniques.',
-    'History of Ethiopia and the Horn': 'History covering: Ancient kingdoms, Colonial period, Medieval era, Modern political developments, and Cultural heritage of the region.',
-    'Moral and Civic Education': 'Values and ethics: Citizenship responsibilities, Democratic principles, Human rights, Social responsibility, and ethical decision-making.'
+    'Anthropology': 'Anthropology is the study of human societies, cultures, and their behaviors. Topics include: Cultural practices, Social structures, Evolution of human societies, and Ethnographic studies. Learn how different societies organize themselves and develop culturally distinct practices over time.',
+    'Emerging Technology': 'Emerging Technology covers the latest innovations including: Artificial Intelligence, Machine Learning, Blockchain, Internet of Things (IoT), Cloud Computing, and Quantum Computing. Explore cutting-edge technologies shaping the future.',
+    'Entrepreneurship': 'Entrepreneurship teaches business creation and management: Business planning, Market analysis, Financial management, Risk assessment, and Scaling strategies. Learn how to turn ideas into successful businesses.',
+    'Applied Mathematics': 'Applied Mathematics includes: Calculus, Linear Algebra, Differential Equations, Statistics, and their applications in engineering and science. Understand how mathematical concepts solve real-world problems.',
+    'Computer Programming': 'Computer Programming fundamentals: Variables and data types, Control structures, Functions, Object-oriented programming, and Data structures. Master the skills needed for software development.',
+    'English': 'English language skills: Grammar and syntax, Vocabulary development, Reading comprehension, Writing skills, and Communication techniques. Enhance your ability to communicate effectively.',
+    'History of Ethiopia and the Horn': 'History covering: Ancient kingdoms, Colonial period, Medieval era, Modern political developments, and Cultural heritage of the region. Understand the rich history of Ethiopia and the Horn of Africa.',
+    'Moral and Civic Education': 'Values and ethics: Citizenship responsibilities, Democratic principles, Human rights, Social responsibility, and ethical decision-making. Learn about ethical foundations of society.'
+  };
+
+  const courseDescriptions = {
+    'Anthropology': 'Study of human cultures and societies',
+    'Emerging Technology': 'Latest developments in technology',
+    'Entrepreneurship': 'Learn business creation skills',
+    'Applied Mathematics': 'Mathematics in real-world applications',
+    'Computer Programming': 'Learn coding and software development',
+    'English': 'Language and communication skills',
+    'History of Ethiopia and the Horn': 'Regional history and heritage',
+    'Moral and Civic Education': 'Ethics and citizenship values'
+  };
+
+  let currentCourse = '';
+
+  // Open course modal
+  window.openCourseModal = function (courseName, icon) {
+    currentCourse = courseName;
+    document.getElementById('modalTitle').innerHTML = icon + ' ' + courseName;
+    document.getElementById('modalDescription').innerHTML = courseDescriptions[courseName];
+    document.getElementById('courseModal').style.display = 'flex';
+  };
+
+  // Close course modal
+  window.closeCourseModal = function () {
+    document.getElementById('courseModal').style.display = 'none';
+    currentCourse = '';
+  };
+
+  // Handle material click from modal
+  window.handleMaterialClick = function () {
+    closeCourseModal();
+    showMaterial(currentCourse);
+  };
+
+  // Handle exam click from modal
+  window.handleExamClick = function () {
+    closeCourseModal();
+    showExam(currentCourse);
   };
 
   // Show material section
@@ -731,6 +858,14 @@
   window.submitExam = function (courseName) {
     alert('Exam submitted for ' + courseName + '!\n\nThank you for completing the exam.');
     closeExam();
+  };
+
+  // Close modal when clicking outside
+  window.onclick = function (event) {
+    const modal = document.getElementById('courseModal');
+    if (event.target === modal) {
+      closeCourseModal();
+    }
   };
 </script>
 
