@@ -3,6 +3,193 @@
 
 <head>
   <title>Exam System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+      font-size: 2.5em;
+    }
+
+    #msg {
+      text-align: center;
+      font-size: 1.2em;
+      margin-bottom: 20px;
+      padding: 10px;
+      border-radius: 5px;
+      min-height: 20px;
+    }
+
+    /* AUTH BOX STYLES */
+    #authBox {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80vh;
+    }
+
+    .auth-box {
+      background: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .auth-box h2 {
+      margin-bottom: 30px;
+      color: #333;
+      text-align: center;
+    }
+
+    .auth-box input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1em;
+    }
+
+    .auth-box input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+    }
+
+    .auth-box button {
+      width: 100%;
+      padding: 12px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      cursor: pointer;
+      margin-bottom: 15px;
+      transition: background 0.3s;
+    }
+
+    .auth-box button:hover {
+      background: #764ba2;
+    }
+
+    .auth-box p {
+      text-align: center;
+      margin: 20px 0 10px;
+      color: #666;
+    }
+
+    /* DASHBOARD STYLES */
+    #examBox {
+      display: none;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-header h2 {
+      color: #333;
+      font-size: 1.8em;
+    }
+
+    .logout-btn {
+      padding: 10px 20px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: background 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: #c0392b;
+    }
+
+    .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 25px;
+      margin-top: 30px;
+    }
+
+    .course-card {
+      background: white;
+      border-radius: 10px;
+      padding: 25px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .course-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .course-icon {
+      font-size: 3em;
+      margin-bottom: 15px;
+    }
+
+    .course-card h3 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 1.3em;
+    }
+
+    .course-card p {
+      color: #666;
+      font-size: 0.9em;
+      margin-bottom: 15px;
+    }
+
+    .start-btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: background 0.3s;
+      width: 100%;
+    }
+
+    .start-btn:hover {
+      background: #764ba2;
+    }
+  </style>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
@@ -35,11 +222,11 @@
       const snap = await getDocs(q);
 
       if (!snap.empty) {
-        document.getElementById("msg").innerHTML = "Welcome ✔ Login success";
+        document.getElementById("msg").innerHTML = "✔ Welcome! Login successful";
         document.getElementById("authBox").style.display = "none";
         document.getElementById("examBox").style.display = "block";
       } else {
-        document.getElementById("msg").innerHTML = "Wrong details ❌";
+        document.getElementById("msg").innerHTML = "❌ Wrong phone or password";
       }
     };
 
@@ -48,12 +235,17 @@
       let phone = document.getElementById("regPhone").value;
       let password = document.getElementById("regPassword").value;
 
+      if (!phone || !password) {
+        document.getElementById("msg").innerHTML = "❌ Please fill all fields";
+        return;
+      }
+
       await addDoc(collection(db, "users"), {
         phone: phone,
         password: password
       });
 
-      document.getElementById("msg").innerHTML = "Registered ✔ now login";
+      document.getElementById("msg").innerHTML = "✔ Registered successfully! Now login";
       showLogin();
     };
 
@@ -68,47 +260,138 @@
       document.getElementById("loginBox").style.display = "block";
     };
 
+    // LOGOUT
+    window.logout = function () {
+      document.getElementById("authBox").style.display = "flex";
+      document.getElementById("examBox").style.display = "none";
+      document.getElementById("msg").innerHTML = "";
+      document.getElementById("loginPhone").value = "";
+      document.getElementById("loginPassword").value = "";
+      document.getElementById("regPhone").value = "";
+      document.getElementById("regPassword").value = "";
+    };
+
   </script>
 
 </head>
 
 <body>
 
-<h1>Welcome to Online Exam System</h1>
+<div class="container">
 
-<p id="msg"></p>
+  <h1>📚 Online Exam System</h1>
 
-<div id="authBox">
+  <p id="msg"></p>
 
-  <!-- LOGIN -->
-  <div id="loginBox">
-    <h2>Login</h2>
-    <input id="loginPhone" placeholder="Phone"><br><br>
-    <input id="loginPassword" type="password" placeholder="Password"><br><br>
-    <button onclick="login()">Login</button><br><br>
+  <div id="authBox">
 
-    <p>Don't have an account?</p>
-    <button onclick="showRegister()">Register</button>
+    <!-- LOGIN -->
+    <div id="loginBox" class="auth-box">
+      <h2>Login</h2>
+      <input id="loginPhone" placeholder="Phone" type="text"><br>
+      <input id="loginPassword" type="password" placeholder="Password"><br>
+      <button onclick="login()">Login</button><br>
+
+      <p>Don't have an account?</p>
+      <button onclick="showRegister()">Register</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="registerBox" class="auth-box" style="display:none;">
+      <h2>Register</h2>
+      <input id="regPhone" placeholder="Phone" type="text"><br>
+      <input id="regPassword" type="password" placeholder="Password"><br>
+      <button onclick="register()">Create Account</button><br>
+
+      <p>Already have account?</p>
+      <button onclick="showLogin()">Login</button>
+    </div>
+
   </div>
 
-  <!-- REGISTER -->
-  <div id="registerBox" style="display:none;">
-    <h2>Register</h2>
-    <input id="regPhone" placeholder="Phone"><br><br>
-    <input id="regPassword" type="password" placeholder="Password"><br><br>
-    <button onclick="register()">Create Account</button><br><br>
+  <!-- DASHBOARD -->
+  <div id="examBox">
+    <div class="dashboard-header">
+      <h2>📖 Available Courses</h2>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
 
-    <p>Already have account?</p>
-    <button onclick="showLogin()">Login</button>
+    <div class="courses-grid">
+      <!-- Anthropology -->
+      <div class="course-card">
+        <div class="course-icon">🧬</div>
+        <h3>Anthropology</h3>
+        <p>Study of human cultures and societies</p>
+        <button class="start-btn" onclick="startCourse('Anthropology')">Start Course</button>
+      </div>
+
+      <!-- Emerging Technology -->
+      <div class="course-card">
+        <div class="course-icon">💻</div>
+        <h3>Emerging Technology</h3>
+        <p>Latest developments in technology</p>
+        <button class="start-btn" onclick="startCourse('Emerging Technology')">Start Course</button>
+      </div>
+
+      <!-- Entrepreneurship -->
+      <div class="course-card">
+        <div class="course-icon">🚀</div>
+        <h3>Entrepreneurship</h3>
+        <p>Learn business creation skills</p>
+        <button class="start-btn" onclick="startCourse('Entrepreneurship')">Start Course</button>
+      </div>
+
+      <!-- Applied Mathematics -->
+      <div class="course-card">
+        <div class="course-icon">📐</div>
+        <h3>Applied Mathematics</h3>
+        <p>Mathematics in real-world applications</p>
+        <button class="start-btn" onclick="startCourse('Applied Mathematics')">Start Course</button>
+      </div>
+
+      <!-- Computer Programming -->
+      <div class="course-card">
+        <div class="course-icon">⌨️</div>
+        <h3>Computer Programming</h3>
+        <p>Learn coding and software development</p>
+        <button class="start-btn" onclick="startCourse('Computer Programming')">Start Course</button>
+      </div>
+
+      <!-- English -->
+      <div class="course-card">
+        <div class="course-icon">📝</div>
+        <h3>English</h3>
+        <p>Language and communication skills</p>
+        <button class="start-btn" onclick="startCourse('English')">Start Course</button>
+      </div>
+
+      <!-- History of Ethiopia and the Horn -->
+      <div class="course-card">
+        <div class="course-icon">🏛️</div>
+        <h3>History of Ethiopia and the Horn</h3>
+        <p>Regional history and heritage</p>
+        <button class="start-btn" onclick="startCourse('History of Ethiopia and the Horn')">Start Course</button>
+      </div>
+
+      <!-- Moral and Civic Education -->
+      <div class="course-card">
+        <div class="course-icon">⚖️</div>
+        <h3>Moral and Civic Education</h3>
+        <p>Ethics and citizenship values</p>
+        <button class="start-btn" onclick="startCourse('Moral and Civic Education')">Start Course</button>
+      </div>
+    </div>
   </div>
 
 </div>
 
-<!-- EXAM AREA -->
-<div id="examBox" style="display:none;">
-  <h2>Online Exam</h2>
-  <p>Exam will appear here after login</p>
-</div>
+<script>
+  // Start course function
+  window.startCourse = function (courseName) {
+    alert("Starting: " + courseName + "\n\nCourse content coming soon!");
+    // You can add exam logic here later
+  };
+</script>
 
 </body>
 </html>
