@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Exam System</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-image: url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      min-height: 100vh;
+      margin: 0;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    h1 {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+
+    #msg {
+      text-align: center;
+      font-size: 1.2em;
+      margin-bottom: 20px;
+      padding: 10px;
+      border-radius: 5px;
+      min-height: 20px;
+      color: white;
+      font-weight: bold;
+      background: rgba(0,0,0,0.4);
+    }
+
+    /* Auth box */
+    #authBox {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 70vh;
+    }
+
+    .auth-box {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      padding: 40px;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .auth-box h2 { color: #1e3c72; margin-bottom: 30px; text-align: center; }
+    .auth-box input { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 30px; border: 1px solid #ddd; }
+    .auth-box button { width: 100%; padding: 12px; background: #ff9800; color: white; border: none; border-radius: 30px; cursor: pointer; font-weight: bold; margin-bottom: 15px; }
+    .auth-box button:hover { background: #e68900; }
+
+    /* Dashboard header with menu */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 20px;
+    }
+    .menu-btn {
+      background: #3498db;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 8px 15px;
+      border-radius: 30px;
+      color: white;
+      font-weight: bold;
+    }
+    .dashboard-header h2 { color: #1e3c72; }
+    .logout-btn { background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 30px; cursor: pointer; }
+
+    /* Courses grid */
+    .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+      margin-top: 30px;
+      margin-bottom: 40px;
+    }
+    .course-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(4px);
+      border-radius: 20px;
+      padding: 20px;
+      cursor: pointer;
+      text-align: center;
+      border-bottom: 4px solid #ff9800;
+    }
+    .course-icon { font-size: 3.5em; background: rgba(255,152,0,0.2); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; }
+    .course-card h3 { color: #1e3c72; }
+    .infographic-fact { background: #fff3e0; padding: 8px; border-radius: 15px; margin-top: 12px; font-size: 0.8rem; }
+
+    /* Material & Exam sections */
+    #materialSection, #examSection {
+      display: none;
+      background: rgba(255,255,255,0.95);
+      border-radius: 20px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .back-btn, .close-btn {
+      background: #7f8c8d;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 30px;
+      cursor: pointer;
+    }
+    .chapter-tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .chapter-tab {
+      background: #ecf0f1;
+      padding: 8px 20px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .chapter-tab.active {
+      background: #ff9800;
+      color: white;
+    }
+    .locked-chapter {
+      background: #bdc3c7;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    .chapter-content {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 15px;
+      min-height: 200px;
+    }
+    .premium-note {
+      background: #ffeaa7;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    /* Menu Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-card {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+    }
+    .modal-card button {
+      background: #ff9800;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 30px;
+      margin: 10px;
+      cursor: pointer;
+    }
+    .copy-btn {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 25px;
+      border: 1px solid #ccc;
+    }
+  </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs, addDoc, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAavkqPwNgzo3UASsz-feaQvTjobxwkj-s",
+      authDomain: "student-quiz-platform-9439a.firebaseapp.com",
+      projectId: "student-quiz-platform-9439a",
+      storageBucket: "student-quiz-platform-9439a.firebasestorage.app",
+      messagingSenderId: "815750551646",
+      appId: "1:815750551646:web:1c48edb729252bd667bccf"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    let currentUserPhone = "";
+    let userPremium = false;
+
+    window.login = async function () {
+      let phone = document.getElementById("loginPhone").value;
+      let password = document.getElementById("loginPassword").value;
+      const q = query(collection(db, "users"), where("phone", "==", phone), where("password", "==", password));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        currentUserPhone = phone;
+        const userDoc = snap.docs[0];
+        userPremium = userDoc.data().premium === true;
+        document.getElementById("msg").innerHTML = "✔ Welcome! Login successful";
+        document.getElementById("authBox").style.display = "none";
+        document.getElementById("examBox").style.display = "block";
+        document.getElementById("coursesGrid").style.display = "grid";
+        document.getElementById("materialSection").style.display = "none";
+        document.getElementById("examSection").style.display = "none";
+      } else {
+        document.getElementById("msg").innerHTML = "❌ Wrong phone or password";
+      }
+    };
+
+    window.register = async function () {
+      let phone = document.getElementById("regPhone").value;
+      let password = document.getElementById("regPassword").value;
+      if (!phone || !password) {
+        document.getElementById("msg").innerHTML = "❌ Please fill all fields";
+        return;
+      }
+      await addDoc(collection(db, "users"), { phone, password, premium: false });
+      document.getElementById("msg").innerHTML = "✔ Registered successfully! Now login";
+      showLogin();
+    };
+
+    window.showRegister = () => { document.getElementById("loginBox").style.display = "none"; document.getElementById("registerBox").style.display = "block"; };
+    window.showLogin = () => { document.getElementById("registerBox").style.display = "none"; document.getElementById("loginBox").style.display = "block"; };
+    window.logout = function () {
+      document.getElementById("authBox").style.display = "flex";
+      document.getElementById("examBox").style.display = "none";
+      document.getElementById("msg").innerHTML = "";
+      currentUserPhone = "";
+      userPremium = false;
+      closeMaterial(); closeExam();
+    };
+  </script>
+</head>
+
+<body>
+<div class="container">
+  <h1>📚 Online Exam System</h1>
+  <p id="msg"></p>
+
+  <div id="authBox">
+    <div id="loginBox" class="auth-box">
+      <h2>Login</h2>
+      <input id="loginPhone" placeholder="Phone" type="text"><br>
+      <input id="loginPassword" type="password" placeholder="Password"><br>
+      <button onclick="login()">Login</button>
+      <p>Don't have an account?</p>
+      <button onclick="showRegister()">Register</button>
+    </div>
+    <div id="registerBox" class="auth-box" style="display:none;">
+      <h2>Register</h2>
+      <input id="regPhone" placeholder="Phone" type="text"><br>
+      <input id="regPassword" type="password" placeholder="Password"><br>
+      <button onclick="register()">Create Account</button>
+      <p>Already have account?</p>
+      <button onclick="showLogin()">Login</button>
+    </div>
+  </div>
+
+  <div id="examBox">
+    <div class="dashboard-header">
+      <button class="menu-btn" onclick="openMenuModal()">☰ Menu</button>
+      <h2>📖 Available Courses</h2>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <div id="coursesGrid" class="courses-grid">
+      <!-- All courses (same as before) -->
+      <div class="course-card" onclick="openCourseModal('Anthropology', '🧬')"><div class="course-icon">🧬</div><div class="course-info"><h3>Anthropology</h3><p>Study of human cultures</p><div class="infographic-fact">🌍 Over 7,000 distinct cultures</div></div></div>
+      <div class="course-card" onclick="openCourseModal('Emerging Technology', '💻')"><div class="course-icon">💻</div><div class="course-info"><h3>Emerging Technology</h3><p>AI, IoT, Blockchain</p><div class="infographic-fact">⚡ $1.5T market by 2030</div></div></div>
+      <div class="course-card" onclick="openCourseModal('Entrepreneurship', '🚀')"><div class="course-icon">🚀</div><div class="course-info"><h3>Entrepreneurship</h3><p>Business creation</p><div class="infographic-fact">📊 90% unicorns solve real problems</div></div></div>
+      <div class="course-card" onclick="openCourseModal('Applied Mathematics', '📐')"><div class="course-icon">📐</div><div class="course-info"><h3>Applied Mathematics</h3><p>Real-world math</p><div class="infographic-fact">🧮 Cryptography & climate models</div></div></div>
+      <div class="course-card" onclick="openCourseModal('Computer Programming', '⌨️')"><div class="course-icon">⌨️</div><div class="course-info"><h3>Computer Programming</h3><p>Learn coding</p><div class="infographic-fact">🐍 700+ languages</div></div></div>
+      <div class="course-card" onclick="openCourseModal('English', '📝')"><div class="course-icon">📝</div><div class="course-info"><h3>English</h3><p>Language skills</p><div class="infographic-fact">🗣️ 1.5B speakers</div></div></div>
+      <div class="course-card" onclick="openCourseModal('History of Ethiopia and the Horn', '🏛️')"><div class="course-icon">🏛️</div><div class="course-info"><h3>History of Ethiopia</h3><p>Regional heritage</p><div class="infographic-fact">👑 Ancient Aksum kingdom</div></div></div>
+      <div class="course-card" onclick="openCourseModal('Moral and Civic Education', '⚖️')"><div class="course-icon">⚖️</div><div class="course-info"><h3>Moral & Civic Edu</h3><p>Ethics & citizenship</p><div class="infographic-fact">🤝 Democratic participation</div></div></div>
+    </div>
+
+    <!-- Material Section -->
+    <div id="materialSection">
+      <div class="section-header">
+        <button class="back-btn" onclick="hideMaterialShowCourses()">← Back to Courses</button>
+        <h2 id="materialTitle">📚 Course Material</h2>
+        <button class="close-btn" onclick="closeMaterial()">✖ Close</button>
+      </div>
+      <div id="materialChapters"></div>
+    </div>
+
+    <!-- Exam Section -->
+    <div id="examSection">
+      <div class="section-header">
+        <button class="back-btn" onclick="hideExamShowCourses()">← Back to Courses</button>
+        <h2 id="examTitle">✏️ Exam</h2>
+        <button class="close-btn" onclick="closeExam()">✖ Close</button>
+      </div>
+      <div id="examChapters"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Menu Modal -->
+<div id="menuModal" class="modal-overlay">
+  <div class="modal-card">
+    <h3>Menu</h3>
+    <hr>
+    <h4>📞 Contact Owner</h4>
+    <p>Telegram: <strong id="telegramUser">@your_username</strong> (you can replace this)</p>
+    <hr>
+    <button onclick="openUnlockModal()">🔓 Unlock all materials & exams</button>
+    <br><br>
+    <button onclick="closeMenuModal()">Close</button>
+  </div>
+</div>
+
+<!-- Unlock Payment Modal -->
+<div id="unlockModal" class="modal-overlay">
+  <div class="modal-card">
+    <h3>💳 Unlock Premium (All Subjects)</h3>
+    <p><strong>Commercial Bank of Ethiopia</strong><br>Account Name: Abraham<br>Account Number: <span id="accNumber">100047736383838373</span> <button class="copy-btn" onclick="copyAccount()">Copy</button></p>
+    <p><strong>Telebirr</strong><br>Phone: 0985686008</p>
+    <p>After payment, upload your screenshot below. We will verify and unlock your account within 24h.</p>
+    <input type="file" id="paymentScreenshot" accept="image/*">
+    <button onclick="uploadPaymentProof()">Submit Payment Proof</button>
+    <p id="uploadStatus"></p>
+    <hr>
+    <button onclick="closeUnlockModal()">Close</button>
+  </div>
+</div>
+
+<script>
+  // ================= CONFIGURATION =================
+  const TELEGRAM_USERNAME = "@your_username"; // CHANGE THIS TO YOUR REAL TELEGRAM
+  document.getElementById("telegramUser").innerText = TELEGRAM_USERNAME;
+
+  let currentCourse = "";
+  let currentMaterialChapters = {};
+  let currentExamChapters = {};
+
+  // Sample material & exam content (Chapter1 free, others you will replace)
+  function getDefaultMaterial(course) {
+    return {
+      1: `📖 <strong>Chapter 1: Introduction to ${course}</strong><br>This is the free chapter. You can replace this text with your own material.`,
+      2: `🔒 <strong>Chapter 2: Advanced Topics</strong><br>This chapter is premium. Unlock to access full content.`,
+      3: `🔒 <strong>Chapter 3: Applications</strong><br>Premium content – unlock to view.`,
+      4: `🔒 <strong>Chapter 4: Case Studies</strong><br>Premium content – unlock to view.`,
+      5: `🔒 <strong>Chapter 5: Final Review</strong><br>Premium content – unlock to view.`
+    };
+  }
+  function getDefaultExam(course) {
+    return {
+      1: `<strong>Chapter 1 Exam (Free)</strong><br>1. What is the main focus of ${course}?<br>2. Give an example.<br><br><em>Replace with your real questions.</em>`,
+      2: `🔒 <strong>Chapter 2 Exam (Premium)</strong><br>Unlock to access this exam.`,
+      3: `🔒 <strong>Chapter 3 Exam (Premium)</strong><br>Unlock to access this exam.`,
+      4: `🔒 <strong>Chapter 4 Exam (Premium)</strong><br>Unlock to access this exam.`,
+      5: `🔒 <strong>Chapter 5 Exam (Premium)</strong><br>Unlock to access this exam.`
+    };
+  }
+
+  // Course modal functions (unchanged)
+  window.openCourseModal = function (courseName, icon) {
+    currentCourse = courseName;
+    document.getElementById("modalTitle").innerHTML = icon + " " + courseName;
+    document.getElementById("modalDescription").innerHTML = `Course: ${courseName}`;
+    document.getElementById("courseModal").style.display = "flex";
+  };
+  window.closeCourseModal = function () { document.getElementById("courseModal").style.display = "none"; };
+  window.handleMaterialClick = function () { closeCourseModal(); showMaterial(currentCourse); };
+  window.handleExamClick = function () { closeCourseModal(); showExam(currentCourse); };
+
+  // Show Material (hide courses, show material section)
+  window.showMaterial = function (course) {
+    document.getElementById("coursesGrid").style.display = "none";
+    document.getElementById("materialTitle").innerHTML = `📚 ${course} - Material`;
+    document.getElementById("materialSection").style.display = "block";
+    document.getElementById("examSection").style.display = "none";
+    renderMaterialChapters(course);
+  };
+  function renderMaterialChapters(course) {
+    const container = document.getElementById("materialChapters");
+    let materialData = getDefaultMaterial(course);
+    // You can later replace with your own data per course
+    let html = `<div class="chapter-tabs">`;
+    for (let i = 1; i <= 5; i++) {
+      let isLocked = (i > 1 && !userPremium);
+      html += `<div class="chapter-tab ${isLocked ? 'locked-chapter' : ''}" onclick="${isLocked ? 'alert(\"This chapter is premium. Unlock via Menu.\")' : `showMaterialChapter(${i}, '${course}')`}">Chapter ${i}</div>`;
+    }
+    html += `</div><div id="materialChapterContent" class="chapter-content">${materialData[1]}</div>`;
+    if (!userPremium) html += `<div class="premium-note">⭐ Chapter 1 is free. Chapters 2-5 require premium unlock. Click Menu → Unlock all materials & exams.</div>`;
+    container.innerHTML = html;
+    window.currentMaterialData = materialData;
+  }
+  window.showMaterialChapter = function (ch, course) {
+    if (ch > 1 && !userPremium) { alert("Premium required. Unlock via Menu."); return; }
+    document.getElementById("materialChapterContent").innerHTML = window.currentMaterialData[ch];
+  };
+
+  // Show Exam (hide courses, show exam section)
+  window.showExam = function (course) {
+    document.getElementById("coursesGrid").style.display = "none";
+    document.getElementById("examTitle").innerHTML = `✏️ ${course} - Exam`;
+    document.getElementById("examSection").style.display = "block";
+    document.getElementById("materialSection").style.display = "none";
+    renderExamChapters(course);
+  };
+  function renderExamChapters(course) {
+    const container = document.getElementById("examChapters");
+    let examData = getDefaultExam(course);
+    let html = `<div class="chapter-tabs">`;
+    for (let i = 1; i <= 5; i++) {
+      let isLocked = (i > 1 && !userPremium);
+      html += `<div class="chapter-tab ${isLocked ? 'locked-chapter' : ''}" onclick="${isLocked ? 'alert(\"Premium required. Unlock via Menu.\")' : `showExamChapter(${i}, '${course}')`}">Chapter ${i}</div>`;
+    }
+    html += `</div><div id="examChapterContent" class="chapter-content">${examData[1]}</div>`;
+    if (!userPremium) html += `<div class="premium-note">⭐ Chapter 1 is free. Chapters 2-5 require premium unlock. Click Menu → Unlock all materials & exams.</div>`;
+    container.innerHTML = html;
+    window.currentExamData = examData;
+  }
+  window.showExamChapter = function (ch, course) {
+    if (ch > 1 && !userPremium) { alert("Premium required. Unlock via Menu."); return; }
+    document.getElementById("examChapterContent").innerHTML = window.currentExamData[ch];
+  };
+
+  window.hideMaterialShowCourses = function () {
+    document.getElementById("materialSection").style.display = "none";
+    document.getElementById("coursesGrid").style.display = "grid";
+  };
+  window.hideExamShowCourses = function () {
+    document.getElementById("examSection").style.display 
