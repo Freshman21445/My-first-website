@@ -4,10 +4,10 @@
 <head>
   <title>Exam System</title>
 
-  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
+    import { getFirestore, collection, query, where, getDocs } 
+    from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAavkqPwNgzo3UASsz-feaQvTjobxwkj-s",
@@ -15,58 +15,55 @@
       projectId: "student-quiz-platform-9439a",
       storageBucket: "student-quiz-platform-9439a.firebasestorage.app",
       messagingSenderId: "815750551646",
-      appId: "1:815750551646:web:1c48edb729252bd667bccf",
-      measurementId: "G-57V5XGLMEZ"
+      appId: "1:815750551646:web:1c48edb729252bd667bccf"
     };
 
     const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
+    const db = getFirestore(app);
+
+    // LOGIN FUNCTION (phone + password)
+    window.login = async function () {
+      let phone = document.getElementById("phone").value;
+      let password = document.getElementById("password").value;
+
+      const q = query(
+        collection(db, "users"),
+        where("phone", "==", phone),
+        where("password", "==", password)
+      );
+
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        document.getElementById("msg").innerHTML = "Login success ✔";
+
+        // show exam after login
+        document.getElementById("examBox").style.display = "block";
+
+      } else {
+        document.getElementById("msg").innerHTML = "Wrong phone or password ❌";
+      }
+    };
+
   </script>
 
 </head>
 
 <body>
 
-<h2>Login / Register</h2>
+<h2>Login</h2>
 
-<input id="phone" placeholder="Phone number (+251...)">
+<input id="phone" placeholder="Phone (+251...)"><br><br>
+<input id="password" type="password" placeholder="Password"><br><br>
 
-<button onclick="login()">Send / Login</button>
+<button onclick="login()">Login</button>
 
 <p id="msg"></p>
 
-<script type="module">
-import { getFirestore, collection, getDocs } 
-from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
-
-const db = getFirestore();
-
-async function login(){
-  let phone = document.getElementById("phone").value;
-
-  const querySnapshot = await getDocs(collection(db, "users"));
-
-  let found = false;
-
-  querySnapshot.forEach((doc) => {
-    let data = doc.data();
-
-    if(data.phone === phone){
-      found = true;
-    }
-  });
-
-  if(found){
-    document.getElementById("msg").innerHTML = "Login success ✔";
-  } else {
-    document.getElementById("msg").innerHTML = "User not found ❌";
-  }
-}
-
-window.login = login;
-</script>
-
 <hr>
+
+<!-- EXAM AREA (hidden until login) -->
+<div id="examBox" style="display:none;">
 
 <h2>Online Exam</h2>
 
@@ -76,30 +73,20 @@ window.login = login;
 <script>
 const questions = [
   {
-    type: "tf",
     question: "Ethiopia is in Africa",
     answer: true,
-    explanation: "Correct. Ethiopia is located in East Africa."
-  },
-  {
-    type: "mcq",
-    question: "Capital of Ethiopia?",
-    options: ["Addis Ababa", "Nairobi", "Cairo", "Kampala"],
-    answer: "Addis Ababa",
-    explanation: "Addis Ababa is the capital city."
+    explanation: "Correct. Ethiopia is in East Africa."
   }
 ];
 
 function showQuestion(){
   let q = questions[0];
-  let html = "<h3>" + q.question + "</h3>";
 
-  html += `
+  document.getElementById("quiz").innerHTML = `
+    <h3>${q.question}</h3>
     <button onclick="check(true)">True</button>
     <button onclick="check(false)">False</button>
   `;
-
-  document.getElementById("quiz").innerHTML = html;
 }
 
 function check(ans){
@@ -116,6 +103,8 @@ function check(ans){
 
 showQuestion();
 </script>
+
+</div>
 
 </body>
 </html>
