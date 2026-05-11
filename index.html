@@ -35,15 +35,35 @@
 
 <p id="msg"></p>
 
-<script>
-function login(){
+<script type="module">
+import { getFirestore, collection, getDocs } 
+from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+const db = getFirestore();
+
+async function login(){
   let phone = document.getElementById("phone").value;
 
-  if(phone){
-    document.getElementById("msg").innerHTML =
-    "Next step: Firebase phone verification (we will add it)";
+  const querySnapshot = await getDocs(collection(db, "users"));
+
+  let found = false;
+
+  querySnapshot.forEach((doc) => {
+    let data = doc.data();
+
+    if(data.phone === phone){
+      found = true;
+    }
+  });
+
+  if(found){
+    document.getElementById("msg").innerHTML = "Login success ✔";
+  } else {
+    document.getElementById("msg").innerHTML = "User not found ❌";
   }
 }
+
+window.login = login;
 </script>
 
 <hr>
