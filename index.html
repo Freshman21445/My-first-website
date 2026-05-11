@@ -151,44 +151,63 @@
       align-items: center;
       margin-bottom: 30px;
       background: rgba(255, 255, 255, 0.9);
-      padding: 20px;
+      padding: 15px 20px;
       border-radius: 20px;
       backdrop-filter: blur(5px);
-      flex-wrap: wrap;
+      position: relative;
     }
 
-    .header-left {
-      display: flex;
-      gap: 15px;
+    /* Menu button & dropdown */
+    .menu-container {
+      position: relative;
+      display: inline-block;
     }
-
-    .header-left button {
-      padding: 8px 20px;
+    .menu-btn {
+      background: #2c3e50;
+      color: white;
       border: none;
+      padding: 10px 20px;
       border-radius: 30px;
       cursor: pointer;
+      font-size: 1.1em;
       font-weight: bold;
-      background: #3498db;
-      color: white;
       transition: 0.3s;
     }
-
-    .header-left button:last-child {
-      background: #e67e22;
+    .menu-btn:hover {
+      background: #1e2b38;
     }
-
-    .header-left button:hover {
-      opacity: 0.85;
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 50px;
+      left: 0;
+      background: white;
+      min-width: 180px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      z-index: 200;
+      overflow: hidden;
     }
-
-    .logout-btn {
-      padding: 8px 20px;
-      background: #e74c3c;
-      color: white;
+    .dropdown-menu button {
+      width: 100%;
+      padding: 12px 20px;
+      text-align: left;
       border: none;
-      border-radius: 30px;
+      background: white;
       cursor: pointer;
       font-size: 1em;
+      transition: 0.2s;
+      font-weight: 500;
+      border-bottom: 1px solid #eee;
+    }
+    .dropdown-menu button:last-child {
+      border-bottom: none;
+    }
+    .dropdown-menu button:hover {
+      background: #f1f1f1;
+    }
+    .show {
+      display: block;
     }
 
     .courses-grid {
@@ -429,6 +448,11 @@
       document.getElementById("msg").innerHTML = "";
       closeMaterial();
       closeExam();
+      // Clear inputs
+      document.getElementById("loginPhone").value = "";
+      document.getElementById("loginPassword").value = "";
+      document.getElementById("regPhone").value = "";
+      document.getElementById("regPassword").value = "";
     };
   </script>
 </head>
@@ -461,15 +485,19 @@
   <!-- DASHBOARD -->
   <div id="examBox">
     <div class="dashboard-header">
-      <div class="header-left">
-        <button id="contactOwnerBtn">📞 Contact Owner</button>
-        <button id="premiumBtn">⭐ Premium</button>
+      <div class="menu-container">
+        <button class="menu-btn" id="menuBtn">☰ Menu</button>
+        <div class="dropdown-menu" id="dropdownMenu">
+          <button id="menuPremium">⭐ Premium</button>
+          <button id="menuContact">📞 Contact Owner</button>
+          <button id="menuLogout">🚪 Logout</button>
+        </div>
       </div>
-      <button class="logout-btn" onclick="logout()">Logout</button>
+      <!-- No logout button here anymore, it's inside menu -->
     </div>
 
     <div class="courses-grid" id="coursesGrid">
-      <!-- course cards same as original -->
+      <!-- Course Cards -->
       <div class="course-card" onclick="openCourseModal('Anthropology', '🧬')"><div class="course-icon">🧬</div><div class="course-info"><h3>Anthropology</h3><p>Study of human cultures</p><div class="infographic-fact">🌍 Over 7,000 distinct cultures exist.</div></div></div>
       <div class="course-card" onclick="openCourseModal('Emerging Technology', '💻')"><div class="course-icon">💻</div><div class="course-info"><h3>Emerging Technology</h3><p>AI, IoT, Blockchain</p><div class="infographic-fact">⚡ AI market to hit $1.5 trillion by 2030.</div></div></div>
       <div class="course-card" onclick="openCourseModal('Entrepreneurship', '🚀')"><div class="course-icon">🚀</div><div class="course-info"><h3>Entrepreneurship</h3><p>Business creation</p><div class="infographic-fact">📊 90% of unicorns solve real problems.</div></div></div>
@@ -480,7 +508,7 @@
       <div class="course-card" onclick="openCourseModal('Moral and Civic Education', '⚖️')"><div class="course-icon">⚖️</div><div class="course-info"><h3>Moral and Civic Education</h3><p>Ethics & citizenship</p><div class="infographic-fact">🤝 Democratic participation.</div></div></div>
     </div>
 
-    <!-- Contact Owner & Premium Sections (hidden initially) -->
+    <!-- Contact Owner Section -->
     <div id="contactOwnerSectionWrapper" class="hidden" style="margin-top:30px; padding:20px; background:rgba(255,255,255,0.96); border-radius:20px;">
       <h2>📞 Contact Owner</h2>
       <p>Email: owner@example.com</p>
@@ -489,6 +517,7 @@
       <button onclick="document.getElementById('contactOwnerSectionWrapper').classList.add('hidden')" style="margin-top:15px; padding:8px 20px;">Close</button>
     </div>
 
+    <!-- Premium Section -->
     <div id="premiumFeatureWrapper" class="hidden" style="margin-top:30px; padding:20px; background:rgba(255,255,255,0.96); border-radius:20px;">
       <h2>⭐ Premium Access</h2>
       <div class="payment-method">
@@ -543,7 +572,7 @@
 </div>
 
 <script>
-  // Course data
+  // Course materials data (chapter 1 free, 2-5 premium)
   const coursesMaterials = {
     'Anthropology': { 1: '📘 Free material: Introduction to Anthropology – human evolution.', 2: '🔒 Premium: Cultural relativism case studies.', 3: '🔒 Premium: Archaeological methods.', 4: '🔒 Premium: Linguistic anthropology.', 5: '🔒 Premium: Applied anthropology.' },
     'Emerging Technology': { 1: '🤖 Free: What is AI?', 2: '🔒 Premium: Blockchain explained.', 3: '🔒 Premium: IoT networks.', 4: '🔒 Premium: Quantum computing.', 5: '🔒 Premium: Future trends.' },
@@ -566,21 +595,6 @@
   };
 
   let currentCourse = '';
-  let currentMode = ''; // 'material' or 'exam'
+  let currentMode = '';
 
-  window.openCourseModal = function (courseName, icon) {
-    currentCourse = courseName;
-    document.getElementById('modalTitle').innerHTML = icon + ' ' + courseName;
-    document.getElementById('modalDescription').innerHTML = courseDescriptions[courseName];
-    document.getElementById('courseModal').style.display = 'flex';
-  };
-  window.closeCourseModal = function () { document.getElementById('courseModal').style.display = 'none'; };
-  window.handleMaterialClick = function () { closeCourseModal(); showMaterial(currentCourse); };
-  window.handleExamClick = function () { closeCourseModal(); showExam(currentCourse); };
-
-  function renderChapters(course, mode) {
-    const container = document.getElementById(mode === 'material' ? 'materialChaptersList' : 'examChaptersList');
-    const contentDiv = document.getElementById(mode === 'material' ? 'materialChapterContent' : 'examChapterContent');
-    container.innerHTML = '';
-    contentDiv.innerHTML = '';
-    for (let i = 1; i <= 5; 
+  window.openCourseModa
