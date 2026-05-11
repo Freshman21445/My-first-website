@@ -1,10 +1,86 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>My First Website</title>
+  <title>Exam System</title>
 </head>
+
 <body>
-  <h1>Hello World</h1>
-  <p>This is my first website.</p>
+
+<h2>Online Exam</h2>
+
+<div id="quiz"></div>
+
+<p id="explanation"></p>
+
+<script>
+
+const questions = [
+  {
+    type: "tf",
+    question: "Ethiopia is in Africa",
+    answer: true,
+    explanation: "Correct. Ethiopia is located in East Africa.",
+    mode: "instant"
+  },
+  {
+    type: "mcq",
+    question: "Capital of Ethiopia?",
+    options: ["Addis Ababa", "Nairobi", "Cairo", "Kampala"],
+    answer: "Addis Ababa",
+    explanation: "Addis Ababa is the capital city.",
+    mode: "instant"
+  }
+];
+
+let current = 0;
+
+function showQuestion(){
+  let q = questions[current];
+  let html = "<h3>" + q.question + "</h3>";
+
+  if(q.type == "tf"){
+    html += `
+      <button onclick="check(true)">True</button>
+      <button onclick="check(false)">False</button>
+    `;
+  }
+
+  if(q.type == "mcq"){
+    q.options.forEach(opt => {
+      html += `<button onclick="checkMCQ('${opt}')">${opt}</button><br>`;
+    });
+  }
+
+  document.getElementById("quiz").innerHTML = html;
+}
+
+function check(ans){
+  let q = questions[current];
+
+  if(ans == q.answer){
+    document.getElementById("explanation").innerHTML =
+    "✔ Correct - " + q.explanation;
+  } else {
+    document.getElementById("explanation").innerHTML =
+    "❌ Wrong - " + q.explanation;
+  }
+}
+
+function checkMCQ(ans){
+  let q = questions[current];
+
+  if(ans == q.answer){
+    document.getElementById("explanation").innerHTML =
+    "✔ Correct - " + q.explanation;
+  } else {
+    document.getElementById("explanation").innerHTML =
+    "❌ Wrong - " + q.explanation;
+  }
+}
+
+showQuestion();
+
+</script>
+
 </body>
 </html>
