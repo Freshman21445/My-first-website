@@ -1,32 +1,31 @@
 <!DOCTYPE html>
 <html>
-<<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyAavkqPwNgzo3UASsz-feaQvTjobxwkj-s",
-    authDomain: "student-quiz-platform-9439a.firebaseapp.com",
-    projectId: "student-quiz-platform-9439a",
-    storageBucket: "student-quiz-platform-9439a.firebasestorage.app",
-    messagingSenderId: "815750551646",
-    appId: "1:815750551646:web:1c48edb729252bd667bccf",
-    measurementId: "G-57V5XGLMEZ"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>>
+<head>
   <title>Exam System</title>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAavkqPwNgzo3UASsz-feaQvTjobxwkj-s",
+      authDomain: "student-quiz-platform-9439a.firebaseapp.com",
+      projectId: "student-quiz-platform-9439a",
+      storageBucket: "student-quiz-platform-9439a.firebasestorage.app",
+      messagingSenderId: "815750551646",
+      appId: "1:815750551646:web:1c48edb729252bd667bccf",
+      measurementId: "G-57V5XGLMEZ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+  </script>
+
 </head>
 
-<<body>
+<body>
 
 <h2>Login / Register</h2>
 
@@ -42,75 +41,49 @@ function login(){
 
   if(phone){
     document.getElementById("msg").innerHTML =
-    "Verification step will be added next (Firebase)";
+    "Next step: Firebase phone verification (we will add it)";
   }
 }
 </script>
 
-</body>>
+<hr>
 
 <h2>Online Exam</h2>
 
 <div id="quiz"></div>
-
 <p id="explanation"></p>
 
 <script>
-
 const questions = [
   {
     type: "tf",
     question: "Ethiopia is in Africa",
     answer: true,
-    explanation: "Correct. Ethiopia is located in East Africa.",
-    mode: "instant"
+    explanation: "Correct. Ethiopia is located in East Africa."
   },
   {
     type: "mcq",
     question: "Capital of Ethiopia?",
     options: ["Addis Ababa", "Nairobi", "Cairo", "Kampala"],
     answer: "Addis Ababa",
-    explanation: "Addis Ababa is the capital city.",
-    mode: "instant"
+    explanation: "Addis Ababa is the capital city."
   }
 ];
 
-let current = 0;
-
 function showQuestion(){
-  let q = questions[current];
+  let q = questions[0];
   let html = "<h3>" + q.question + "</h3>";
 
-  if(q.type == "tf"){
-    html += `
-      <button onclick="check(true)">True</button>
-      <button onclick="check(false)">False</button>
-    `;
-  }
-
-  if(q.type == "mcq"){
-    q.options.forEach(opt => {
-      html += `<button onclick="checkMCQ('${opt}')">${opt}</button><br>`;
-    });
-  }
+  html += `
+    <button onclick="check(true)">True</button>
+    <button onclick="check(false)">False</button>
+  `;
 
   document.getElementById("quiz").innerHTML = html;
 }
 
 function check(ans){
-  let q = questions[current];
-
-  if(ans == q.answer){
-    document.getElementById("explanation").innerHTML =
-    "✔ Correct - " + q.explanation;
-  } else {
-    document.getElementById("explanation").innerHTML =
-    "❌ Wrong - " + q.explanation;
-  }
-}
-
-function checkMCQ(ans){
-  let q = questions[current];
+  let q = questions[0];
 
   if(ans == q.answer){
     document.getElementById("explanation").innerHTML =
@@ -122,7 +95,6 @@ function checkMCQ(ans){
 }
 
 showQuestion();
-
 </script>
 
 </body>
