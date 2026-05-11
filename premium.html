@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premium Page</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f9f9f9; }
+  .menu { background: #007bff; color: white; padding: 10px; display: flex; gap: 20px; }
+  .menu a { color: white; text-decoration: none; cursor: pointer; }
+  .container { padding: 20px; }
+  .hidden { display: none; }
+  .payment-method { background: #f0f0f0; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+  .copy-btn { background: #007bff; color: white; border: none; padding: 5px 10px; margin-left: 10px; cursor: pointer; border-radius: 3px; }
+  .approval-btn { background: #28a745; color: white; border: none; padding: 10px 15px; cursor: pointer; margin-top: 20px; border-radius: 5px; }
+</style>
+</head>
+<body>
+
+<!-- Menu -->
+<div class="menu">
+  <a id="contactOwnerMenu">Contact Owner</a>
+  <a id="premiumMenu">Premium</a>
+</div>
+
+<!-- Content Container -->
+<div class="container">
+
+  <!-- Contact Owner Section -->
+  <div id="contactOwnerSection" class="hidden">
+    <h2>Contact Owner</h2>
+    <p>You can contact the owner here: (placeholder info)</p>
+  </div>
+
+  <!-- Premium Section -->
+  <div id="premiumSection" class="hidden">
+    <h2>Premium Payment Methods</h2>
+
+    <!-- Payment Method 1 -->
+    <div class="payment-method">
+      <h3>Commercial Bank of Ethiopia</h3>
+      <p>Name: Abraham</p>
+      <p>Account: <span id="bankAccount">1000383747483838</span>
+      <button class="copy-btn" onclick="copyText('bankAccount')">Copy</button></p>
+    </div>
+
+    <!-- Payment Method 2 -->
+    <div class="payment-method">
+      <h3>Telebirr</h3>
+      <p>Phone: <span id="telebirrNumber">0985686008</span>
+      <button class="copy-btn" onclick="copyText('telebirrNumber')">Copy</button></p>
+    </div>
+
+    <!-- Instructions -->
+    <p>Send your payment screenshot and your phone number on Telegram: <strong>@YourTelegramUsernameHere</strong></p>
+    <p>(Leave space here for screenshot link later)</p>
+
+    <!-- Approval Request Button -->
+    <button class="approval-btn" onclick="sendApprovalRequest()">Approval Request</button>
+  </div>
+
+</div>
+
+<script>
+  // Menu navigation
+  const contactOwnerMenu = document.getElementById('contactOwnerMenu');
+  const premiumMenu = document.getElementById('premiumMenu');
+  const contactOwnerSection = document.getElementById('contactOwnerSection');
+  const premiumSection = document.getElementById('premiumSection');
+
+  contactOwnerMenu.addEventListener('click', () => {
+    contactOwnerSection.classList.remove('hidden');
+    premiumSection.classList.add('hidden');
+  });
+
+  premiumMenu.addEventListener('click', () => {
+    premiumSection.classList.remove('hidden');
+    contactOwnerSection.classList.add('hidden');
+  });
+
+  // Copy to clipboard function
+  function copyText(id) {
+    const text = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      alert("Copied: " + text);
+    });
+  }
+
+  // Approval request function (placeholder)
+  function sendApprovalRequest() {
+    alert("Approval request sent! (This will save to Firebase in real system)");
+    // TODO: Add Firebase code here to save phone number + request
+  }
+</script>
+
+</body>
+</html>
