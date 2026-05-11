@@ -135,11 +135,13 @@
       background: #c0392b;
     }
 
+    /* COURSES ROW */
     .courses-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 25px;
       margin-top: 30px;
+      margin-bottom: 40px;
     }
 
     .course-card {
@@ -148,8 +150,9 @@
       padding: 25px;
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
       transition: transform 0.3s, box-shadow 0.3s;
-      cursor: pointer;
-      text-align: center;
+      display: flex;
+      align-items: center;
+      gap: 20px;
     }
 
     .course-card:hover {
@@ -159,35 +162,195 @@
 
     .course-icon {
       font-size: 3em;
-      margin-bottom: 15px;
+      flex-shrink: 0;
+    }
+
+    .course-info {
+      flex: 1;
+      text-align: left;
     }
 
     .course-card h3 {
       color: #333;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
       font-size: 1.3em;
     }
 
     .course-card p {
       color: #666;
       font-size: 0.9em;
-      margin-bottom: 15px;
+      margin-bottom: 0;
     }
 
-    .start-btn {
-      background: #667eea;
-      color: white;
+    .course-buttons {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .material-btn,
+    .exam-btn {
+      padding: 10px 15px;
       border: none;
-      padding: 10px 20px;
       border-radius: 5px;
       cursor: pointer;
       font-size: 0.9em;
       transition: background 0.3s;
-      width: 100%;
+      white-space: nowrap;
     }
 
-    .start-btn:hover {
-      background: #764ba2;
+    .material-btn {
+      background: #3498db;
+      color: white;
+    }
+
+    .material-btn:hover {
+      background: #2980b9;
+    }
+
+    .exam-btn {
+      background: #27ae60;
+      color: white;
+    }
+
+    .exam-btn:hover {
+      background: #229954;
+    }
+
+    /* MATERIAL SECTION */
+    #materialSection {
+      display: none;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      margin-bottom: 40px;
+    }
+
+    .material-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .material-header h2 {
+      color: #333;
+      font-size: 1.8em;
+    }
+
+    .close-material-btn {
+      padding: 10px 20px;
+      background: #95a5a6;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    .close-material-btn:hover {
+      background: #7f8c8d;
+    }
+
+    .material-content {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 5px;
+      line-height: 1.8;
+      color: #333;
+    }
+
+    /* EXAM SECTION */
+    #examSection {
+      display: none;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .exam-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .exam-header h2 {
+      color: #333;
+      font-size: 1.8em;
+    }
+
+    .close-exam-btn {
+      padding: 10px 20px;
+      background: #95a5a6;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    .close-exam-btn:hover {
+      background: #7f8c8d;
+    }
+
+    .exam-content {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 5px;
+    }
+
+    .question {
+      margin-bottom: 30px;
+      padding: 15px;
+      background: white;
+      border-left: 4px solid #667eea;
+      border-radius: 5px;
+    }
+
+    .question-text {
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .option input[type="radio"] {
+      cursor: pointer;
+    }
+
+    .option label {
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .submit-exam-btn {
+      padding: 12px 30px;
+      background: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+      margin-top: 20px;
+      transition: background 0.3s;
+    }
+
+    .submit-exam-btn:hover {
+      background: #229954;
     }
   </style>
 
@@ -269,6 +432,8 @@
       document.getElementById("loginPassword").value = "";
       document.getElementById("regPhone").value = "";
       document.getElementById("regPassword").value = "";
+      closeMaterial();
+      closeExam();
     };
 
   </script>
@@ -316,80 +481,256 @@
       <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
 
+    <!-- ROW 1: COURSES -->
     <div class="courses-grid">
       <!-- Anthropology -->
       <div class="course-card">
         <div class="course-icon">🧬</div>
-        <h3>Anthropology</h3>
-        <p>Study of human cultures and societies</p>
-        <button class="start-btn" onclick="startCourse('Anthropology')">Start Course</button>
+        <div class="course-info">
+          <h3>Anthropology</h3>
+          <p>Study of human cultures and societies</p>
+        </div>
+        <div class="course-buttons">
+          <button class="material-btn" onclick="showMaterial('Anthropology')">📖 Or</button>
+          <button class="exam-btn" onclick="showExam('Anthropology')">✏️ Exam</button>
+        </div>
       </div>
 
       <!-- Emerging Technology -->
       <div class="course-card">
         <div class="course-icon">💻</div>
-        <h3>Emerging Technology</h3>
-        <p>Latest developments in technology</p>
-        <button class="start-btn" onclick="startCourse('Emerging Technology')">Start Course</button>
+        <div class="course-info">
+          <h3>Emerging Technology</h3>
+          <p>Latest developments in technology</p>
+        </div>
+        <div class="course-buttons">
+          <button class="material-btn" onclick="showMaterial('Emerging Technology')">📖 Or</button>
+          <button class="exam-btn" onclick="showExam('Emerging Technology')">✏️ Exam</button>
+        </div>
       </div>
 
       <!-- Entrepreneurship -->
       <div class="course-card">
         <div class="course-icon">🚀</div>
-        <h3>Entrepreneurship</h3>
-        <p>Learn business creation skills</p>
-        <button class="start-btn" onclick="startCourse('Entrepreneurship')">Start Course</button>
+        <div class="course-info">
+          <h3>Entrepreneurship</h3>
+          <p>Learn business creation skills</p>
+        </div>
+        <div class="course-buttons">
+          <button class="material-btn" onclick="showMaterial('Entrepreneurship')">📖 Or</button>
+          <button class="exam-btn" onclick="showExam('Entrepreneurship')">✏️ Exam</button>
+        </div>
       </div>
 
       <!-- Applied Mathematics -->
       <div class="course-card">
         <div class="course-icon">📐</div>
-        <h3>Applied Mathematics</h3>
-        <p>Mathematics in real-world applications</p>
-        <button class="start-btn" onclick="startCourse('Applied Mathematics')">Start Course</button>
+        <div class="course-info">
+          <h3>Applied Mathematics</h3>
+          <p>Mathematics in real-world applications</p>
+        </div>
+        <div class="course-buttons">
+          <button class="material-btn" onclick="showMaterial('Applied Mathematics')">📖 Or</button>
+          <button class="exam-btn" onclick="showExam('Applied Mathematics')">✏️ Exam</button>
+        </div>
       </div>
 
       <!-- Computer Programming -->
       <div class="course-card">
         <div class="course-icon">⌨️</div>
-        <h3>Computer Programming</h3>
-        <p>Learn coding and software development</p>
-        <button class="start-btn" onclick="startCourse('Computer Programming')">Start Course</button>
+        <div class="course-info">
+          <h3>Computer Programming</h3>
+          <p>Learn coding and software development</p>
+        </div>
+        <div class="course-buttons">
+          <button class="material-btn" onclick="showMaterial('Computer Programming')">📖 Or</button>
+          <button class="exam-btn" onclick="showExam('Computer Programming')">✏️ Exam</button>
+        </div>
       </div>
 
       <!-- English -->
       <div class="course-card">
         <div class="course-icon">📝</div>
-        <h3>English</h3>
-        <p>Language and communication skills</p>
-        <button class="start-btn" onclick="startCourse('English')">Start Course</button>
+        <div class="course-info">
+          <h3>English</h3>
+          <p>Language and communication skills</p>
+        </div>
+        <div class="course-buttons">
+          <button class="material-btn" onclick="showMaterial('English')">📖 Or</button>
+          <button class="exam-btn" onclick="showExam('English')">✏️ Exam</button>
+        </div>
       </div>
 
       <!-- History of Ethiopia and the Horn -->
       <div class="course-card">
         <div class="course-icon">🏛️</div>
-        <h3>History of Ethiopia and the Horn</h3>
-        <p>Regional history and heritage</p>
-        <button class="start-btn" onclick="startCourse('History of Ethiopia and the Horn')">Start Course</button>
+        <div class="course-info">
+          <h3>History of Ethiopia and the Horn</h3>
+          <p>Regional history and heritage</p>
+        </div>
+        <div class="course-buttons">
+          <button class="material-btn" onclick="showMaterial('History of Ethiopia and the Horn')">📖 Or</button>
+          <button class="exam-btn" onclick="showExam('History of Ethiopia and the Horn')">✏️ Exam</button>
+        </div>
       </div>
 
       <!-- Moral and Civic Education -->
       <div class="course-card">
         <div class="course-icon">⚖️</div>
-        <h3>Moral and Civic Education</h3>
-        <p>Ethics and citizenship values</p>
-        <button class="start-btn" onclick="startCourse('Moral and Civic Education')">Start Course</button>
+        <div class="course-info">
+          <h3>Moral and Civic Education</h3>
+          <p>Ethics and citizenship values</p>
+        </div>
+        <div class="course-buttons">
+          <button class="material-btn" onclick="showMaterial('Moral and Civic Education')">📖 Or</button>
+          <button class="exam-btn" onclick="showExam('Moral and Civic Education')">✏️ Exam</button>
+        </div>
       </div>
     </div>
+
+    <!-- ROW 2: MATERIAL SECTION -->
+    <div id="materialSection">
+      <div class="material-header">
+        <h2 id="materialTitle">📚 Course Material</h2>
+        <button class="close-material-btn" onclick="closeMaterial()">Close</button>
+      </div>
+      <div id="materialContent" class="material-content">
+        <!-- Material will be loaded here -->
+      </div>
+    </div>
+
+    <!-- ROW 3: EXAM SECTION -->
+    <div id="examSection">
+      <div class="exam-header">
+        <h2 id="examTitle">✏️ Exam</h2>
+        <button class="close-exam-btn" onclick="closeExam()">Close</button>
+      </div>
+      <div id="examContent" class="exam-content">
+        <!-- Exam will be loaded here -->
+      </div>
+    </div>
+
   </div>
 
 </div>
 
 <script>
-  // Start course function
-  window.startCourse = function (courseName) {
-    alert("Starting: " + courseName + "\n\nCourse content coming soon!");
-    // You can add exam logic here later
+  // Course materials data
+  const coursesMaterials = {
+    'Anthropology': 'Anthropology is the study of human societies, cultures, and their behaviors. Topics include: Cultural practices, Social structures, Evolution of human societies, and Ethnographic research methods.',
+    'Emerging Technology': 'Emerging Technology covers the latest innovations including: Artificial Intelligence, Machine Learning, Blockchain, Internet of Things (IoT), Cloud Computing, and Quantum Computing.',
+    'Entrepreneurship': 'Entrepreneurship teaches business creation and management: Business planning, Market analysis, Financial management, Risk assessment, and Scaling strategies.',
+    'Applied Mathematics': 'Applied Mathematics includes: Calculus, Linear Algebra, Differential Equations, Statistics, and their applications in engineering and science.',
+    'Computer Programming': 'Computer Programming fundamentals: Variables and data types, Control structures, Functions, Object-oriented programming, and Data structures.',
+    'English': 'English language skills: Grammar and syntax, Vocabulary development, Reading comprehension, Writing skills, and Communication techniques.',
+    'History of Ethiopia and the Horn': 'History covering: Ancient kingdoms, Colonial period, Medieval era, Modern political developments, and Cultural heritage of the region.',
+    'Moral and Civic Education': 'Values and ethics: Citizenship responsibilities, Democratic principles, Human rights, Social responsibility, and ethical decision-making.'
+  };
+
+  // Show material section
+  window.showMaterial = function (courseName) {
+    document.getElementById('materialTitle').innerHTML = '📚 ' + courseName + ' - Material';
+    document.getElementById('materialContent').innerHTML = coursesMaterials[courseName] || 'No material available';
+    document.getElementById('materialSection').style.display = 'block';
+    document.getElementById('examSection').style.display = 'none';
+    window.scrollTo(0, document.getElementById('materialSection').offsetTop);
+  };
+
+  // Close material section
+  window.closeMaterial = function () {
+    document.getElementById('materialSection').style.display = 'none';
+  };
+
+  // Show exam section
+  window.showExam = function (courseName) {
+    document.getElementById('examTitle').innerHTML = '✏️ ' + courseName + ' - Exam';
+    
+    // Sample exam questions
+    const examHTML = `
+      <div class="question">
+        <div class="question-text">1. What is the main focus of ${courseName}?</div>
+        <div class="options">
+          <div class="option">
+            <input type="radio" name="q1" value="a">
+            <label>Option A</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q1" value="b">
+            <label>Option B</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q1" value="c">
+            <label>Option C</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q1" value="d">
+            <label>Option D</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="question">
+        <div class="question-text">2. Which of the following is a key concept in ${courseName}?</div>
+        <div class="options">
+          <div class="option">
+            <input type="radio" name="q2" value="a">
+            <label>Option A</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q2" value="b">
+            <label>Option B</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q2" value="c">
+            <label>Option C</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q2" value="d">
+            <label>Option D</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="question">
+        <div class="question-text">3. What is an important application of ${courseName}?</div>
+        <div class="options">
+          <div class="option">
+            <input type="radio" name="q3" value="a">
+            <label>Option A</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q3" value="b">
+            <label>Option B</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q3" value="c">
+            <label>Option C</label>
+          </div>
+          <div class="option">
+            <input type="radio" name="q3" value="d">
+            <label>Option D</label>
+          </div>
+        </div>
+      </div>
+
+      <button class="submit-exam-btn" onclick="submitExam('${courseName}')">Submit Exam</button>
+    `;
+
+    document.getElementById('examContent').innerHTML = examHTML;
+    document.getElementById('examSection').style.display = 'block';
+    document.getElementById('materialSection').style.display = 'none';
+    window.scrollTo(0, document.getElementById('examSection').offsetTop);
+  };
+
+  // Close exam section
+  window.closeExam = function () {
+    document.getElementById('examSection').style.display = 'none';
+  };
+
+  // Submit exam
+  window.submitExam = function (courseName) {
+    alert('Exam submitted for ' + courseName + '!\n\nThank you for completing the exam.');
+    closeExam();
   };
 </script>
 
