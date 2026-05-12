@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Online Exam System</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <style>
+    /* ══ RESET & BASE ══ */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html,body { height:100%; width:100%; overflow-x:hidden; font-family:'Segoe UI',Arial,sans-serif; }
+
+    /* ══ PAGE SWITCHING ══ */
+    .page { display:none; }
+    .page.active { display:block; }
+
+    /* ═══════════════════════════════════════
+       PAGE 1 — STUDENT APP (Login + Dashboard)
+    ═══════════════════════════════════════ */
+    #page-app {
+      background-image:url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2070&auto=format');
+      background-size:cover; background-position:center top;
+      background-repeat:no-repeat; background-attachment:fixed;
+      min-height:100vh; overflow-y:auto; position:relative;
+    }
+    #page-app::before {
+      content:""; position:fixed; top:0; left:0;
+      width:100%; height:100%; background:rgba(0,0,0,0.58); z-index:0;
+    }
+    .app-bg-study {
+      background-image:url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format') !important;
+    }
+    .container { position:relative; z-index:1; max-width:1200px; margin:0 auto; padding:20px; min-height:100vh; display:flex; flex-direction:column; }
+    #topSection { text-align:center; padding:10px 0 4px; }
+    h1 { text-align:center; color:white; margin-bottom:12px; font-size:2.7em; text-shadow:0 2px 16px rgba(0,0,0,0.9); padding-top:14px; letter-spacing:1.5px; font-weight:800; }
+    #msg { text-align:center; font-size:0.97em; margin-bottom:16px; padding:8px 28px; border-radius:30px; min-height:20px; color:white; font-weight:600; background:rgba(255,255,255,0.15); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.25); display:inline-block; }
+
+    /* AUTH */
+    #authBox { display:flex; justify-content:center; align-items:center; flex:1; padding:20px 0; }
+    .auth-box { background:rgba(255,255,255,0.1); backdrop-filter:blur(28px); padding:46px 40px; border-radius:28px; box-shadow:0 24px 64px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.28); width:100%; max-width:440px; border:1px solid rgba(255,255,255,0.2); }
+    .auth-box h2 { margin-bottom:26px; color:white; text-align:center; font-size:1.6em; font-weight:800; text-shadow:0 2px 10px rgba(0,0,0,0.5); }
+    .auth-box input { width:100%; padding:15px 20px; margin-bottom:14px; border:1.5px solid rgba(255,255,255,0.35); border-radius:30px; font-size:1em; background:rgba(255,255,255,0.18); color:white; outline:none; transition:all 0.3s; }
+    .auth-box input::placeholder { color:rgba(255,255,255,0.6); }
+    .auth-box input:focus { border-color:rgba(255,152,0,0.9); background:rgba(255,255,255,0.26); box-shadow:0 0 0 3px rgba(255,152,0,0.25); }
+    .auth-box button { width:100%; padding:14px; background:linear-gradient(135deg,#ff9800,#f39c12); color:white; border:none; border-radius:30px; font-size:1.05em; cursor:pointer; margin-bottom:12px; font-weight:800; transition:all 0.3s; box-shadow:0 6px 22px rgba(255,152,0,0.5); }
+    .auth-box button:hover { background:linear-gradient(135deg,#e68900,#e67e22); transform:translateY(-2px); box-shadow:0 10px 30px rgba(255,152,0,0.55); }
+    .auth-box p { text-align:center; margin:14px 0 8px; color:rgba(255,255,255,0.78); font-size:0.93em; }
+    .stream-select { margin:4px 0 16px; }
+    .stream-select-lbl { color:rgba(255,255,255,0.85); font-size:0.9em; font-weight:700; margin-bottom:10px; display:block; text-align:center; }
+    .stream-opts { display:flex; gap:10px; }
+    .stream-opt { flex:1; }
+    .stream-opt input { display:none; }
+    .stream-opt-box { display:block; padding:12px 10px; border-radius:16px; cursor:pointer; border:2px solid rgba(255,255,255,0.25); text-align:center; background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.8); font-size:0.85em; font-weight:700; transition:all 0.3s; line-height:1.4; }
+    .stream-opt-box .s-icon { font-size:1.5em; display:block; margin-bottom:4px; }
+    .stream-opt input:checked + .stream-opt-box { background:rgba(255,152,0,0.35); border-color:#ff9800; color:white; box-shadow:0 0 0 3px rgba(255,152,0,0.3); }
+
+    /* APP BOX */
+    #appBox { display:none; width:100%; }
+
+    /* DASHBOARD HEADER */
+    .dashboard-header { display:flex; align-items:center; gap:14px; margin-bottom:22px; background:rgba(255,255,255,0.97); padding:13px 20px; border-radius:20px; box-shadow:0 8px 28px rgba(0,0,0,0.18); }
+    .menu-btn { background:linear-gradient(135deg,#1e3c72,#2a5298); color:white; border:none; padding:11px 20px; border-radius:30px; cursor:pointer; font-size:0.97em; font-weight:800; transition:0.3s; box-shadow:0 4px 14px rgba(30,60,114,0.45); white-space:nowrap; flex-shrink:0; }
+    .menu-btn:hover { background:linear-gradient(135deg,#162d5e,#1e3c72); transform:translateY(-2px); }
+    .gpa-btn { background:linear-gradient(135deg,#00b894,#00cec9); color:white; border:none; padding:11px 20px; border-radius:30px; cursor:pointer; font-size:0.97em; font-weight:800; transition:0.3s; box-shadow:0 4px 14px rgba(0,184,148,0.45); white-space:nowrap; flex-shrink:0; margin-left:auto; }
+    .gpa-btn:hover { background:linear-gradient(135deg,#00916e,#00b09b); transform:translateY(-2px); }
+    .user-info { display:flex; align-items:center; gap:12px; }
+    .user-profile { background:linear-gradient(135deg,#ff9800,#f39c12); color:white; width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.25em; box-shadow:0 4px 14px rgba(255,152,0,0.5); flex-shrink:0; }
+    .user-details p { margin:0; font-size:0.87em; color:#666; }
+    .user-details .phone { font-weight:800; color:#1e3c72; font-size:0.97em; }
+    .user-details .status { font-size:0.77em; color:#ff9800; font-weight:700; }
+
+    /* HERO */
+    .welcome-hero { background:linear-gradient(135deg,rgba(15,32,80,0.92),rgba(30,60,114,0.85)); backdrop-filter:blur(18px); border-radius:24px; padding:32px 30px; margin-bottom:24px; border:1px solid rgba(255,255,255,0.14); box-shadow:0 16px 48px rgba(0,0,0,0.35); position:relative; overflow:hidden; }
+    .welcome-hero::before { content:""; position:absolute; top:-60px; right:-60px; width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,0.05); }
+    .welcome-hero::after  { content:""; position:absolute; bottom:-40px; left:-40px; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,0.04); }
+    .hero-top { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:18px; position:relative; z-index:1; }
+    .hero-greeting h2 { color:white; font-size:1.85em; font-weight:800; margin-bottom:6px; text-shadow:0 2px 10px rgba(0,0,0,0.4); line-height:1.2; }
+    .hero-greeting p { color:rgba(255,255,255,0.78); font-size:0.97em; max-width:500px; line-height:1.65; margin-bottom:12px; }
+    .stream-badge { display:inline-flex; align-items:center; gap:7px; padding:7px 18px; border-radius:30px; font-size:0.87em; font-weight:800; border:1.5px solid rgba(255,255,255,0.3); margin-bottom:10px; }
+    .stream-badge.ns { background:rgba(0,184,148,0.25); color:#00ffd5; border-color:rgba(0,184,148,0.4); }
+    .stream-badge.ss { background:rgba(9,132,227,0.25); color:#74b9ff; border-color:rgba(9,132,227,0.4); }
+    .hero-quote { background:rgba(255,255,255,0.08); border-radius:14px; padding:14px 18px; border-left:4px solid #ffd700; color:rgba(255,255,255,0.82); font-size:0.88em; font-style:italic; line-height:1.6; position:relative; z-index:1; margin-top:14px; }
+    .hero-cards { display:flex; gap:12px; flex-wrap:wrap; position:relative; z-index:1; }
+    .hero-card { background:rgba(255,255,255,0.12); border-radius:18px; padding:16px 18px; border:1px solid rgba(255,255,255,0.18); text-align:center; min-width:80px; flex:1; }
+    .hero-card .hc-num { font-size:2em; font-weight:800; color:#ffd700; display:block; line-height:1; }
+    .hero-card .hc-lbl { font-size:0.68em; color:rgba(255,255,255,0.75); margin-top:5px; display:block; text-transform:uppercase; letter-spacing:0.8px; }
+
+    /* PANELS */
+    .dash-panel { display:none; animation:slideIn 0.28s ease; }
+    .dash-panel.active { display:block; }
+    @keyframes slideIn { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    .panel-card { background:rgba(255,255,255,0.97); backdrop-filter:blur(10px); border-radius:20px; padding:32px; box-shadow:0 10px 30px rgba(0,0,0,0.18); margin-bottom:30px; }
+    .panel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:26px; padding-bottom:16px; border-bottom:2px solid #f0f0f0; }
+    .panel-header h2 { color:#1e3c72; font-size:1.7em; margin:0; }
+    .back-btn { background:linear-gradient(135deg,#636e72,#4a4f52); color:white; border:none; padding:10px 22px; border-radius:30px; cursor:pointer; font-weight:700; font-size:0.95em; transition:all 0.25s; }
+    .back-btn:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,0.2); }
+
+    /* COURSES GRID */
+    .courses-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:22px; padding-bottom:30px; }
+    .course-card { border-radius:22px; overflow:hidden; cursor:pointer; box-shadow:0 10px 32px rgba(0,0,0,0.28); transition:all 0.35s; min-height:230px; display:flex; flex-direction:column; border:none; padding:0; }
+    .course-card:hover { transform:translateY(-10px) scale(1.02); box-shadow:0 24px 52px rgba(0,0,0,0.4); }
+    .card-body { flex:1; padding:26px 22px 18px; position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:space-between; }
+    .card-body::before { content:""; position:absolute; top:-45px; right:-45px; width:140px; height:140px; border-radius:50%; background:rgba(255,255,255,0.1); }
+    .card-body::after  { content:""; position:absolute; bottom:-30px; left:-30px; width:100px; height:100px; border-radius:50%; background:rgba(255,255,255,0.07); }
+    .card-top { display:flex; align-items:flex-start; gap:14px; position:relative; z-index:1; }
+    .card-emoji { font-size:2.5em; background:rgba(255,255,255,0.22); width:64px; height:64px; border-radius:18px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 4px 16px rgba(0,0,0,0.25); }
+    .card-title { color:white; font-size:1.12em; font-weight:800; margin-bottom:5px; text-shadow:0 1px 4px rgba(0,0,0,0.35); }
+    .card-desc  { color:rgba(255,255,255,0.8); font-size:0.83em; line-height:1.45; }
+    .card-fact  { margin-top:16px; background:rgba(255,255,255,0.18); border-radius:12px; padding:12px 14px; border:1px solid rgba(255,255,255,0.25); position:relative; z-index:1; }
+    .card-fact .fact-lbl  { color:rgba(255,255,255,0.6); font-size:0.68em; text-transform:uppercase; letter-spacing:0.9px; font-weight:700; margin-bottom:4px; }
+    .card-fact .fact-text { color:white; font-size:0.87em; font-weight:600; line-height:1.4; }
+    .card-footer-bar { padding:10px 22px 13px; background:rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:space-between; }
+    .card-footer-bar .chap-info { color:rgba(255,255,255,0.82); font-size:0.8em; font-weight:600; }
+    .card-arrow { color:white; font-size:1.15em; font-weight:800; }
+    .cc-anthro{background:linear-gradient(145deg,#8e44ad,#6c3483)} .cc-tech{background:linear-gradient(145deg,#0984e3,#00b894)} .cc-entre{background:linear-gradient(145deg,#e17055,#c0392b)} .cc-math{background:linear-gradient(145deg,#2d3436,#0984e3)} .cc-prog{background:linear-gradient(145deg,#00b894,#00cec9)} .cc-eng{background:linear-gradient(145deg,#e84393,#c0392b)} .cc-hist{background:linear-gradient(145deg,#f39c12,#d35400)} .cc-civic{background:linear-gradient(145deg,#2980b9,#6c3483)} .cc-econ{background:linear-gradient(145deg,#00b09b,#006d4e)} .cc-geo{background:linear-gradient(145deg,#795548,#4e342e)} .cc-psych{background:linear-gradient(145deg,#7b1fa2,#4a148c)} .cc-logic{background:linear-gradient(145deg,#1565c0,#0d47a1)}
+
+    /* COURSE ACTIONS */
+    .course-actions { display:flex; gap:20px; justify-content:center; flex-wrap:wrap; padding:20px 0; }
+    .action-btn { padding:18px 40px; border:none; border-radius:30px; cursor:pointer; font-weight:700; font-size:1.1em; transition:all 0.3s; min-width:180px; text-align:center; }
+    .material-action-btn { background:linear-gradient(135deg,#3498db,#2980b9); color:white; }
+    .material-action-btn:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(52,152,219,0.45); }
+    .exam-action-btn { background:linear-gradient(135deg,#27ae60,#229954); color:white; }
+    .exam-action-btn:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(39,174,96,0.45); }
+
+    /* CHAPTERS */
+    .chapters-list { display:flex; flex-wrap:wrap; gap:12px; margin:18px 0; }
+    .chapter-btn { padding:12px 22px; border-radius:40px; cursor:pointer; font-weight:700; transition:all 0.3s; font-size:0.95em; border:none; }
+    .chapter-btn.free   { background:linear-gradient(135deg,#2ecc71,#27ae60); color:white; }
+    .chapter-btn.free:hover   { box-shadow:0 5px 15px rgba(46,204,113,0.4); transform:translateY(-2px); }
+    .chapter-btn.locked { background:linear-gradient(135deg,#f39c12,#e67e22); color:white; cursor:not-allowed; }
+    .chapter-btn.locked:hover { box-shadow:0 5px 15px rgba(243,156,18,0.4); transform:translateY(-2px); }
+
+    /* MENU */
+    .menu-options-list { display:flex; flex-direction:column; gap:16px; margin-top:10px; }
+    .menu-option-btn { display:flex; align-items:center; gap:18px; padding:22px 28px; border:none; border-radius:16px; cursor:pointer; font-size:1.15em; font-weight:700; transition:all 0.3s; text-align:left; width:100%; }
+    .menu-option-btn .opt-icon { font-size:1.8em; width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .menu-option-btn .opt-label { flex:1; }
+    .menu-option-btn .opt-label span { display:block; font-size:0.78em; font-weight:400; margin-top:3px; opacity:0.75; }
+    .menu-option-btn.premium-opt { background:linear-gradient(135deg,#fff3e0,#ffe0b2); color:#e65100; border:2px solid #ffcc80; }
+    .menu-option-btn.premium-opt .opt-icon { background:rgba(255,152,0,0.18); }
+    .menu-option-btn.premium-opt:hover { background:linear-gradient(135deg,#ffe0b2,#ffcc80); transform:translateX(6px); }
+    .menu-option-btn.contact-opt { background:linear-gradient(135deg,#e3f2fd,#bbdefb); color:#0d47a1; border:2px solid #90caf9; }
+    .menu-option-btn.contact-opt .opt-icon { background:rgba(33,150,243,0.15); }
+    .menu-option-btn.contact-opt:hover { background:linear-gradient(135deg,#bbdefb,#90caf9); transform:translateX(6px); }
+    .menu-option-btn.logout-opt { background:linear-gradient(135deg,#fce4ec,#f8bbd0); color:#880e4f; border:2px solid #f48fb1; }
+    .menu-option-btn.logout-opt .opt-icon { background:rgba(233,30,99,0.12); }
+    .menu-option-btn.logout-opt:hover { background:linear-gradient(135deg,#f8bbd0,#f48fb1); transform:translateX(6px); }
+
+    /* GPA */
+    .gpa-calc-wrap { overflow-x:auto; }
+    .gpa-table { width:100%; border-collapse:collapse; margin-bottom:20px; min-width:500px; }
+    .gpa-table th { background:linear-gradient(135deg,#1e3c72,#2a5298); color:white; padding:12px 14px; text-align:left; font-size:0.88em; font-weight:700; letter-spacing:0.5px; }
+    .gpa-table th:first-child { border-radius:10px 0 0 0; } .gpa-table th:last-child { border-radius:0 10px 0 0; }
+    .gpa-table td { padding:10px; border-bottom:1px solid #f0f0f0; vertical-align:middle; }
+    .gpa-table tr:hover td { background:#f8f9ff; }
+    .gpa-input  { width:100%; padding:9px 12px; border:1.5px solid #dce3f0; border-radius:10px; font-size:0.92em; outline:none; transition:all 0.2s; color:#333; }
+    .gpa-input:focus  { border-color:#1e3c72; box-shadow:0 0 0 3px rgba(30,60,114,0.12); }
+    .gpa-select { width:100%; padding:9px 8px; border:1.5px solid #dce3f0; border-radius:10px; font-size:0.92em; outline:none; background:white; cursor:pointer; color:#333; }
+    .gpa-points-cell { font-weight:700; color:#1e3c72; text-align:center; }
+    .del-row-btn { background:#fce4ec; border:none; color:#c0392b; border-radius:8px; padding:6px 10px; cursor:pointer; font-size:0.9em; }
+    .del-row-btn:hover { background:#f8bbd0; }
+    .gpa-actions { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:22px; }
+    .add-row-btn  { background:linear-gradient(135deg,#3498db,#2980b9); color:white; border:none; padding:11px 24px; border-radius:30px; cursor:pointer; font-weight:700; font-size:0.95em; transition:all 0.3s; }
+    .calc-gpa-btn { background:linear-gradient(135deg,#00b894,#00cec9); color:white; border:none; padding:11px 28px; border-radius:30px; cursor:pointer; font-weight:800; font-size:0.97em; transition:all 0.3s; }
+    .clear-gpa-btn{ background:linear-gradient(135deg,#636e72,#4a4f52); color:white; border:none; padding:11px 22px; border-radius:30px; cursor:pointer; font-weight:700; font-size:0.93em; transition:all 0.3s; }
+    .add-row-btn:hover,.calc-gpa-btn:hover,.clear-gpa-btn:hover { transform:translateY(-2px); }
+    .gpa-result { display:none; background:linear-gradient(135deg,#f0fff8,#e0f7fa); border:2px solid #00b894; border-radius:18px; padding:26px; text-align:center; margin-top:10px; }
+    .gpa-result .gpa-score { font-size:3.5em; font-weight:800; color:#00916e; display:block; line-height:1; }
+    .gpa-result .gpa-out-of { font-size:1em; color:#555; margin:6px 0; }
+    .gpa-result .gpa-grade-label { font-size:1.2em; font-weight:800; padding:8px 22px; border-radius:30px; display:inline-block; margin-top:10px; }
+    .gpa-result .gpa-detail { color:#555; font-size:0.9em; margin-top:12px; line-height:1.7; }
+    .gpa-info-box { background:linear-gradient(135deg,#e3f2fd,#f0f8ff); border-left:4px solid #2196f3; border-radius:12px; padding:16px 18px; margin-bottom:22px; font-size:0.88em; color:#1565c0; line-height:1.8; }
+    .gpa-info-box strong { display:block; margin-bottom:6px; font-size:0.95em; color:#0d47a1; }
+
+    /* MATERIAL / ITEMS */
+    .items-list { display:flex; flex-direction:column; gap:14px; margin-top:10px; }
+    .item-btn { display:flex; align-items:center; gap:18px; padding:20px 26px; background:linear-gradient(135deg,#e3f2fd,#bbdefb); border:2px solid #90caf9; border-radius:16px; cursor:pointer; font-size:1.08em; font-weight:700; color:#0d47a1; transition:all 0.3s; text-align:left; width:100%; }
+    .item-btn .item-icon { font-size:1.7em; background:rgba(33,150,243,0.15); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .item-btn .item-info { flex:1; }
+    .item-btn .item-info span { display:block; font-size:0.78em; font-weight:400; color:#1565c0; margin-top:3px; }
+    .item-btn:hover { background:linear-gradient(135deg,#bbdefb,#90caf9); transform:translateX(6px); box-shadow:0 6px 18px rgba(33,150,243,0.25); }
+
+    /* DIFFICULTY */
+    .difficulty-list { display:flex; flex-direction:column; gap:16px; margin-top:10px; }
+    .diff-btn { display:flex; align-items:center; gap:18px; padding:22px 28px; border:none; border-radius:16px; cursor:pointer; font-size:1.15em; font-weight:700; transition:all 0.3s; text-align:left; width:100%; }
+    .diff-btn .diff-icon { font-size:1.8em; width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .diff-btn .diff-label { flex:1; }
+    .diff-btn .diff-label span { display:block; font-size:0.78em; font-weight:400; margin-top:3px; opacity:0.75; }
+    .diff-btn.low  { background:linear-gradient(135deg,#e8f5e9,#c8e6c9); color:#1b5e20; border:2px solid #a5d6a7; }
+    .diff-btn.low .diff-icon  { background:rgba(76,175,80,0.15); }
+    .diff-btn.low:hover  { background:linear-gradient(135deg,#c8e6c9,#a5d6a7); transform:translateX(6px); }
+    .diff-btn.med  { background:linear-gradient(135deg,#fff8e1,#ffecb3); color:#e65100; border:2px solid #ffe082; }
+    .diff-btn.med .diff-icon  { background:rgba(255,193,7,0.18); }
+    .diff-btn.med:hover  { background:linear-gradient(135deg,#ffecb3,#ffe082); transform:translateX(6px); }
+    .diff-btn.hard { background:linear-gradient(135deg,#fce4ec,#f8bbd0); color:#880e4f; border:2px solid #f48fb1; }
+    .diff-btn.hard .diff-icon { background:rgba(233,30,99,0.12); }
+    .diff-btn.hard:hover { background:linear-gradient(135deg,#f8bbd0,#f48fb1); transform:translateX(6px); }
+
+    /* CONTENT BOX */
+    .content-box { background:linear-gradient(135deg,#f8f9fa,#ecf0f1); padding:28px; border-radius:16px; border-left:5px solid #3498db; line-height:1.9; color:#333; font-size:1.02em; }
+    .content-box.mat  { border-left-color:#3498db; background:linear-gradient(135deg,#e3f2fd,#f0f8ff); }
+    .content-box.low  { border-left-color:#27ae60; background:linear-gradient(135deg,#f0fff4,#e8f5e9); }
+    .content-box.med  { border-left-color:#ff9800; background:linear-gradient(135deg,#fff8e1,#fffde7); }
+    .content-box.hard { border-left-color:#e91e63; background:linear-gradient(135deg,#fce4ec,#fdf2f5); }
+
+    /* PREMIUM / CONTACT */
+    .premium-intro { color:#666; font-size:1.03em; margin-bottom:22px; text-align:center; }
+    .payment-method { background:white; padding:20px; margin-bottom:18px; border-radius:14px; border-left:5px solid #ff9800; box-shadow:0 3px 10px rgba(0,0,0,0.07); transition:all 0.3s; }
+    .payment-method:hover { transform:translateX(5px); box-shadow:0 6px 18px rgba(255,152,0,0.2); }
+    .payment-method h3 { color:#1e3c72; margin-bottom:11px; }
+    .payment-method p  { margin:7px 0; color:#555; font-size:0.95em; }
+    .lbl  { font-weight:700; color:#1e3c72; display:block; margin-bottom:4px; }
+    .acct { font-weight:700; color:#ff9800; font-size:1.08em; font-family:monospace; }
+    .copy-btn { background:linear-gradient(135deg,#007bff,#0056b3); color:white; border:none; padding:6px 14px; margin-left:10px; cursor:pointer; border-radius:20px; font-weight:700; font-size:0.88em; transition:all 0.3s; }
+    .copy-btn:hover { transform:scale(1.06); }
+    .pay-steps { background:#e3f2fd; padding:20px; border-radius:14px; margin:18px 0; border-left:5px solid #2196f3; color:#1565c0; line-height:1.85; }
+    .tg { font-family:monospace; background:#fff3e0; padding:5px 10px; border-radius:5px; color:#e65100; font-weight:700; }
+    .approval-btn { background:linear-gradient(135deg,#28a745,#1e7e34); color:white; border:none; padding:14px 30px; cursor:pointer; margin-top:18px; border-radius:30px; font-weight:700; font-size:1.04em; transition:all 0.3s; width:100%; display:block; }
+    .approval-btn:hover { transform:translateY(-2px); }
+    .contact-item { background:white; padding:17px; margin-bottom:14px; border-radius:12px; border-left:5px solid #3498db; box-shadow:0 3px 10px rgba(0,0,0,0.07); transition:all 0.3s; }
+    .contact-item:hover { transform:translateX(5px); }
+    .contact-item p { margin:0; color:#555; font-size:0.97em; }
+
+    /* ═══════════════════════════════════════
+       PAGE 2 — EXAM
+    ═══════════════════════════════════════ */
+    #page-exam {
+      background-image:url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format');
+      background-size:cover; background-position:center; background-repeat:no-repeat; background-attachment:fixed;
+      min-height:100vh; overflow-y:auto; position:relative;
+    }
+    #page-exam::before { content:""; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.60); z-index:0; }
+    .exam-container { position:relative; z-index:1; max-width:800px; margin:0 auto; padding:20px; min-height:100vh; }
+    .exam-h1 { text-align:center; color:white; margin-bottom:20px; font-size:1.6em; text-shadow:2px 2px 6px rgba(0,0,0,0.6); padding-top:20px; }
+    .exam-card { background:rgba(255,255,255,0.97); border-radius:20px; padding:32px; box-shadow:0 10px 30px rgba(0,0,0,0.25); margin-bottom:24px; }
+    #examCourseTitle { color:#1e3c72; font-size:1.15em; font-weight:bold; margin-bottom:20px; text-align:center; }
+    #timerWrap { display:none; text-align:center; margin-bottom:18px; background:linear-gradient(135deg,#1e3c72,#2a5298); border-radius:16px; padding:14px 20px; }
+    #timerWrap p { color:rgba(255,255,255,0.7); font-size:0.82em; margin-bottom:4px; letter-spacing:0.5px; text-transform:uppercase; }
+    #timerDisplay { font-size:2.4em; font-weight:800; color:#ffd700; letter-spacing:2px; font-family:monospace; }
+    #timerWrap.urgent { background:linear-gradient(135deg,#c0392b,#e74c3c); animation:pulse 1s infinite; }
+    #timerWrap.urgent #timerDisplay { color:white; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.82} }
+    #modeSelection { text-align:center; }
+    #modeSelection h2 { color:#1e3c72; margin-bottom:10px; font-size:1.3em; }
+    #modeSelection p  { color:#666; margin-bottom:24px; font-size:0.97em; }
+    .mode-btns { display:flex; gap:18px; justify-content:center; flex-wrap:wrap; }
+    .mode-btn { padding:16px 36px; border:none; border-radius:30px; font-size:1.05em; font-weight:bold; cursor:pointer; transition:all 0.3s; }
+    .mode-btn.instant { background:linear-gradient(135deg,#ff9800,#e68900); color:white; }
+    .mode-btn.instant:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(255,152,0,0.45); }
+    .mode-btn.finish  { background:linear-gradient(135deg,#27ae60,#229954); color:white; }
+    .mode-btn.finish:hover  { transform:translateY(-3px); box-shadow:0 8px 20px rgba(39,174,96,0.45); }
+    .timer-note { margin-top:14px; background:#e8f5e9; border-radius:12px; padding:10px 16px; border-left:4px solid #27ae60; color:#1b5e20; font-size:0.87em; font-weight:600; }
+    #questionsDiv { max-height:65vh; overflow-y:auto; padding-right:6px; scrollbar-width:thin; scrollbar-color:#ff9800 #f0f0f0; cursor:grab; user-select:none; }
+    #questionsDiv.dragging { cursor:grabbing; }
+    #questionsDiv::-webkit-scrollbar { width:6px; }
+    #questionsDiv::-webkit-scrollbar-track { background:#f0f0f0; border-radius:10px; }
+    #questionsDiv::-webkit-scrollbar-thumb { background:#ff9800; border-radius:10px; }
+    .question { margin-bottom:22px; }
+    .question-text { font-size:1.08em; color:#1e3c72; margin-bottom:14px; line-height:1.6; }
+    .options-list { display:flex; flex-direction:column; gap:10px; }
+    .option { padding:12px 20px; border:2px solid #ddd; border-radius:30px; background:#f9f9f9; font-size:0.97em; cursor:pointer; text-align:left; transition:all 0.2s; font-weight:500; color:#333; }
+    .option:hover   { background:#fff3e0; border-color:#ff9800; color:#e65100; }
+    .option.correct { background:#e8f5e9; border-color:#27ae60; color:#1b5e20; }
+    .option.wrong   { background:#fce4ec; border-color:#e91e63; color:#880e4f; }
+    .option:disabled { cursor:not-allowed; }
+    #coursePhotoDiv { display:none; margin-top:24px; border-radius:18px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.18); position:relative; }
+    #coursePhoto { width:100%; height:200px; object-fit:cover; display:block; }
+    .photo-caption { position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent,rgba(0,0,0,0.72)); color:white; padding:14px 18px 12px; font-size:0.85em; font-weight:700; text-align:center; }
+    .progress-bar-wrap { background:#eee; border-radius:30px; height:8px; margin-bottom:20px; overflow:hidden; }
+    .progress-bar { height:8px; border-radius:30px; background:linear-gradient(90deg,#ff9800,#f39c12); transition:width 0.4s; }
+    .progress-label { color:#888; font-size:0.88em; margin-bottom:8px; text-align:right; }
+    #finishBtn { display:none; width:100%; padding:14px; background:linear-gradient(135deg,#27ae60,#229954); color:white; border:none; border-radius:30px; font-size:1.05em; font-weight:bold; cursor:pointer; margin-top:20px; transition:all 0.3s; }
+    #finishBtn:hover { transform:translateY(-2px); }
+    #examResult { text-align:center; font-size:1.1em; color:#1e3c72; line-height:2; }
+    #examResult button { margin-top:16px; padding:12px 30px; background:linear-gradient(135deg,#ff9800,#e68900); color:white; border:none; border-radius:30px; font-size:1em; font-weight:bold; cursor:pointer; }
+    .result-time-badge { display:inline-block; background:linear-gradient(135deg,#1e3c72,#2a5298); color:white; padding:6px 18px; border-radius:30px; font-size:0.82em; font-weight:700; margin-top:6px; }
+    .back-to-dash { display:inline-block; margin-bottom:18px; color:rgba(255,255,255,0.85); text-decoration:none; font-weight:bold; font-size:0.97em; background:rgba(255,255,255,0.15); padding:8px 20px; border-radius:30px; backdrop-filter:blur(4px); transition:all 0.2s; cursor:pointer; border:none; }
+    .back-to-dash:hover { background:rgba(255,255,255,0.25); color:white; }
+
+    /* ═══════════════════════════════════════
+       PAGE 3 — ADMIN
+    ═══════════════════════════════════════ */
+    #page-admin { background:linear-gradient(135deg,#0f1e3d,#1e3c72,#0f1e3d); min-height:100vh; color:#fff; }
+    #adminLoginWrap { min-height:100vh; display:flex; align-items:center; justify-content:center; }
+    .admin-login-box { background:rgba(255,255,255,0.08); backdrop-filter:blur(24px); border:1px solid rgba(255,255,255,0.18); border-radius:28px; padding:52px 44px; width:100%; max-width:420px; box-shadow:0 24px 64px rgba(0,0,0,0.6); }
+    .admin-login-box h2 { text-align:center; font-size:1.7em; font-weight:800; margin-bottom:8px; }
+    .admin-login-box p.sub  { text-align:center; color:rgba(255,255,255,0.55); font-size:0.9em; margin-bottom:30px; }
+    .admin-login-box input { width:100%; padding:15px 20px; margin-bottom:14px; border:1.5px solid rgba(255,255,255,0.25); border-radius:30px; background:rgba(255,255,255,0.1); color:#fff; outline:none; font-size:1em; transition:all 0.3s; }
+    .admin-login-box input::placeholder { color:rgba(255,255,255,0.45); }
+    .admin-login-box input:focus { border-color:#ff9800; background:rgba(255,255,255,0.18); }
+    .admin-login-box button.admin-login-btn { width:100%; padding:15px; background:linear-gradient(135deg,#ff9800,#f39c12); border:none; border-radius:30px; color:#fff; font-size:1.05em; font-weight:800; cursor:pointer; box-shadow:0 6px 22px rgba(255,152,0,0.45); transition:all 0.3s; }
+    .admin-login-box button.admin-login-btn:hover { transform:translateY(-2px); }
+    .admin-back-link { display:block; text-align:center; margin-top:16px; color:rgba(255,255,255,0.5); font-size:0.88em; cursor:pointer; text-decoration:underline; }
+    .admin-back-link:hover { color:rgba(255,255,255,0.8); }
+    #adminLoginErr { text-align:center; color:#ff6b6b; font-size:0.9em; margin-top:14px; min-height:20px; }
+    #adminPanelInner { display:none; }
+    .top-bar { background:linear-gradient(135deg,#1e3c72,#2a5298); padding:16px 30px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 4px 20px rgba(0,0,0,0.4); position:sticky; top:0; z-index:100; }
+    .top-bar h1 { font-size:1.25em; font-weight:800; color:#fff; }
+    .top-bar span { color:rgba(255,255,255,0.65); font-size:0.85em; }
+    .logout-btn { background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:#fff; padding:9px 20px; border-radius:30px; cursor:pointer; font-weight:700; font-size:0.9em; transition:all 0.3s; }
+    .logout-btn:hover { background:rgba(255,255,255,0.25); }
+    .admin-body { padding:28px 30px; max-width:1200px; margin:0 auto; }
+    .tabs { display:flex; gap:10px; margin-bottom:28px; flex-wrap:wrap; }
+    .tab-btn { padding:11px 26px; border-radius:30px; border:none; cursor:pointer; font-weight:700; font-size:0.95em; transition:all 0.3s; background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); }
+    .tab-btn.active { background:linear-gradient(135deg,#ff9800,#f39c12); color:#fff; box-shadow:0 4px 16px rgba(255,152,0,0.4); }
+    .tab-btn:hover:not(.active) { background:rgba(255,255,255,0.18); color:#fff; }
+    .stats-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:18px; margin-bottom:28px; }
+    .stat-card { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); border-radius:20px; padding:22px 20px; text-align:center; }
+    .stat-card .s-num { font-size:2.8em; font-weight:800; display:block; line-height:1; }
+    .stat-card .s-lbl { font-size:0.82em; color:rgba(255,255,255,0.6); margin-top:6px; text-transform:uppercase; letter-spacing:0.8px; }
+    .stat-card.orange .s-num{color:#ff9800} .stat-card.green .s-num{color:#00b894} .stat-card.blue .s-num{color:#74b9ff} .stat-card.red .s-num{color:#ff6b6b}
+    .tab-panel { display:none; } .tab-panel.active { display:block; }
+    .table-card { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:20px; overflow:hidden; }
+    .table-card-header { padding:20px 24px; border-bottom:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+    .table-card-header h3 { font-size:1.1em; font-weight:800; }
+    .search-box { padding:9px 16px; border-radius:20px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.08); color:#fff; outline:none; font-size:0.9em; width:220px; }
+    .search-box::placeholder { color:rgba(255,255,255,0.4); }
+    table { width:100%; border-collapse:collapse; }
+    thead th { background:rgba(255,255,255,0.08); padding:14px 18px; text-align:left; font-size:0.82em; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:rgba(255,255,255,0.65); border-bottom:1px solid rgba(255,255,255,0.1); }
+    tbody td { padding:14px 18px; font-size:0.93em; border-bottom:1px solid rgba(255,255,255,0.06); vertical-align:middle; }
+    tbody tr:last-child td { border-bottom:none; }
+    tbody tr:hover td { background:rgba(255,255,255,0.04); }
+    .badge { display:inline-block; padding:4px 12px; border-radius:20px; font-size:0.78em; font-weight:700; }
+    .badge.premium{background:rgba(255,152,0,0.25);color:#ffd07b;border:1px solid rgba(255,152,0,0.4)} .badge.free{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.15)} .badge.pending{background:rgba(255,193,7,0.2);color:#ffe082;border:1px solid rgba(255,193,7,0.35)} .badge.approved{background:rgba(0,184,148,0.2);color:#55efc4;border:1px solid rgba(0,184,148,0.35)} .badge.rejected{background:rgba(255,107,107,0.2);color:#ff6b6b;border:1px solid rgba(255,107,107,0.35)} .badge.ns{background:rgba(0,184,148,0.2);color:#55efc4;border:1px solid rgba(0,184,148,0.3)} .badge.ss{background:rgba(116,185,255,0.2);color:#74b9ff;border:1px solid rgba(116,185,255,0.3)}
+    .action-group { display:flex; gap:8px; flex-wrap:wrap; }
+    .act-btn { padding:6px 14px; border-radius:20px; border:none; cursor:pointer; font-weight:700; font-size:0.8em; transition:all 0.25s; }
+    .act-btn.approve{background:rgba(0,184,148,0.25);color:#55efc4;border:1px solid rgba(0,184,148,0.4)} .act-btn.approve:hover{background:rgba(0,184,148,0.5)} .act-btn.reject{background:rgba(255,107,107,0.2);color:#ff6b6b;border:1px solid rgba(255,107,107,0.35)} .act-btn.reject:hover{background:rgba(255,107,107,0.45)} .act-btn.remove-prem{background:rgba(255,193,7,0.2);color:#ffe082;border:1px solid rgba(255,193,7,0.35)} .act-btn.remove-prem:hover{background:rgba(255,193,7,0.4)} .act-btn.delete-user{background:rgba(255,107,107,0.15);color:#ff6b6b;border:1px solid rgba(255,107,107,0.3)} .act-btn.delete-user:hover{background:rgba(255,107,107,0.4)} .act-btn.grant-prem{background:rgba(255,152,0,0.2);color:#ffd07b;border:1px solid rgba(255,152,0,0.4)} .act-btn.grant-prem:hover{background:rgba(255,152,0,0.45)}
+    .loading-row td,.empty-row td { text-align:center; color:rgba(255,255,255,0.4); padding:36px !important; }
+    #adminToast { position:fixed; bottom:28px; right:28px; z-index:9999; background:linear-gradient(135deg,#00b894,#00cec9); color:#fff; padding:14px 24px; border-radius:14px; font-weight:700; box-shadow:0 8px 24px rgba(0,0,0,0.4); display:none; font-size:0.97em; max-width:320px; }
+    #adminToast.error { background:linear-gradient(135deg,#e17055,#d63031); }
+    #confirmModal { display:none; position:fixed; inset:0; z-index:9998; background:rgba(0,0,0,0.7); align-items:center; justify-content:center; }
+    #confirmModal.show { display:flex; }
+    .confirm-box { background:#1e3c72; border:1px solid rgba(255,255,255,0.2); border-radius:22px; padding:36px 32px; max-width:380px; width:90%; text-align:center; box-shadow:0 24px 64px rgba(0,0,0,0.6); }
+    .confirm-box h3 { font-size:1.2em; margin-bottom:12px; }
+    .confirm-box p  { color:rgba(255,255,255,0.7); font-size:0.93em; margin-bottom:24px; line-height:1.6; }
+    .confirm-btns { display:flex; gap:12px; justify-content:center; }
+    .confirm-yes { background:linear-gradient(135deg,#e17055,#d63031); color:#fff; border:none; padding:11px 28px; border-radius:30px; cursor:pointer; font-weight:800; }
+    .confirm-no  { background:rgba(255,255,255,0.12); color:#fff; border:1px solid rgba(255,255,255,0.25); padding:11px 28px; border-radius:30px; cursor:pointer; font-weight:700; }
+
+    /* ══ RESPONSIVE ══ */
+    @media(max-width:768px){
+      h1{font-size:1.9em} .dashboard-header{flex-wrap:wrap;gap:10px} .gpa-btn{margin-left:0} .welcome-hero{padding:22px 18px} .hero-greeting h2{font-size:1.4em} .courses-grid{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px} .course-actions{flex-direction:column;align-items:center} .panel-card{padding:20px} .panel-header{flex-direction:column;gap:12px;align-items:flex-start} .stream-opts{flex-direction:column} .mode-btns{flex-direction:column;align-items:center} .mode-btn{width:100%;max-width:280px} .admin-body{padding:18px 14px} .top-bar{padding:14px 16px} .top-bar h1{font-size:1em}
+    }
+    @media(max-width:600px){
+      .exam-card{padding:20px} .exam-h1{font-size:1.25em} #questionsDiv{max-height:55vh}
+      thead{display:none} tbody tr{display:block;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.1)} tbody td{display:block;padding:4px 0;border:none;font-size:0.9em} tbody td::before{content:attr(data-label)": ";color:rgba(255,255,255,0.45);font-size:0.8em;font-weight:700;display:block}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     PAGE 1: STUDENT APP
+═══════════════════════════════════════ -->
+<div id="page-app" class="page active">
+  <div class="container">
+    <div id="topSection">
+      <h1>🎓 Online Exam System</h1>
+      <p id="msg"></p>
+    </div>
+
+    <!-- AUTH -->
+    <div id="authBox">
+      <div id="loginBox" class="auth-box">
+        <h2>🔐 Login</h2>
+        <input id="loginPhone" placeholder="Phone Number" type="text">
+        <input id="loginPassword" placeholder="Password" type="password" onkeydown="if(event.key==='Enter')login()">
+        <button onclick="login()">Login</button>
+        <p>Don't have an account?</p>
+        <button onclick="showRegister()">Register</button>
+      </div>
+      <div id="registerBox" class="auth-box" style="display:none">
+        <h2>📝 Create Account</h2>
+        <input id="regPhone" placeholder="Phone Number" type="text">
+        <input id="regPassword" placeholder="Password" type="password">
+        <div class="stream-select">
+          <span class="stream-select-lbl">Choose Your Stream</span>
+          <div class="stream-opts">
+            <label class="stream-opt">
+              <input type="radio" name="stream" value="Natural Science">
+              <span class="stream-opt-box"><span class="s-icon">🧪</span>Natural Science</span>
+            </label>
+            <label class="stream-opt">
+              <input type="radio" name="stream" value="Social Science">
+              <span class="stream-opt-box"><span class="s-icon">🌍</span>Social Science</span>
+            </label>
+          </div>
+        </div>
+        <button onclick="register()">Create Account</button>
+        <p>Already have an account?</p>
+        <button onclick="showLogin()">Login</button>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="appBox">
+
+      <!-- Panel: Main -->
+      <div class="dash-panel" id="mainDash">
+        <div class="dashboard-header">
+          <button class="menu-btn" onclick="goTo('menuDash')">☰ Menu</button>
+          <div class="user-info">
+            <div class="user-profile">U</div>
+            <div class="user-details">
+              <p>Logged in 👋</p>
+              <p class="phone">Your Phone</p>
+              <p class="status">Free</p>
+            </div>
+          </div>
+          <button class="gpa-btn" onclick="goTo('gpaDash')">📊 GPA Calc</button>
+        </div>
+        <div class="welcome-hero">
+          <div class="hero-top">
+            <div class="hero-greeting">
+              <h2 id="heroGreeting">Welcome back! 👋</h2>
+              <div id="heroStreamBadge" class="stream-badge ns">🧪 Natural Science Stream</div>
+              <p id="heroSubtext" style="margin-top:10px;">Your journey through science, technology &amp; innovation begins here.</p>
+            </div>
+            <div class="hero-cards">
+              <div class="hero-card"><span class="hc-num" id="heroNumCourses">8</span><span class="hc-lbl">Courses</span></div>
+              <div class="hero-card"><span class="hc-num">5</span><span class="hc-lbl">Chapters</span></div>
+              <div class="hero-card"><span class="hc-num">3</span><span class="hc-lbl">Levels</span></div>
+            </div>
+          </div>
+          <div class="hero-quote" id="heroQuote">"The important thing is not to stop questioning." — Albert Einstein</div>
+        </div>
+        <div class="courses-grid" id="coursesGrid"></div>
+      </div>
+
+      <!-- Panel: Menu -->
+      <div class="dash-panel" id="menuDash">
+        <div class="panel-card">
+          <div class="panel-header"><h2>☰ Menu</h2><button class="back-btn" onclick="goBack()">← Back</button></div>
+          <div class="menu-options-list">
+            <button class="menu-option-btn premium-opt" onclick="goTo('premiumDash')"><div class="opt-icon">⭐</div><div class="opt-label">Premium Access<span>Unlock all chapters and content</span></div></button>
+            <button class="menu-option-btn contact-opt" onclick="goTo('contactDash')"><div class="opt-icon">📞</div><div class="opt-label">Contact Owner<span>Reach out for help or inquiries</span></div></button>
+            <button class="menu-option-btn logout-opt" onclick="logout()"><div class="opt-icon">🚪</div><div class="opt-label">Logout<span>Sign out of your account</span></div></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: GPA -->
+      <div class="dash-panel" id="gpaDash">
+        <div class="panel-card" style="border-top:4px solid #00b894">
+          <div class="panel-header"><h2>📊 GPA Calculator</h2><button class="back-btn" onclick="goBack()">← Back</button></div>
+          <div class="gpa-info-box"><strong>📘 University Freshman CGPA Scale</strong>A=4.0 | A-=3.75 | B+=3.5 | B=3.0 | B-=2.75 | C+=2.5 | C=2.0 | C-=1.75 | D=1.0 | F=0.0</div>
+          <div class="gpa-calc-wrap">
+            <table class="gpa-table"><thead><tr><th style="width:35%">Course</th><th style="width:18%">Credits</th><th style="width:22%">Grade</th><th style="width:15%">Points</th><th style="width:10%"></th></tr></thead><tbody id="gpaBody"></tbody></table>
+          </div>
+          <div class="gpa-actions">
+            <button class="add-row-btn" onclick="addGPARow()">+ Add Course</button>
+            <button class="calc-gpa-btn" onclick="calculateGPA()">🎯 Calculate CGPA</button>
+            <button class="clear-gpa-btn" onclick="clearGPA()">🗑 Clear All</button>
+          </div>
+          <div class="gpa-result" id="gpaResult"><span class="gpa-score" id="gpaScore">0.00</span><p class="gpa-out-of">CGPA out of 4.00</p><span class="gpa-grade-label" id="gpaGradeLabel"></span><p class="gpa-detail" id="gpaDetail"></p></div>
+        </div>
+      </div>
+
+      <!-- Panel: Course Detail -->
+      <div class="dash-panel" id="courseDash">
+        <div class="panel-card">
+          <div class="panel-header"><h2 id="courseTitle">Course</h2><button class="back-btn" onclick="goBack()">← Back</button></div>
+          <p id="courseDesc" style="color:#666;margin-bottom:24px;"></p>
+          <div class="course-actions">
+            <button class="action-btn material-action-btn" onclick="openChapters('material')">📖 Materials</button>
+            <button class="action-btn exam-action-btn"     onclick="openChapters('exam')">✏️ Exams</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: Chapters -->
+      <div class="dash-panel" id="chaptersDash">
+        <div class="panel-card">
+          <div class="panel-header"><h2 id="chaptersTitle">Chapters</h2><button class="back-btn" onclick="goBack()">← Back</button></div>
+          <p id="chaptersHint" style="color:#666;margin-bottom:8px;font-size:0.96em;"></p>
+          <div id="chaptersList" class="chapters-list"></div>
+        </div>
+      </div>
+
+      <!-- Panel: Material Items -->
+      <div class="dash-panel" id="materialItemsDash">
+        <div class="panel-card" style="border-top:3px solid #3498db">
+          <div class="panel-header"><h2 id="materialItemsTitle">Materials</h2><button class="back-btn" onclick="goBack()">← Back</button></div>
+          <p style="color:#666;margin-bottom:16px;font-size:0.96em;">Select a material to view its content.</p>
+          <div class="items-list">
+            <button class="item-btn" onclick="openMaterialContent(1)"><div class="item-icon">📄</div><div class="item-info">Material 1<span>Core concepts and foundational overview</span></div></button>
+            <button class="item-btn" onclick="openMaterialContent(2)"><div class="item-icon">📄</div><div class="item-info">Material 2<span>Detailed study notes and explanations</span></div></button>
+            <button class="item-btn" onclick="openMaterialContent(3)"><div class="item-icon">📄</div><div class="item-info">Material 3<span>Summary, examples and key takeaways</span></div></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: Material Content -->
+      <div class="dash-panel" id="materialContentDash">
+        <div class="panel-card" style="border-top:3px solid #3498db">
+          <div class="panel-header"><h2 id="materialContentTitle">Material</h2><button class="back-btn" onclick="goBack()">← Back</button></div>
+          <div id="materialContentBox" class="content-box mat"></div>
+        </div>
+      </div>
+
+      <!-- Panel: Difficulty -->
+      <div class="dash-panel" id="difficultyDash">
+        <div class="panel-card" style="border-top:3px solid #27ae60">
+          <div class="panel-header"><h2 id="difficultyTitle">Choose Difficulty</h2><button class="back-btn" onclick="goBack()">← Back</button></div>
+          <p style="color:#666;margin-bottom:16px;font-size:0.96em;">Select the difficulty level for your quiz.</p>
+          <div class="difficulty-list">
+            <button class="diff-btn low"  onclick="openExamContent('low')"><div class="diff-icon">🟢</div><div class="diff-label">Low<span>Basic questions — great for getting started</span></div></button>
+            <button class="diff-btn med"  onclick="openExamContent('medium')"><div class="diff-icon">🟡</div><div class="diff-label">Medium<span>Intermediate questions — test your understanding</span></div></button>
+            <button class="diff-btn hard" onclick="openExamContent('difficult')"><div class="diff-icon">🔴</div><div class="diff-label">Difficult<span>Advanced questions — challenge yourself</span></div></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: Premium -->
+      <div class="dash-panel" id="premiumDash">
+        <div class="panel-card" style="border-top:3px solid #f39c12">
+          <div class="panel-header"><h2>⭐ Premium Access</h2><button class="back-btn" onclick="goBack()">← Back</button></div>
+          <p class="premium-intro">Unlock all chapters by completing one of the payment methods below.</p>
+          <div class="payment-method"><h3>🏦 Commercial Bank of Ethiopia</h3><p><span class="lbl">Account Holder:</span><span class="acct">Abraham</span></p><p><span class="lbl">Account Number:</span></p><p><span id="bankNum" class="acct">1000837236527282</span><button class="copy-btn" onclick="copyText('bankNum')">📋 Copy</button></p></div>
+          <div class="payment-method"><h3>📲 Telebirr Payment</h3><p><span class="lbl">Phone Number:</span></p><p><span id="teleNum" class="acct">0985686008</span><button class="copy-btn" onclick="copyText('teleNum')">📋 Copy</button></p></div>
+          <div class="pay-steps"><strong>📋 Payment Steps:</strong><br><br>1. Make payment using either method above<br>2. Take a screenshot of your payment confirmation<br>3. Send screenshot and your phone number to: <span class="tg">@abraham_exam</span><br>4. Click the button below to request approval<br>5. Admin will verify and activate your premium access</div>
+          <button class="approval-btn" onclick="requestApproval()">✅ Send Payment Approval Request</button>
+        </div>
+      </div>
+
+      <!-- Panel: Contact -->
+      <div class="dash-panel" id="contactDash">
+        <div class="panel-card" style="border-top:3px solid #3498db">
+          <div class="panel-header"><h2>📞 Contact Owner</h2><button class="back-btn" onclick="goBack()">← Back</button></div>
+          <div class="contact-item"><span class="lbl">📧 Email:</span><p>owner@examsystem.com</p></div>
+          <div class="contact-item"><span class="lbl">📱 Phone:</span><p>+251 98 888 8888</p></div>
+          <div class="contact-item"><span class="lbl">💬 Telegram:</span><p>@exam_support</p></div>
+        </div>
+      </div>
+
+    </div><!-- /appBox -->
+  </div><!-- /container -->
+</div><!-- /page-app -->
+
+
+<!-- ═══════════════════════════════════════
+     PAGE 2: EXAM
+═══════════════════════════════════════ -->
+<div id="page-exam" class="page">
+  <div class="exam-container">
+    <button class="back-to-dash" onclick="showPage('page-app')">← Back to Dashboard</button>
+    <h1 class="exam-h1">📚 Online Exam System</h1>
+    <div class="exam-card">
+      <div id="examCourseTitle"></div>
+      <div id="timerWrap"><p>⏱ Time Remaining</p><div id="timerDisplay">10:00</div></div>
+      <div id="modeSelection">
+        <h2>Choose Exam Mode</h2>
+        <p>How would you like to receive feedback on your answers?</p>
+        <div class="mode-btns">
+          <button class="mode-btn instant" onclick="startExam('instant')">⚡ Instant Feedback</button>
+          <button class="mode-btn finish"  onclick="startExam('finish')">✅ Submit at End</button>
+        </div>
+        <div class="timer-note">⏱ "Submit at End" mode includes a <strong>10-minute countdown timer</strong>.</div>
+      </div>
+      <div id="questionsDiv"></div>
+      <div id="coursePhotoDiv"><img id="coursePhoto" src="" alt=""><div class="photo-caption" id="coursePhotoCaption"></div></div>
+      <div id="progressWrap" style="display:none">
+        <p class="progress-label" id="progressLabel"></p>
+        <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+      </div>
+      <button id="finishBtn" onclick="finishExam()">📋 Finish &amp; See Results</button>
+      <div id="examResult"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     PAGE 3: ADMIN
+═══════════════════════════════════════ -->
+<div id="page-admin" class="page">
+  <div id="adminLoginWrap">
+    <div class="admin-login-box">
+      <h2>🛡️ Admin Panel</h2>
+      <p class="sub">Exam System — Admin Access Only</p>
+      <input id="adminUser" placeholder="Admin Username" type="text">
+      <input id="adminPass" placeholder="Admin Password" type="password" onkeydown="if(event.key==='Enter')adminLogin()">
+      <button class="admin-login-btn" onclick="adminLogin()">Sign In as Admin</button>
+      <div id="adminLoginErr"></div>
+      <span class="admin-back-link" onclick="showPage('page-app')">← Back to Student App</span>
+    </div>
+  </div>
+  <div id="adminPanelInner">
+    <div class="top-bar">
+      <div><h1>🛡️ Admin Panel</h1><span id="adminWelcome"></span></div>
+      <button class="logout-btn" onclick="adminLogout()">⬅ Logout</button>
+    </div>
+    <div class="admin-body">
+      <div class="stats-row">
+        <div class="stat-card blue"><span class="s-num" id="statTotal">—</span><span class="s-lbl">Total Users</span></div>
+        <div class="stat-card green"><span class="s-num" id="statPremium">—</span><span class="s-lbl">Premium Users</span></div>
+        <div class="stat-card orange"><span class="s-num" id="statPending">—</span><span class="s-lbl">Pending Requests</span></div>
+        <div class="stat-card red"><span class="s-num" id="statFree">—</span><span class="s-lbl">Free Users</span></div>
+      </div>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('users')">👥 All Users</button>
+        <button class="tab-btn" onclick="switchTab('requests')">⏳ Payment Requests</button>
+      </div>
+      <div class="tab-panel active" id="tab-users">
+        <div class="table-card">
+          <div class="table-card-header"><h3>👥 Registered Users</h3><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><input class="search-box" id="userSearch" placeholder="🔍 Search by phone..." oninput="filterUsers()"><button class="act-btn approve" onclick="adminLoadUsers()" style="padding:8px 16px">↻ Refresh</button></div></div>
+          <div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Phone</th><th>Stream</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead><tbody id="usersBody"><tr class="loading-row"><td colspan="6">Loading...</td></tr></tbody></table></div>
+        </div>
+      </div>
+      <div class="tab-panel" id="tab-requests">
+        <div class="table-card">
+          <div class="table-card-header"><h3>⏳ Payment Requests</h3><button class="act-btn approve" onclick="adminLoadRequests()" style="padding:8px 16px">↻ Refresh</button></div>
+          <div style="overflow-x:auto"><table><thead><tr><th>#</th><th>User Phone</th><th>Submitted</th><th>Status</th><th>Actions</th></tr></thead><tbody id="requestsBody"><tr class="loading-row"><td colspan="5">Loading...</td></tr></tbody></table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="adminToast"></div>
+  <div id="confirmModal"><div class="confirm-box"><h3 id="confirmTitle">Are you sure?</h3><p id="confirmMsg"></p><div class="confirm-btns"><button class="confirm-yes" id="confirmYes">Yes, do it</button><button class="confirm-no" onclick="closeConfirm()">Cancel</button></div></div></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════════ -->
+<script>
+/* ══════════════════════════════════════════
+   PAGE ROUTER
+══════════════════════════════════════════ */
+function showPage(id){
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+/* Check URL hash for admin */
+window.addEventListener('load', function(){
+  if(window.location.hash === '#admin'){ showPage('page-admin'); }
+});
+
+
+/* ══════════════════════════════════════════
+   STORAGE HELPERS
+══════════════════════════════════════════ */
+function getUsers()   { try{ return JSON.parse(localStorage.getItem('es_users')||'[]');    }catch(e){return [];} }
+function saveUsers(u) { localStorage.setItem('es_users', JSON.stringify(u)); }
+function getRequests(){ try{ return JSON.parse(localStorage.getItem('es_requests')||'[]'); }catch(e){return [];} }
+function saveRequests(r){ localStorage.setItem('es_requests', JSON.stringify(r)); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2); }
+function setMsg(t){ document.getElementById('msg').textContent=t; }
+
+
+/* ══════════════════════════════════════════
+   STUDENT AUTH
+══════════════════════════════════════════ */
+var cu = null;
+
+window.login = function(){
+  var ph = document.getElementById('loginPhone').value.trim();
+  var pw = document.getElementById('loginPassword').value;
+  if(!ph||!pw){ setMsg('Please fill all fields'); return; }
+  var users = getUsers();
+  var user  = users.find(function(u){ return u.phone===ph && u.password===pw; });
+  if(user){
+    var fresh = getUsers().find(function(u){ return u.id===user.id; });
+    cu = fresh || user;
+    sessionStorage.setItem('cu', JSON.stringify(cu));
+    setMsg('Welcome! Login successful');
+    document.getElementById('authBox').style.display='none';
+    document.getElementById('appBox').style.display='block';
+    document.getElementById('page-app').classList.add('app-bg-study');
+    var ts=document.getElementById('topSection'); if(ts) ts.style.display='none';
+    updateProfile(); renderCourses(cu.stream||'Natural Science'); updateHero(cu.stream||'Natural Science');
+    goTo('mainDash');
+  } else {
+    setMsg('Wrong phone number or password');
+  }
+};
+
+window.register = function(){
+  var ph = document.getElementById('regPhone').value.trim();
+  var pw = document.getElementById('regPassword').value;
+  var streamEl = document.querySelector('input[name="stream"]:checked');
+  if(!ph||!pw){ setMsg('Please fill all fields'); return; }
+  if(!streamEl){ setMsg('Please choose your stream'); return; }
+  var stream = streamEl.value;
+  var users  = getUsers();
+  if(users.find(function(u){ return u.phone===ph; })){ setMsg('Phone already registered'); return; }
+  var newUser = { id:uid(), phone:ph, password:pw, stream:stream, premiumStatus:false, paymentApproved:false, createdAt:new Date().toISOString() };
+  users.push(newUser); saveUsers(users);
+  setMsg('Registered successfully! Please login.'); showLogin();
+};
+
+window.updateProfile = function(){
+  if(!cu) return;
+  var fresh = getUsers().find(function(u){ return u.id===cu.id; });
+  if(fresh){ cu.paymentApproved=fresh.paymentApproved; cu.premiumStatus=fresh.premiumStatus; }
+  var el=document.querySelector('.user-profile'); if(el) el.textContent=cu.phone.charAt(0).toUpperCase();
+  var elP=document.querySelector('.user-details .phone'); if(elP) elP.textContent=cu.phone;
+  var elS=document.querySelector('.user-details .status'); if(elS) elS.textContent=(cu.paymentApproved||cu.premiumStatus)?'⭐ Premium':'Free';
+};
+
+window.updateHero = function(stream){
+  var isNS=stream!=='Social Science';
+  var greeting='Welcome back, <span style="color:#ffd700;font-style:normal">'+(cu?cu.phone:'Student')+'</span>! 👋';
+  var subtext=isNS?'Your journey through science, technology & innovation begins here!':'Your path through society, economics & human behavior awaits!';
+  var quote=isNS?'"The important thing is not to stop questioning." — Albert Einstein':'"Education is the most powerful weapon which you can use to change the world." — Nelson Mandela';
+  var el=document.getElementById('heroGreeting'); if(el) el.innerHTML=greeting;
+  var el2=document.getElementById('heroSubtext'); if(el2) el2.textContent=subtext;
+  var el3=document.getElementById('heroStreamBadge'); if(el3){ el3.className='stream-badge '+(isNS?'ns':'ss'); el3.innerHTML=(isNS?'🧪':'🌍')+' '+stream+' Stream'; }
+  var el4=document.getElementById('heroQuote'); if(el4) el4.textContent=quote;
+  var el5=document.getElementById('heroNumCourses'); if(el5) el5.textContent=isNS?8:6;
+};
+
+window.showRegister=function(){ document.getElementById('loginBox').style.display='none'; document.getElementById('registerBox').style.display='block'; };
+window.showLogin=function(){ document.getElementById('registerBox').style.display='none'; document.getElementById('loginBox').style.display='block'; };
+
+window.logout=function(){
+  cu=null; sessionStorage.removeItem('cu');
+  document.getElementById('authBox').style.display='flex';
+  document.getElementById('appBox').style.display='none';
+  document.getElementById('page-app').classList.remove('app-bg-study');
+  var ts=document.getElementById('topSection'); if(ts) ts.style.display='block';
+  setMsg('');
+  ['loginPhone','loginPassword','regPhone','regPassword'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  var sr=document.querySelector('input[name="stream"]:checked'); if(sr) sr.checked=false;
+};
+
+window.requestApproval=function(){
+  if(!cu){ alert('User not found'); return; }
+  var reqs=getRequests();
+  if(reqs.find(function(r){ return r.userPhone===cu.phone&&r.status==='pending'; })){ alert('You already have a pending request. Please wait for admin approval.'); return; }
+  reqs.push({id:uid(),userPhone:cu.phone,userId:cu.id,status:'pending',timestamp:new Date().toISOString()});
+  saveRequests(reqs); alert('Payment approval request sent! Please wait for admin confirmation.');
+};
+
+window.isPremium=function(){
+  if(!cu) return false;
+  var fresh=getUsers().find(function(u){ return u.id===cu.id; });
+  if(fresh){ cu.paymentApproved=fresh.paymentApproved; cu.premiumStatus=fresh.premiumStatus; }
+  return !!(cu.paymentApproved||cu.premiumStatus);
+};
+
+window.copyText=function(id){
+  navigator.clipboard.writeText(document.getElementById(id).textContent)
+    .then(function(){ alert('Copied!'); }).catch(function(){ alert('Please copy manually.'); });
+};
+
+/* Auto-restore session */
+document.addEventListener('DOMContentLoaded', function(){
+  var saved=sessionStorage.getItem('cu');
+  if(saved){ try{
+    cu=JSON.parse(saved);
+    var fresh=getUsers().find(function(u){ return u.id===cu.id; }); if(fresh) cu=fresh;
+    document.getElementById('authBox').style.display='none';
+    document.getElementById('appBox').style.display='block';
+    document.getElementById('page-app').classList.add('app-bg-study');
+    var ts=document.getElementById('topSection'); if(ts) ts.style.display='none';
+    updateProfile(); renderCourses(cu.stream||'Natural Science'); updateHero(cu.stream||'Natural Science');
+    goTo('mainDash');
+  }catch(e){ sessionStorage.removeItem('cu'); } }
+});
+
+
+/* ══════════════════════════════════════════
+   DASHBOARD NAVIGATION
+══════════════════════════════════════════ */
+var currentCourse='', currentMode='', currentChapter=1, navHistory=[];
+var PANELS=['mainDash','menuDash','gpaDash','courseDash','chaptersDash','materialItemsDash','materialContentDash','difficultyDash','premiumDash','contactDash'];
+
+function getActivePanel(){ for(var i=0;i<PANELS.length;i++){ if(document.getElementById(PANELS[i]).classList.contains('active')) return PANELS[i]; } return null; }
+
+window.goTo=function(id){
+  var current=getActivePanel();
+  if(current&&current!==id) navHistory.push(current);
+  PANELS.forEach(function(p){ document.getElementById(p).classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  var ts=document.getElementById('topSection'); if(ts) ts.style.display=(id==='mainDash')?'none':'block';
+  window.scrollTo({top:0,behavior:'smooth'});
+};
+
+window.goBack=function(){
+  if(!navHistory.length) return;
+  var prev=navHistory.pop();
+  PANELS.forEach(function(p){ document.getElementById(p).classList.remove('active'); });
+  document.getElementById(prev).classList.add('active');
+  var ts=document.getElementById('topSection'); if(ts) ts.style.display=(prev==='mainDash')?'none':'block';
+  window.scrollTo({top:0,behavior:'smooth'});
+};
+
+/* Wrap goTo to initialize GPA */
+(function(){
+  var _orig=window.goTo;
+  var gpaInit=false;
+  window.goTo=function(id){
+    _orig(id);
+    if(id==='gpaDash'&&!gpaInit){ gpaInit=true; for(var i=0;i<5;i++) addGPARow(); }
+  };
+})();
+
+
+/* ══════════════════════════════════════════
+   COURSE DEFINITIONS
+══════════════════════════════════════════ */
+var naturalScienceCourses=[
+  {name:'Anthropology',icon:'🧬',desc:'Study of human cultures & societies',gradient:'cc-anthro',factLabel:'📊 Did You Know?',fact:'Over 7,000 distinct cultures exist worldwide'},
+  {name:'Emerging Technology',icon:'💻',desc:'AI, IoT, Blockchain & the future',gradient:'cc-tech',factLabel:'⚡ Market Insight',fact:'AI market projected to hit $1.5 trillion by 2030'},
+  {name:'Entrepreneurship',icon:'🚀',desc:'Business creation & innovation',gradient:'cc-entre',factLabel:'📈 Success Rate',fact:'90% of unicorn companies solve real-world problems'},
+  {name:'Applied Mathematics',icon:'📐',desc:'Linear algebra, calculus & more',gradient:'cc-math',factLabel:'🧮 Real-World Use',fact:'Used in cryptography, AI, and climate modeling'},
+  {name:'Computer Programming',icon:'⌨️',desc:'Coding, algorithms & software',gradient:'cc-prog',factLabel:'🐍 Fun Fact',fact:'Over 700 programming languages have been created'},
+  {name:'English',icon:'📝',desc:'Grammar, writing & language skills',gradient:'cc-eng',factLabel:'🗣️ Global Reach',fact:'1.5 billion speakers make English the #1 global language'},
+  {name:'History of Ethiopia',icon:'🏛️',desc:'Ancient kingdoms & regional history',gradient:'cc-hist',factLabel:'👑 Ancient Legacy',fact:"Home of the Aksumite Empire — one of the ancient world's great powers"},
+  {name:'Moral and Civic Education',icon:'⚖️',desc:'Ethics, values & citizenship',gradient:'cc-civic',factLabel:'🤝 Core Value',fact:'Foundation of every democratic and just society'}
+];
+var socialScienceCourses=[
+  {name:'Economics',icon:'💰',desc:'Markets, supply, demand & policy',gradient:'cc-econ',factLabel:'📈 Economic Insight',fact:'Global GDP has grown more than 10x since 1960'},
+  {name:'English',icon:'📝',desc:'Grammar, writing & language skills',gradient:'cc-eng',factLabel:'🗣️ Global Reach',fact:'1.5 billion speakers make English the #1 global language'},
+  {name:'Geography',icon:'🌍',desc:'Physical & human geography',gradient:'cc-geo',factLabel:'🌐 World Fact',fact:'Earth has 195 countries across 7 continents'},
+  {name:'Mathematics',icon:'📐',desc:'Algebra, calculus & statistics',gradient:'cc-math',factLabel:'🧮 Math Insight',fact:'Mathematics is the universal language of science'},
+  {name:'Psychology',icon:'🧠',desc:'Human behavior & the mind',gradient:'cc-psych',factLabel:'🔬 Brain Fact',fact:'The human brain has about 86 billion neurons'},
+  {name:'Logic and Critical Thinking',icon:'♟️',desc:'Reasoning, arguments & problem solving',gradient:'cc-logic',factLabel:'♟️ Logic Insight',fact:'Strong critical thinking skills improve decision-making by 37%'}
+];
+
+window.renderCourses=function(stream){
+  var courses=(stream==='Social Science')?socialScienceCourses:naturalScienceCourses;
+  var grid=document.getElementById('coursesGrid'); if(!grid) return;
+  grid.innerHTML='';
+  courses.forEach(function(c){
+    var sn=c.name.replace(/'/g,"\\'"); var sd=c.desc.replace(/'/g,"\\'");
+    grid.innerHTML+='<div class="course-card '+c.gradient+'" onclick="openCourse(\''+sn+'\',\''+c.icon+'\',\''+sd+'\')"><div class="card-body"><div class="card-top"><div class="card-emoji">'+c.icon+'</div><div><div class="card-title">'+c.name+'</div><div class="card-desc">'+c.desc+'</div></div></div><div class="card-fact"><div class="fact-lbl">'+c.factLabel+'</div><div class="fact-text">'+c.fact+'</div></div></div><div class="card-footer-bar"><span class="chap-info">5 Chapters · Materials &amp; Exams</span><span class="card-arrow">→</span></div></div>';
+  });
+};
+
+window.openCourse=function(name,icon,desc){
+  currentCourse=name;
+  document.getElementById('courseTitle').textContent=icon+' '+name;
+  document.getElementById('courseDesc').textContent=desc;
+  goTo('courseDash');
+};
+
+window.openChapters=function(mode){
+  currentMode=mode;
+  var premium=isPremium();
+  document.getElementById('chaptersTitle').textContent=(mode==='material'?'📖 Materials — ':'✏️ Exams — ')+currentCourse;
+  document.getElementById('chaptersHint').textContent=mode==='material'?'Select a chapter to view its materials.':'Select a chapter to take the quiz.';
+  var html='';
+  for(var i=1;i<=5;i++){
+    var locked=(i>1&&!premium);
+    html+='<button class="chapter-btn '+(locked?'locked':'free')+'" onclick="onChapter('+i+')">Chapter '+i+(locked?' 🔒':'')+'</button>';
+  }
+  document.getElementById('chaptersList').innerHTML=html;
+  goTo('chaptersDash');
+};
+
+window.onChapter=function(num){
+  var premium=isPremium();
+  if(num>1&&!premium){ alert('This chapter requires Premium access. Go to Menu → Premium to upgrade.'); goTo('premiumDash'); return; }
+  currentChapter=num;
+  if(currentMode==='material'){
+    document.getElementById('materialItemsTitle').textContent='📖 Chapter '+num+' Materials — '+currentCourse;
+    goTo('materialItemsDash');
+  } else {
+    document.getElementById('difficultyTitle').textContent='✏️ Chapter '+num+' Exam — '+currentCourse;
+    goTo('difficultyDash');
+  }
+};
+
+window.openMaterialContent=function(num){
+  var content=getMaterialContent(currentCourse,currentChapter,num);
+  document.getElementById('materialContentTitle').textContent='Chapter '+currentChapter+' — Material '+num+' | '+currentCourse;
+  var box=document.getElementById('materialContentBox'); box.className='content-box mat'; box.innerHTML=content;
+  goTo('materialContentDash');
+};
+
+window.openExamContent=function(diff){
+  /* Launch exam inline — no page navigation needed */
+  launchExam(currentCourse, diff, currentChapter);
+};
+
+
+/* ══════════════════════════════════════════
+   GPA CALCULATOR
+══════════════════════════════════════════ */
+var gradePoints={'A':4.0,'A-':3.75,'B+':3.5,'B':3.0,'B-':2.75,'C+':2.5,'C':2.0,'C-':1.75,'D':1.0,'F':0.0};
+var gpaRowCount=0;
+
+function buildGradeOptions(selected){
+  return ['A','A-','B+','B','B-','C+','C','C-','D','F'].map(function(g){
+    return '<option value="'+g+'"'+(selected===g?' selected':'')+'>'+g+' ('+gradePoints[g].toFixed(2)+')</option>';
+  }).join('');
+}
+
+window.addGPARow=function(cn,ch,gr){
+  gpaRowCount++;
+  var id=gpaRowCount;
+  var tr=document.createElement('tr'); tr.id='gpa-row-'+id;
+  tr.innerHTML='<td><input class="gpa-input" type="text" placeholder="e.g. Calculus" value="'+(cn||'')+'" id="gpa-course-'+id+'"></td>'+
+    '<td><input class="gpa-input" type="number" min="1" max="10" placeholder="3" value="'+(ch||'')+'" id="gpa-credit-'+id+'" style="width:80px"></td>'+
+    '<td><select class="gpa-select" id="gpa-grade-'+id+'" onchange="updateGPAPoints('+id+')">'+buildGradeOptions(gr||'')+'</select></td>'+
+    '<td class="gpa-points-cell" id="gpa-pts-'+id+'">'+(gr?gradePoints[gr].toFixed(2):'—')+'</td>'+
+    '<td><button class="del-row-btn" onclick="deleteGPARow('+id+')">✕</button></td>';
+  document.getElementById('gpaBody').appendChild(tr);
+};
+
+window.updateGPAPoints=function(id){ var g=document.getElementById('gpa-grade-'+id).value; document.getElementById('gpa-pts-'+id).textContent=gradePoints[g]!==undefined?gradePoints[g].toFixed(2):'—'; };
+window.deleteGPARow=function(id){ var r=document.getElementById('gpa-row-'+id); if(r) r.parentNode.removeChild(r); };
+
+window.calculateGPA=function(){
+  var rows=document.getElementById('gpaBody').querySelectorAll('tr');
+  if(!rows.length){ alert('Please add at least one course.'); return; }
+  var totalPoints=0,totalCredits=0,validRows=0;
+  rows.forEach(function(tr){
+    var id=tr.id.replace('gpa-row-','');
+    var creditEl=document.getElementById('gpa-credit-'+id); var gradeEl=document.getElementById('gpa-grade-'+id);
+    if(!creditEl||!gradeEl) return;
+    var credits=parseFloat(creditEl.value); var grade=gradeEl.value;
+    if(isNaN(credits)||credits<=0||!grade) return;
+    totalPoints+=gradePoints[grade]*credits; totalCredits+=credits; validRows++;
+  });
+  if(!validRows||!totalCredits){ alert('Please fill in credit hours and grades.'); return; }
+  var cgpa=totalPoints/totalCredits;
+  var label,labelColor;
+  if(cgpa>=3.75){label='Distinction 🌟';labelColor='#1b5e20';}
+  else if(cgpa>=3.5){label='Merit 🥈';labelColor='#004d40';}
+  else if(cgpa>=3.0){label='Good 👍';labelColor='#1565c0';}
+  else if(cgpa>=2.0){label='Satisfactory 📚';labelColor='#e65100';}
+  else{label='Needs Improvement 📖';labelColor='#880e4f';}
+  var res=document.getElementById('gpaResult'); res.style.display='block';
+  document.getElementById('gpaScore').textContent=cgpa.toFixed(2);
+  var lbl=document.getElementById('gpaGradeLabel'); lbl.textContent=label; lbl.style.background=labelColor; lbl.style.color='white';
+  document.getElementById('gpaDetail').innerHTML='Total Credits: <strong>'+totalCredits+'</strong> | Points Earned: <strong>'+totalPoints.toFixed(2)+'</strong> | Courses: <strong>'+validRows+'</strong>';
+  res.scrollIntoView({behavior:'smooth',block:'nearest'});
+};
+
+window.clearGPA=function(){ document.getElementById('gpaBody').innerHTML=''; document.getElementById('gpaResult').style.display='none'; gpaRowCount=0; for(var i=0;i<5;i++) addGPARow(); };
+
+
+/* ══════════════════════════════════════════
+   MATERIAL CONTENT DATA
+══════════════════════════════════════════ */
+function getMaterialContent(course,chapter,num){
+  if(chapter>1) return '<p style="color:#e67e22;font-weight:bold;font-size:1.1em;">🔒 Premium Content<br><br>This chapter requires premium access. Go to Menu → Premium to unlock all chapters.</p>';
+  var data={
+    'Anthropology':{1:'<h3>Introduction to Anthropology</h3><br>Anthropology is the scientific study of humans across time and space.<br><br><strong>Key Topics:</strong><br>• Four fields of anthropology<br>• Cultural vs. biological anthropology<br>• Key thinkers: Franz Boas, Margaret Mead',2:'<h3>Human Evolution Basics</h3><br>Covers the biological foundations of humankind.<br><br><strong>Key Topics:</strong><br>• Primate origins<br>• Hominid fossil record<br>• Out-of-Africa migration theory',3:'<h3>Cultural Diversity</h3><br>Culture is the learned behavior shared by a group.<br><br><strong>Key Topics:</strong><br>• Ethnocentrism vs. cultural relativism<br>• Symbols, rituals, and norms<br>• Globalization and cultural change'},
+    'Emerging Technology':{1:'<h3>What is Artificial Intelligence?</h3><br>AI is the simulation of human intelligence in machines.<br><br><strong>Key Topics:</strong><br>• History of AI<br>• Narrow AI vs. General AI<br>• Real-world AI applications',2:'<h3>Machine Learning Fundamentals</h3><br>Allows computers to learn from data.<br><br><strong>Key Topics:</strong><br>• Supervised, unsupervised, reinforcement learning<br>• Overfitting and underfitting',3:'<h3>Deep Learning and Neural Networks</h3><br>Multi-layered networks to recognize patterns.<br><br><strong>Key Topics:</strong><br>• Neurons and activation functions<br>• Backpropagation<br>• CNNs and applications'},
+    'Entrepreneurship':{1:'<h3>Idea Validation</h3><br>Validate your idea before building.<br><br><strong>Key Topics:</strong><br>• The Lean Startup methodology<br>• Customer interviews<br>• Minimum Viable Product (MVP)',2:'<h3>Market Research</h3><br>Understanding your market is critical.<br><br><strong>Key Topics:</strong><br>• Primary vs. secondary research<br>• Competitor analysis<br>• Market segmentation',3:'<h3>Market Sizing</h3><br>Quantifying your market helps attract investors.<br><br><strong>Key Topics:</strong><br>• TAM, SAM, SOM<br>• Revenue projection basics'},
+    'Applied Mathematics':{1:'<h3>Vectors and Vector Spaces</h3><br>Vectors have both magnitude and direction.<br><br><strong>Key Topics:</strong><br>• Vector notation<br>• Dot product and cross product<br>• Linear independence',2:'<h3>Matrices and Operations</h3><br>Rectangular arrays of numbers.<br><br><strong>Key Topics:</strong><br>• Matrix multiplication<br>• Transpose and inverse<br>• Solving systems',3:'<h3>Determinants and Eigenvalues</h3><br>Determinants measure volume scaling.<br><br><strong>Key Topics:</strong><br>• Computing determinants<br>• Eigenvalues and eigenvectors'},
+    'Computer Programming':{1:'<h3>Variables, Types and I/O</h3><br>How Python stores and displays data.<br><br><strong>Key Topics:</strong><br>• int, float, str, bool types<br>• print() and input()<br>• Type conversion',2:'<h3>Control Flow</h3><br>How programs make decisions.<br><br><strong>Key Topics:</strong><br>• if/elif/else<br>• while and for loops<br>• break, continue',3:'<h3>Functions and Modules</h3><br>Organize code with reusable functions.<br><br><strong>Key Topics:</strong><br>• Defining functions<br>• Parameters and return values<br>• Importing modules'},
+    'English':{1:'<h3>Parts of Speech</h3><br>Building blocks of English grammar.<br><br><strong>Key Topics:</strong><br>• Nouns, verbs, adjectives<br>• Pronouns, prepositions, conjunctions',2:'<h3>Sentence Structure</h3><br>Build clear, correct sentences.<br><br><strong>Key Topics:</strong><br>• Subject, predicate, object<br>• Simple, compound, complex sentences',3:'<h3>Tenses and Mood</h3><br>Master verb tenses.<br><br><strong>Key Topics:</strong><br>• Simple, continuous, perfect tenses<br>• Subjunctive and imperative mood'},
+    'History of Ethiopia':{1:'<h3>Rise of Aksum</h3><br>One of the great ancient civilizations.<br><br><strong>Key Topics:</strong><br>• Geographic location<br>• Trade routes: Red Sea, Arabia<br>• Emergence of the Aksumite state',2:'<h3>Religion and Culture of Aksum</h3><br>Religion shaped Aksumite society.<br><br><strong>Key Topics:</strong><br>• Introduction of Christianity<br>• Construction of obelisks<br>• The Ge-ez script',3:'<h3>Decline and Legacy</h3><br>Why great empires fall.<br><br><strong>Key Topics:</strong><br>• Environmental decline<br>• Shifts in trade routes<br>• Legacy in modern Ethiopian identity'},
+    'Moral and Civic Education':{1:'<h3>What is Ethics?</h3><br>The branch of philosophy dealing with right and wrong.<br><br><strong>Key Topics:</strong><br>• Normative vs. descriptive ethics<br>• Moral intuition and reasoning',2:'<h3>Major Ethical Theories</h3><br>Frameworks for moral decision-making.<br><br><strong>Key Topics:</strong><br>• Deontology<br>• Consequentialism: Utilitarianism<br>• Virtue Ethics',3:'<h3>Ethics in Society</h3><br>Applied ethics in real contexts.<br><br><strong>Key Topics:</strong><br>• Business ethics<br>• Bioethics<br>• Digital ethics and privacy'},
+    'Economics':{1:'<h3>Introduction to Economics</h3><br>Study of decisions under scarcity.<br><br><strong>Key Topics:</strong><br>• Scarcity and opportunity cost<br>• Economic systems<br>• Key thinkers: Adam Smith, Keynes',2:'<h3>Supply and Demand</h3><br>Foundation of market economics.<br><br><strong>Key Topics:</strong><br>• Laws of supply and demand<br>• Market equilibrium<br>• Elasticity',3:'<h3>Market Structures</h3><br>How markets affect prices and competition.<br><br><strong>Key Topics:</strong><br>• Perfect competition<br>• Monopoly<br>• Oligopoly'},
+    'Geography':{1:'<h3>Physical Geography</h3><br>Natural features of the Earth\'s surface.<br><br><strong>Key Topics:</strong><br>• Landforms and plate tectonics<br>• Climate zones and biomes<br>• Water cycle',2:'<h3>Human Geography</h3><br>How people interact with environments.<br><br><strong>Key Topics:</strong><br>• Population distribution<br>• Urbanization<br>• Migration patterns',3:'<h3>Economic Geography</h3><br>Distribution of economic activities.<br><br><strong>Key Topics:</strong><br>• Natural resources<br>• Globalization<br>• GDP and HDI'},
+    'Mathematics':{1:'<h3>Algebra and Functions</h3><br>Study of mathematical symbols and rules.<br><br><strong>Key Topics:</strong><br>• Variables, expressions, equations<br>• Linear, quadratic, exponential functions<br>• Systems of equations',2:'<h3>Calculus Fundamentals</h3><br>Rates of change and accumulation.<br><br><strong>Key Topics:</strong><br>• Limits and continuity<br>• Derivatives<br>• Introduction to integration',3:'<h3>Statistics and Probability</h3><br>Collecting and interpreting data.<br><br><strong>Key Topics:</strong><br>• Mean, median, mode<br>• Probability rules<br>• Normal distribution'},
+    'Psychology':{1:'<h3>Introduction to Psychology</h3><br>Scientific study of the mind and behavior.<br><br><strong>Key Topics:</strong><br>• History of psychology<br>• Major branches<br>• Key figures: Freud, Pavlov, Skinner',2:'<h3>Biological Bases of Behavior</h3><br>Brain and nervous system foundations.<br><br><strong>Key Topics:</strong><br>• Neuron structure<br>• Brain lobes and their functions<br>• Neurotransmitters',3:'<h3>Learning and Memory</h3><br>Change in behavior from experience.<br><br><strong>Key Topics:</strong><br>• Classical and operant conditioning<br>• Types of memory<br>• Memory encoding and retrieval'},
+    'Logic and Critical Thinking':{1:'<h3>What is Logic?</h3><br>Systematic study of valid reasoning.<br><br><strong>Key Topics:</strong><br>• Propositions and arguments<br>• Deductive vs. inductive reasoning<br>• Validity and soundness',2:'<h3>Logical Fallacies</h3><br>Errors in reasoning.<br><br><strong>Key Topics:</strong><br>• Ad hominem<br>• Straw man<br>• False dichotomy and slippery slope',3:'<h3>Critical Thinking Skills</h3><br>Analyze, evaluate, and construct arguments.<br><br><strong>Key Topics:</strong><br>• Analyzing evidence<br>• Identifying assumptions<br>• Applying logical reasoning'}
+  };
+  var cd=data[course]; if(cd&&cd[num]) return cd[num];
+  return '<p>Content for '+course+' — Material '+num+' coming soon.</p>';
+}
+
+
+/* ══════════════════════════════════════════
+   EXAM ENGINE (inline — no page redirect)
+══════════════════════════════════════════ */
+var examCourse='', examLevel='', examChapter=1;
+var examMode='', examQuestions=[], examAnswers=[], examCurrentQ=0;
+var examTimerInterval=null, examTimeLeft=600, examStartTime=null;
+
+var allQuestions={
+  'Computer Programming':{low:[{q:'What is 2+2?',options:['3','4','5','6'],answer:'4'},{q:'Which is a programming language?',options:['HTML','CSS','Python','Markdown'],answer:'Python'},{q:'What does print() do?',options:['Output to screen','Read input','Loop','Delete'],answer:'Output to screen'}],medium:[{q:'What does JS stand for?',options:['JavaScript','JavaSystem','JustScript','JavaServer'],answer:'JavaScript'},{q:'Single-line comment symbol in JS?',options:['//','/*','#','--'],answer:'//'},{q:'type(3/2) in Python 3 returns:',options:['int','float','str','complex'],answer:'float'}],difficult:[{q:'What is recursion?',options:['A function calling itself','A loop','A type','A class'],answer:'A function calling itself'},{q:'type(3/2) in Python 3:',options:['int','float','str','complex'],answer:'float'},{q:'[x**2 for x in range(4)] produces:',options:['[1,4,9,16]','[0,1,4,9]','[0,1,2,3]','[1,2,3,4]'],answer:'[0,1,4,9]'}]},
+  'Anthropology':{low:[{q:'Anthropology is the study of:',options:['Rocks','Humans','Plants','Stars'],answer:'Humans'},{q:'Which is a subfield of anthropology?',options:['Archaeology','Chemistry','Physics','Biology'],answer:'Archaeology'},{q:'Margaret Mead was a famous:',options:['Physicist','Anthropologist','Economist','Chemist'],answer:'Anthropologist'}],medium:[{q:'Ethnography is:',options:['Writing about cultures','Lab experiment','Survey','Genetic analysis'],answer:'Writing about cultures'},{q:'Cultural relativism means:',options:['All cultures equal morally','Judging a culture by its own standards','Superiority of Western culture','None'],answer:'Judging a culture by its own standards'},{q:'Participant observation is used in:',options:['Archaeology','Ethnography','Genetics','Statistics'],answer:'Ethnography'}],difficult:[{q:'Who proposed cultural relativism?',options:['Franz Boas','Charles Darwin','Karl Marx','Sigmund Freud'],answer:'Franz Boas'},{q:'Thick description introduced by:',options:['Franz Boas','Malinowski','Clifford Geertz','Ruth Benedict'],answer:'Clifford Geertz'},{q:'Emic vs. etic: emic is:',options:['Outsider view','Insider view','Both outsider','Both insider'],answer:'Insider view'}]},
+  'Emerging Technology':{low:[{q:'AI stands for:',options:['Artificial Intelligence','Automated Interface','Algorithmic Input','Advanced Integration'],answer:'Artificial Intelligence'},{q:'Which is an IoT device?',options:['Smart Thermostat','Desktop PC','Printer','Monitor'],answer:'Smart Thermostat'},{q:'A chatbot is an example of:',options:['Quantum computing','AI application','Blockchain','IoT'],answer:'AI application'}],medium:[{q:'Machine Learning is a subset of:',options:['AI','Networking','Databases','Hardware'],answer:'AI'},{q:'Supervised learning requires:',options:['Unlabeled data','Labeled training data','No data','Only test data'],answer:'Labeled training data'},{q:'Overfitting means:',options:['Works on new data','Memorizes training but fails on new data','Model is too simple','Training is slow'],answer:'Memorizes training but fails on new data'}],difficult:[{q:'Algorithm for image recognition:',options:['CNN','LSTM','SVM','KNN'],answer:'CNN'},{q:'The Turing Test measures:',options:['Computing speed','Whether a machine can exhibit intelligent behavior','Memory','Energy efficiency'],answer:'Whether a machine can exhibit intelligent behavior'},{q:'Backpropagation adjusts:',options:['Input data','Network architecture','Weights using gradient descent','Activation functions only'],answer:'Weights using gradient descent'}]},
+  'Entrepreneurship':{low:[{q:'MVP stands for:',options:['Minimum Viable Product','Most Valuable Player','Maximum Value Plan','Market Validation Process'],answer:'Minimum Viable Product'},{q:'A business plan is used to:',options:['Guide the business','Decorate the office','Hire employees','None'],answer:'Guide the business'},{q:'The Lean Startup was introduced by:',options:['Steve Jobs','Eric Ries','Bill Gates','Elon Musk'],answer:'Eric Ries'}],medium:[{q:'A pivot means:',options:['Shutting down','Changing strategy based on validated learning','Hiring more','Expanding markets'],answer:'Changing strategy based on validated learning'},{q:'TAM stands for:',options:['Total Addressable Market','Target Audience Management','Tech Acceleration Model','Total Asset Management'],answer:'Total Addressable Market'},{q:'Problem-solution fit means:',options:['Your team likes idea','Customers confirm problem and solution addresses it','You have funding','Product is fully built'],answer:'Customers confirm problem and solution addresses it'}],difficult:[{q:'Beachhead market strategy means:',options:['Targeting all customers','Starting with a narrow winnable segment','Focusing on premium only','Entering the largest market'],answer:'Starting with a narrow winnable segment'},{q:'Jobs-to-be-Done popularized by:',options:['Peter Drucker','Clayton Christensen','Michael Porter','Jim Collins'],answer:'Clayton Christensen'},{q:'Customer Development steps:',options:['Discovery, Validation, Creation, Building','Build, Test, Sell, Scale','Plan, Fund, Launch, Grow','Ideate, Prototype, Test, Pivot'],answer:'Discovery, Validation, Creation, Building'}]},
+  'Applied Mathematics':{low:[{q:'A vector has:',options:['Magnitude only','Direction only','Both magnitude and direction','Neither'],answer:'Both magnitude and direction'},{q:'Matrix addition requires:',options:['Same size','Square shape','Equal determinant','Same eigenvalues'],answer:'Same size'},{q:'Identity matrix has:',options:['All zeros','1s on diagonal 0s elsewhere','All ones','Random values'],answer:'1s on diagonal 0s elsewhere'}],medium:[{q:'Determinant of [a b; c d] is:',options:['a+d','ad-bc','ab-cd','ac+bd'],answer:'ad-bc'},{q:'Matrix multiplication AB equals BA:',options:['Always','Never','Sometimes','Only for square'],answer:'Sometimes'},{q:'Eigenvalues of A satisfy:',options:['Av=lambda*v','Av=v+lambda','A+v=lambda','A*lambda=v'],answer:'Av=lambda*v'}],difficult:[{q:'Rank of a matrix is:',options:['Number of rows','Number of columns','Dimension of the column space','Trace of the matrix'],answer:'Dimension of the column space'},{q:'Gram-Schmidt produces:',options:['A diagonal matrix','An orthonormal basis','The inverse','The eigendecomposition'],answer:'An orthonormal basis'},{q:'Spectral Theorem applies to:',options:['All matrices','Symmetric real matrices with real eigenvalues','Only diagonal matrices','Invertible matrices only'],answer:'Symmetric real matrices with real eigenvalues'}]},
+  'English':{low:[{q:'Which is a noun?',options:['Run','Beautiful','Happiness','Quickly'],answer:'Happiness'},{q:'Tense of "She walks":',options:['Present','Past','Future','Perfect'],answer:'Present'},{q:'An adjective describes:',options:['A verb','A noun or pronoun','Another adjective only','A preposition'],answer:'A noun or pronoun'}],medium:[{q:'A compound sentence contains:',options:['One independent clause','Two or more independent clauses','A dependent clause only','No subject'],answer:'Two or more independent clauses'},{q:'"She runs every day" is:',options:['Past simple','Present simple','Present continuous','Future simple'],answer:'Present simple'},{q:'Conjunction in "I wanted to go, but it rained":',options:['Wanted','Rained','But','Go'],answer:'But'}],difficult:[{q:'Subjunctive mood is used for:',options:['Statements of fact','Hypothetical situations','Questions only','Commands only'],answer:'Hypothetical situations'},{q:'A dangling modifier error:',options:['Subject and verb disagree','Modifier does not clearly modify intended noun','Two clauses joined wrongly','Pronoun has no antecedent'],answer:'Modifier does not clearly modify intended noun'},{q:'"The book, which was on the shelf, fell." The clause is:',options:['Restrictive','Non-restrictive','Adverbial','Nominal'],answer:'Non-restrictive'}]},
+  'History of Ethiopia':{low:[{q:'Aksum was located in:',options:['Kenya','Ethiopia','Egypt','Sudan'],answer:'Ethiopia'},{q:"Aksumites used the script:",options:["Ge'ez",'Latin','Arabic','Hebrew'],answer:"Ge'ez"},{q:'Aksum known for trade in:',options:['Rice and wheat','Ivory, gold, and spices','Cotton and silk','Oil and minerals'],answer:'Ivory, gold, and spices'}],medium:[{q:'Christianity became state religion of Aksum under:',options:['Yohannes IV','Ezana','Tewodros','Haile Selassie'],answer:'Ezana'},{q:'Stone structures built by Aksumites called:',options:['Pyramids','Obelisks or Stelae','Cathedrals','Ziggurats'],answer:'Obelisks or Stelae'},{q:'Aksum traded through which sea?',options:['Mediterranean','Red Sea','Indian Ocean','Caspian Sea'],answer:'Red Sea'}],difficult:[{q:'Aksumite currency was significant because:',options:['Made of wood','One of first sub-Saharan African coinage systems','Borrowed from Rome','No international value'],answer:'One of first sub-Saharan African coinage systems'},{q:'Decline of Aksum was primarily linked to:',options:['Military conquest by Egypt','Shifts in trade routes and environmental degradation','A massive earthquake','Invasion by Zagwe dynasty'],answer:'Shifts in trade routes and environmental degradation'},{q:'Ezana inscription at Aksum is evidence of:',options:['Founding of the empire','Adoption of Christianity and military campaigns','A peace treaty with Rome','Construction of obelisks'],answer:'Adoption of Christianity and military campaigns'}]},
+  'Moral and Civic Education':{low:[{q:'Ethics deals with:',options:['Right and wrong','Natural laws','Computer codes','Economic models'],answer:'Right and wrong'},{q:'The Golden Rule says:',options:['Do unto others...','Survival of fittest','Everything is relative','Might makes right'],answer:'Do unto others...'},{q:'Virtue ethics developed by:',options:['Kant','Mill','Aristotle','Plato'],answer:'Aristotle'}],medium:[{q:'Utilitarianism judges actions by:',options:['Their intention alone','Consequences for overall happiness','Adherence to rules','Cultural norms'],answer:'Consequences for overall happiness'},{q:'The categorical imperative is from:',options:['Aristotle','Kant','Mill','Hume'],answer:'Kant'},{q:'Moral relativism holds that:',options:['One universal moral code','Moral truths are objective','Moral standards are relative to culture','Ethics is impossible'],answer:'Moral standards are relative to culture'}],difficult:[{q:'Trolley problem illustrates tension between:',options:['Deontology and relativism','Deontological and consequentialist ethics','Virtue ethics and nihilism','Applied and meta-ethics'],answer:'Deontological and consequentialist ethics'},{q:"Rawls' veil of ignorance designed to:",options:['Prove God exists','Derive principles of justice without bias','Justify authoritarianism','Argue for cultural relativism'],answer:'Derive principles of justice without bias'},{q:'Care ethics (Gilligan) prioritizes:',options:['Universal rules','Consequences for society','Relationships and context','Individual rights only'],answer:'Relationships and context'}]},
+  'Economics':{low:[{q:'Economics is the study of:',options:['Rocks and minerals','How people make decisions under scarcity','Laws of physics','Computer systems'],answer:'How people make decisions under scarcity'},{q:'Scarcity means:',options:['Unlimited resources','Resources are limited relative to wants','No one needs anything','Free goods for all'],answer:'Resources are limited relative to wants'},{q:'Law of demand: as price rises, quantity demanded:',options:['Rises','Falls','Stays the same','Doubles'],answer:'Falls'}],medium:[{q:'Market equilibrium when:',options:['Supply exceeds demand','Demand exceeds supply','Quantity supplied equals quantity demanded','Government sets price'],answer:'Quantity supplied equals quantity demanded'},{q:'Perfectly competitive market has:',options:['One seller','Two dominant firms','Many sellers with identical products','Government-controlled prices'],answer:'Many sellers with identical products'},{q:'Price elasticity of demand measures:',options:['How supply changes','How sensitive quantity demanded is to price','Producer revenue','Consumer income'],answer:'How sensitive quantity demanded is to price'}],difficult:[{q:'"Invisible hand" introduced by:',options:['Karl Marx','John Keynes','Adam Smith','Milton Friedman'],answer:'Adam Smith'},{q:'In a monopoly, the firm is a:',options:['Price taker','Price maker','Price follower','Regulated seller'],answer:'Price maker'},{q:'GDP measures:',options:['Total population growth','Total value of goods and services in a country','Government budget','Trade deficit'],answer:'Total value of goods and services in a country'}]},
+  'Geography':{low:[{q:'The equator divides Earth into:',options:['East and West','North and South','Top and Bottom','Two countries'],answer:'North and South'},{q:'The largest continent is:',options:['Africa','Europe','Asia','Australia'],answer:'Asia'},{q:'A river flows:',options:['From sea to mountains','From higher to lower elevation','Uphill always','In a circle'],answer:'From higher to lower elevation'}],medium:[{q:'Water cycle is:',options:['Erosion','Evaporation and return as rain','Photosynthesis','Plate tectonics'],answer:'Evaporation and return as rain'},{q:'Migration due to lack of jobs is a:',options:['Pull factor','Push factor','Natural disaster','Political cause'],answer:'Push factor'},{q:'Urbanization refers to:',options:['City to rural movement','Growth of cities','Building of farms','Deforestation'],answer:'Growth of cities'}],difficult:[{q:'Plate tectonics explains:',options:['Formation of clouds','Movement of lithospheric plates causing earthquakes','Ocean currents','Seasons'],answer:'Movement of lithospheric plates causing earthquakes'},{q:'HDI measures:',options:['GDP only','Military strength','Life expectancy, education, and income','Exports and imports'],answer:'Life expectancy, education, and income'},{q:'The Sahara Desert is located in:',options:['Asia','South America','North Africa','Australia'],answer:'North Africa'}]},
+  'Mathematics':{low:[{q:'Slope of a horizontal line:',options:['1','-1','0','Undefined'],answer:'0'},{q:'2x = 10, so x =',options:['2','5','8','20'],answer:'5'},{q:'A vector has:',options:['Magnitude only','Direction only','Both magnitude and direction','Neither'],answer:'Both magnitude and direction'}],medium:[{q:'Quadratic formula solves:',options:['ax+b=0','ax²+bx+c=0','ax³=0','a/x=b'],answer:'ax²+bx+c=0'},{q:'Mean of 4,8,12,16:',options:['8','10','12','14'],answer:'10'},{q:'log₁₀(100):',options:['1','2','10','100'],answer:'2'}],difficult:[{q:'Derivative of x³:',options:['x²','3x²','3x','x⁴/4'],answer:'3x²'},{q:'∫2x dx =',options:['2x','x² + C','2x² + C','x + C'],answer:'x² + C'},{q:'Standard deviation measures:',options:['Average value','Middle value','Spread of data around mean','Maximum value'],answer:'Spread of data around mean'}]},
+  'Psychology':{low:[{q:'Psychology is the study of:',options:['The stars','The mind and behavior',"Earth's crust",'Chemical reactions'],answer:'The mind and behavior'},{q:"Pavlov's experiment involved conditioning a:",options:['Cat','Dog','Rat','Rabbit'],answer:'Dog'},{q:"Maslow's hierarchy top is:",options:['Food','Safety','Self-actualization','Love'],answer:'Self-actualization'}],medium:[{q:'Classical conditioning pairs:',options:['Reward with punishment','A neutral stimulus with an unconditioned stimulus','Two rewards','Two punishments'],answer:'A neutral stimulus with an unconditioned stimulus'},{q:'In operant conditioning, reinforcement:',options:['Decreases behavior','Increases likelihood of behavior','Has no effect','Punishes learner'],answer:'Increases likelihood of behavior'},{q:'Short-term memory can hold:',options:['3 items','7 items (plus or minus 2)','20 items','100 items'],answer:'7 items (plus or minus 2)'}],difficult:[{q:'Unconscious mind is key in:',options:['Behaviorism','Humanistic psychology','Psychoanalytic theory','Cognitive psychology'],answer:'Psychoanalytic theory'},{q:'Cognitive dissonance refers to:',options:['Memory loss','Discomfort from conflicting beliefs','Fear of open spaces','A sleep disorder'],answer:'Discomfort from conflicting beliefs'},{q:'Bystander effect: people are less likely to help when:',options:['They are alone','Others are present','They are hungry','They are friends with victim'],answer:'Others are present'}]},
+  'Logic and Critical Thinking':{low:[{q:'A valid argument:',options:['The conclusion is true','If premises true, conclusion must be true','All premises false','Conclusion is popular'],answer:'If premises true, conclusion must be true'},{q:'A logical fallacy is:',options:['A correct argument','An error in reasoning','A statistical fact','A scientific law'],answer:'An error in reasoning'},{q:'Deductive reasoning goes from:',options:['Specific to general','General to specific','Random to structured','Evidence to theory'],answer:'General to specific'}],medium:[{q:'Ad hominem attacks:',options:['The argument','The person making the argument','The evidence','The conclusion'],answer:'The person making the argument'},{q:'Straw man fallacy involves:',options:['Agreeing with argument','Misrepresenting argument to attack it','Providing strong evidence','Quoting out of context'],answer:'Misrepresenting argument to attack it'},{q:'Inductive reasoning is:',options:['Certain and guaranteed','Probable and based on evidence','Always wrong','Based on definitions'],answer:'Probable and based on evidence'}],difficult:[{q:'A sound argument is:',options:['Valid with at least one true premise','Valid with all true premises','Invalid but persuasive','Valid regardless of truth'],answer:'Valid with all true premises'},{q:'False dichotomy presents:',options:['Too many options','Only two options when more exist','No options','Contradictory options'],answer:'Only two options when more exist'},{q:'Modus ponens: If P then Q; P is true; therefore:',options:['Q is false','P is false','Q is true','Nothing follows'],answer:'Q is true'}]}
+};
+
+var coursePhotos={
+  'Computer Programming':{url:'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=700&auto=format',caption:'Computer Programming — Logic, algorithms & software engineering'},
+  'Anthropology':{url:'https://images.unsplash.com/photo-1508866300691-f0d19e68cae0?w=700&auto=format',caption:'Anthropology — Studying the diversity and history of human cultures'},
+  'Emerging Technology':{url:'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=700&auto=format',caption:'Emerging Technology — AI, robotics & the technology of tomorrow'},
+  'Entrepreneurship':{url:'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=700&auto=format',caption:'Entrepreneurship — Building ventures that change the world'},
+  'Applied Mathematics':{url:'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=700&auto=format',caption:'Applied Mathematics — The language of science, engineering & AI'},
+  'English':{url:'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=700&auto=format',caption:'English — Communication, grammar & the power of language'},
+  'History of Ethiopia':{url:'https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=700&auto=format',caption:'History of Ethiopia — Ancient kingdoms, culture & rich heritage'},
+  'Moral and Civic Education':{url:'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=700&auto=format',caption:'Moral & Civic Education — Ethics, values & responsible citizenship'},
+  'Economics':{url:'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=700&auto=format',caption:'Economics — Understanding markets, money & global trade'},
+  'Geography':{url:'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=700&auto=format',caption:'Geography — Exploring the physical and human world around us'},
+  'Mathematics':{url:'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=700&auto=format',caption:'Mathematics — Numbers, patterns & problem solving'},
+  'Psychology':{url:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=700&auto=format',caption:'Psychology — Understanding the human mind and behavior'},
+  'Logic and Critical Thinking':{url:'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=700&auto=format',caption:'Logic & Critical Thinking — Reasoning clearly in a complex world'}
+};
+
+function launchExam(course, level, chapter){
+  examCourse=course; examLevel=level; examChapter=chapter;
+  examMode=''; examQuestions=[]; examAnswers=[]; examCurrentQ=0;
+  examTimerInterval=null; examTimeLeft=600; examStartTime=null;
+  /* Reset exam UI */
+  document.getElementById('examCourseTitle').textContent=course+' — Chapter '+chapter+' ('+level.charAt(0).toUpperCase()+level.slice(1)+' Level)';
+  document.getElementById('modeSelection').style.display='block';
+  document.getElementById('questionsDiv').innerHTML='';
+  document.getElementById('finishBtn').style.display='none';
+  document.getElementById('examResult').innerHTML='';
+  document.getElementById('coursePhotoDiv').style.display='none';
+  document.getElementById('progressWrap').style.display='none';
+  document.getElementById('timerWrap').style.display='none';
+  document.getElementById('timerWrap').classList.remove('urgent');
+  showPage('page-exam');
+}
+
+/* Drag-to-scroll for exam */
+(function(){
+  var qDiv, isDragging=false, startY=0, startScroll=0;
+  document.addEventListener('DOMContentLoaded',function(){
+    qDiv=document.getElementById('questionsDiv');
+    qDiv.addEventListener('mousedown',function(e){ isDragging=true; startY=e.clientY; startScroll=qDiv.scrollTop; qDiv.classList.add('dragging'); });
+    document.addEventListener('mousemove',function(e){ if(!isDragging) return; qDiv.scrollTop=startScroll-(e.clientY-startY); });
+    document.addEventListener('mouseup',function(){ isDragging=false; qDiv.classList.remove('dragging'); });
+    qDiv.addEventListener('touchstart',function(e){ startY=e.touches[0].clientY; startScroll=qDiv.scrollTop; },{passive:true});
+    qDiv.addEventListener('touchmove',function(e){ qDiv.scrollTop=startScroll-(e.touches[0].clientY-startY); },{passive:true});
+  });
+})();
+
+window.startExam=function(selectedMode){
+  examMode=selectedMode; examStartTime=Date.now();
+  document.getElementById('modeSelection').style.display='none';
+  document.getElementById('progressWrap').style.display='block';
+  var q=allQuestions[examCourse]&&allQuestions[examCourse][examLevel];
+  examQuestions=q||[{q:'What is the capital of France?',options:['Berlin','Madrid','Paris','Lisbon'],answer:'Paris'},{q:'Which planet is the Red Planet?',options:['Mars','Jupiter','Venus','Saturn'],answer:'Mars'},{q:'Who wrote Romeo and Juliet?',options:['Dickens','Austen','Shakespeare','Twain'],answer:'Shakespeare'}];
+  examAnswers=new Array(examQuestions.length).fill(null); examCurrentQ=0;
+  if(examMode==='finish') startExamTimer();
+  /* Show course photo */
+  var info=coursePhotos[examCourse];
+  if(info){ document.getElementById('coursePhoto').src=info.url; document.getElementById('coursePhotoCaption').textContent=info.caption; document.getElementById('coursePhotoDiv').style.display='block'; }
+  showExamQuestion(0);
+};
+
+function startExamTimer(){
+  examTimeLeft=600;
+  document.getElementById('timerWrap').style.display='block';
+  updateTimerDisplay();
+  examTimerInterval=setInterval(function(){
+    examTimeLeft--;
+    updateTimerDisplay();
+    if(examTimeLeft<=60) document.getElementById('timerWrap').classList.add('urgent');
+    if(examTimeLeft<=0){ clearInterval(examTimerInterval); finishExam(true); }
+  },1000);
+}
+
+function updateTimerDisplay(){
+  var m=Math.floor(examTimeLeft/60), s=examTimeLeft%60;
+  document.getElementById('timerDisplay').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+}
+
+function stopExamTimer(){
+  if(examTimerInterval){ clearInterval(examTimerInterval); examTimerInterval=null; }
+  document.getElementById('timerWrap').style.display='none';
+}
+
+function getExamElapsed(){
+  if(!examStartTime) return '—';
+  var e=Math.floor((Date.now()-examStartTime)/1000);
+  return (Math.floor(e/60)>0?Math.floor(e/60)+'m ':'')+(e%60)+'s';
+}
+
+function updateExamProgress(){
+  var done=Math.min(examCurrentQ,examQuestions.length);
+  document.getElementById('progressLabel').textContent='Question '+done+' of '+examQuestions.length;
+  document.getElementById('progressBar').style.width=Math.round((done/examQuestions.length)*100)+'%';
+}
+
+function showExamQuestion(index){
+  updateExamProgress();
+  var qDivEl=document.getElementById('questionsDiv');
+  qDivEl.innerHTML=''; document.getElementById('finishBtn').style.display='none'; document.getElementById('examResult').innerHTML='';
+  if(index>=examQuestions.length){ if(examMode==='finish'){ document.getElementById('finishBtn').style.display='block'; } else { finishExam(); } return; }
+  var q=examQuestions[index];
+  var wrap=document.createElement('div'); wrap.className='question';
+  var qText=document.createElement('div'); qText.className='question-text'; qText.innerHTML='<strong>Q'+(index+1)+':</strong> '+q.q;
+  var optList=document.createElement('div'); optList.className='options-list';
+  q.options.forEach(function(opt){
+    var btn=document.createElement('button'); btn.textContent=opt; btn.className='option';
+    btn.onclick=function(){ selectExamAnswer(opt,index,wrap); };
+    optList.appendChild(btn);
+  });
+  wrap.appendChild(qText); wrap.appendChild(optList); qDivEl.appendChild(wrap); qDivEl.scrollTop=0;
+}
+
+function selectExamAnswer(selected,index,wrap){
+  examAnswers[index]=selected;
+  var btns=wrap.querySelectorAll('.option');
+  btns.forEach(function(b){
+    b.disabled=true;
+    if(b.textContent===examQuestions[index].answer) b.classList.add('correct');
+    else if(b.textContent===selected&&selected!==examQuestions[index].answer) b.classList.add('wrong');
+  });
+  setTimeout(function(){ examCurrentQ++; showExamQuestion(examCurrentQ); }, examMode==='instant'?900:600);
+}
+
+window.finishExam=function(timedOut){
+  stopExamTimer();
+  document.getElementById('questionsDiv').innerHTML='';
+  document.getElementById('finishBtn').style.display='none';
+  document.getElementById('progressWrap').style.display='none';
+  document.getElementById('coursePhotoDiv').style.display='none';
+  var correct=0;
+  examAnswers.forEach(function(a,i){ if(a!==null&&a===examQuestions[i].answer) correct++; });
+  var total=examQuestions.length, answered=examAnswers.filter(function(a){return a!==null;}).length;
+  var pct=total>0?Math.round((correct/total)*100):0;
+  var emoji=pct>=80?'🌟':pct>=50?'👍':'📖';
+  var timeoutMsg=timedOut?'<br><span style="color:#e74c3c;font-size:0.85em;font-weight:700;">⏱ Time ran out — auto submitted</span>':'';
+  document.getElementById('examResult').innerHTML=
+    '<p style="font-size:2.5em;margin-bottom:10px;">'+emoji+'</p>'+
+    '<p><strong>You got '+correct+' / '+total+' correct</strong></p>'+
+    '<p style="font-size:1.3em;color:#ff9800;font-weight:bold;">'+pct+'%</p>'+
+    '<p style="font-size:0.9em;color:#666;margin-top:4px;">Answered: '+answered+' / '+total+timeoutMsg+'</p>'+
+    '<div class="result-time-badge">⏱ Time taken: '+getExamElapsed()+'</div><br>'+
+    '<button onclick="launchExam(examCourse,examLevel,examChapter)">🔁 Try Again</button>'+
+    '<br><button onclick="showPage(\'page-app\')" style="margin-top:12px;background:linear-gradient(135deg,#1e3c72,#2a5298);color:white;border:none;padding:10px 24px;border-radius:30px;cursor:pointer;font-weight:700;">← Back to Dashboard</button>';
+};
+
+
+/* ══════════════════════════════════════════
+   ADMIN PANEL
+══════════════════════════════════════════ */
+var ADMIN_USER='admin', ADMIN_PASS='admin1234';
+var adminAllUsers=[], adminAllRequests=[];
+
+/* Access admin: go to #admin in URL or call showPage('page-admin') */
+window.goToAdmin=function(){ showPage('page-admin'); window.location.hash='admin'; };
+
+window.adminLogin=function(){
+  var u=document.getElementById('adminUser').value.trim();
+  var p=document.getElementById('adminPass').value;
+  if(!u||!p){ showAdminLoginErr('Please enter username and password.'); return; }
+  if(u===ADMIN_USER&&p===ADMIN_PASS){
+    sessionStorage.setItem('adminAuth','true');
+    document.getElementById('adminLoginWrap').style.display='none';
+    document.getElementById('adminPanelInner').style.display='block';
+    document.getElementById('adminWelcome').textContent='Welcome, '+u;
+    adminLoadAll();
+  } else { showAdminLoginErr('Wrong username or password.'); }
+};
+
+function showAdminLoginErr(msg){ document.getElementById('adminLoginErr').textContent=msg; setTimeout(function(){document.getElementById('adminLoginErr').textContent='';},3000); }
+
+window.adminLogout=function(){
+  sessionStorage.removeItem('adminAuth');
+  document.getElementById('adminLoginWrap').style.display='flex';
+  document.getElementById('adminPanelInner').style.display='none';
+  document.getElementById('adminUser').value='';
+  document.getElementById('adminPass').value='';
+};
+
+window.switchTab=function(name){
+  document.querySelectorAll('.tab-btn').forEach(function(b,i){ b.classList.toggle('active',['users','requests'][i]===name); });
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('tab-'+name).classList.add('active');
+};
+
+function adminLoadAll(){ adminLoadUsers(); adminLoadRequests(); }
+
+window.adminLoadUsers=function(){
+  adminAllUsers=getUsers().sort(function(a,b){ return new Date(b.createdAt||0)-new Date(a.createdAt||0); });
+  adminRenderUsers(adminAllUsers); adminUpdateStats();
+};
+
+window.filterUsers=function(){
+  var q=document.getElementById('userSearch').value.toLowerCase();
+  adminRenderUsers(adminAllUsers.filter(function(u){ return u.phone&&u.phone.toLowerCase().includes(q); }));
+};
+
+function adminRenderUsers(list){
+  var tbody=document.getElementById('usersBody');
+  if(!list.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="6">No users found.</td></tr>'; return; }
+  tbody.innerHTML=list.map(function(u,i){
+    var isPrem=u.paymentApproved||u.premiumStatus||false;
+    var stream=u.stream||'—'; var sc=stream==='Natural Science'?'ns':stream==='Social Science'?'ss':'';
+    var joined=u.createdAt?new Date(u.createdAt).toLocaleDateString():'—';
+    var premBadge=isPrem?'<span class="badge premium">⭐ Premium</span>':'<span class="badge free">Free</span>';
+    var streamBadge=sc?'<span class="badge '+sc+'">'+stream+'</span>':stream;
+    var actions=isPrem
+      ?'<button class="act-btn remove-prem" onclick="adminRemovePremium(\''+u.id+'\',\''+u.phone+'\')">Remove Premium</button> <button class="act-btn delete-user" onclick="adminDeleteUser(\''+u.id+'\',\''+u.phone+'\')">Delete</button>'
+      :'<button class="act-btn grant-prem"  onclick="adminGrantPremium(\''+u.id+'\',\''+u.phone+'\')">Grant Premium</button> <button class="act-btn delete-user" onclick="adminDeleteUser(\''+u.id+'\',\''+u.phone+'\')">Delete</button>';
+    return '<tr><td data-label="#">'+(i+1)+'</td><td data-label="Phone"><strong>'+u.phone+'</strong></td><td data-label="Stream">'+streamBadge+'</td><td data-label="Status">'+premBadge+'</td><td data-label="Joined">'+joined+'</td><td data-label="Actions"><div class="action-group">'+actions+'</div></td></tr>';
+  }).join('');
+}
+
+window.adminLoadRequests=function(){
+  adminAllRequests=getRequests().sort(function(a,b){ return new Date(b.timestamp||0)-new Date(a.timestamp||0); });
+  adminRenderRequests(adminAllRequests); adminUpdateStats();
+};
+
+function adminRenderRequests(list){
+  var tbody=document.getElementById('requestsBody');
+  if(!list.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="5">No payment requests found.</td></tr>'; return; }
+  tbody.innerHTML=list.map(function(r,i){
+    var status=r.status||'pending'; var submitted=r.timestamp?new Date(r.timestamp).toLocaleString():'—';
+    var bc=status==='approved'?'approved':status==='rejected'?'rejected':'pending';
+    var statusBadge='<span class="badge '+bc+'">'+status.charAt(0).toUpperCase()+status.slice(1)+'</span>';
+    var actions=status==='pending'
+      ?'<button class="act-btn approve" onclick="adminApproveRequest(\''+r.id+'\',\''+r.userId+'\',\''+r.userPhone+'\')">✓ Approve</button> <button class="act-btn reject" onclick="adminRejectRequest(\''+r.id+'\',\''+r.userPhone+'\')">✗ Reject</button>'
+      :'<button class="act-btn remove-prem" onclick="adminDeleteRequest(\''+r.id+'\')">Delete</button>';
+    return '<tr><td data-label="#">'+(i+1)+'</td><td data-label="Phone"><strong>'+(r.userPhone||'—')+'</strong></td><td data-label="Submitted">'+submitted+'</td><td data-label="Status">'+statusBadge+'</td><td data-label="Actions"><div class="action-group">'+actions+'</div></td></tr>';
+  }).join('');
+}
+
+function adminUpdateStats(){
+  var total=adminAllUsers.length, premium=adminAllUsers.filter(function(u){return u.paymentApproved||u.premiumStatus;}).length;
+  var pending=adminAllRequests.filter(function(r){return r.status==='pending';}).length;
+  document.getElementById('statTotal').textContent=total; document.getElementById('statPremium').textContent=premium;
+  document.getElementById('statPending').textContent=pending; document.getElementById('statFree').textContent=total-premium;
+}
+
+window.adminGrantPremium=function(userId,phone){ adminConfirm('Grant Premium?','Give premium to '+phone+'?',function(){ var u=getUsers(),i=u.findIndex(function(x){return x.id===userId;}); if(i>-1){u[i].paymentApproved=true;u[i].premiumStatus=true;saveUsers(u);} adminShowToast('✓ Premium granted to '+phone); adminLoadAll(); }); };
+window.adminRemovePremium=function(userId,phone){ adminConfirm('Remove Premium?','Remove premium from '+phone+'?',function(){ var u=getUsers(),i=u.findIndex(function(x){return x.id===userId;}); if(i>-1){u[i].paymentApproved=false;u[i].premiumStatus=false;saveUsers(u);} adminShowToast('Premium removed from '+phone); adminLoadAll(); }); };
+window.adminDeleteUser=function(userId,phone){ adminConfirm('Delete User?','Permanently delete account for '+phone+'? Cannot be undone.',function(){ saveUsers(getUsers().filter(function(u){return u.id!==userId;})); adminShowToast('User '+phone+' deleted.'); adminLoadAll(); }); };
+window.adminApproveRequest=function(reqId,userId,phone){ adminConfirm('Approve Payment?','Approve payment from '+phone+' and grant premium?',function(){ var r=getRequests(),i=r.findIndex(function(x){return x.id===reqId;}); if(i>-1){r[i].status='approved';saveRequests(r);} var u=getUsers(),ui=u.findIndex(function(x){return x.id===userId||x.phone===phone;}); if(ui>-1){u[ui].paymentApproved=true;u[ui].premiumStatus=true;saveUsers(u);} adminShowToast('✓ Payment approved for '+phone); adminLoadAll(); }); };
+window.adminRejectRequest=function(reqId,phone){ adminConfirm('Reject Request?','Reject payment request from '+phone+'?',function(){ var r=getRequests(),i=r.findIndex(function(x){return x.id===reqId;}); if(i>-1){r[i].status='rejected';saveRequests(r);} adminShowToast('Request from '+phone+' rejected.'); adminLoadRequests(); }); };
+window.adminDeleteRequest=function(reqId){ adminConfirm('Delete Request?','Remove this payment request?',function(){ saveRequests(getRequests().filter(function(r){return r.id!==reqId;})); adminShowToast('Request deleted.'); adminLoadRequests(); }); };
+
+var adminConfirmCb=null;
+function adminConfirm(title,msg,cb){
+  document.getElementById('confirmTitle').textContent=title; document.getElementById('confirmMsg').textContent=msg;
+  adminConfirmCb=cb; document.getElementById('confirmModal').classList.add('show');
+}
+window.closeConfirm=function(){ document.getElementById('confirmModal').classList.remove('show'); adminConfirmCb=null; };
+document.getElementById('confirmYes').onclick=function(){ closeConfirm(); if(adminConfirmCb) adminConfirmCb(); };
+document.getElementById('confirmModal').addEventListener('click',function(e){ if(e.target===this) closeConfirm(); });
+
+function adminShowToast(msg,isErr){
+  var t=document.getElementById('adminToast'); t.textContent=msg; t.className=isErr?'error':''; t.style.display='block';
+  setTimeout(function(){t.style.display='none';},3500);
+}
+
+/* Auto-restore admin session */
+document.addEventListener('DOMContentLoaded',function(){
+  if(window.location.hash==='#admin' && sessionStorage.getItem('adminAuth')==='true'){
+    showPage('page-admin');
+    document.getElementById('adminLoginWrap').style.display='none';
+    document.getElementById('adminPanelInner').style.display='block';
+    document.getElementById('adminWelcome').textContent='Welcome, admin';
+    adminLoadAll();
+  }
+});
+</script>
+</body>
+</html>
