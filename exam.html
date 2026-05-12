@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Online Exam</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #2ecc71; /* green background */
+      color: #333;
+      padding: 20px;
+    }
+
+    h1 { text-align: center; color: white; }
+    #courseTitle { font-size: 1.5em; margin-bottom: 10px; color: white; text-align: center; }
+    .mode-btn { padding: 10px 20px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; }
+    .instant { background-color: #3498db; color: white; }
+    .end { background-color: #e67e22; color: white; }
+    #questionsDiv { margin-top: 20px; }
+    .question { background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
+    .option { margin: 5px 0; }
+    #finishBtn { padding: 12px 25px; background: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; margin-top: 15px; display:none; }
+    #result { font-size: 1.2em; margin-top: 20px; font-weight: bold; }
+  </style>
+</head>
+
+<body>
+  <h1>📚 Online Exam System</h1>
+  <div id="courseTitle"></div>
+  <div id="modeSelection">
+    <p style="text-align:center;color:white;">Choose your exam mode:</p>
+    <button class="mode-btn instant" onclick="startExam('instant')">Instant Feedback</button>
+    <button class="mode-btn end" onclick="startExam('end')">Show Results at End</button>
+  </div>
+
+  <div id="questionsDiv"></div>
+  <button id="finishBtn" onclick="finishExam()">Finish Exam</button>
+  <div id="result"></div>
+
+  <script>
+    // Get course and level from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const course = urlParams.get('course') || "Unknown Course";
+    const level = urlParams.get('level') || "low";
+
+    document.getElementById('courseTitle').innerText = course + " - " + level.charAt(0).toUpperCase() + level.slice(1) + " Level";
+
+    let mode = ''; // instant or end
+    let questions = []; // will be populated
+    let answers = [];
+    let currentQ = 0;
+
+    // Placeholder questions (will upload to Firebase later)
+    const allQuestions = {
+      "Computer Programming": {
+        low: [
+          {q:"What is 2+2?", options:["3","4","5"], answer:"4"},
+          {q:"Which is a programming language?", options:["HTML","CSS","Python"], answer:"Python"}
+        ],
+        medium: [
+          {q:"What does JS stand for?", options:["JavaScript","JavaSystem","JustScript"], answer:"JavaScript"}
+        ],
+        difficult: [
+          {q:"Explain recursion in one word?", options:["Repeat","Loop","Function"], answer:"Repeat"}
+        ]
+      }
+    };
+
+    function startExam(selectedMode){
+      mode = selectedMode;
+      document.getElementById('modeSelection').style.display = 'none';
+      questions = allQuestions[course][level];
+      showQuestion(currentQ);
+    }
+
+    function showQuestion(index){
+      const qDiv = document.getElementById('questionsDiv');
+      qDiv.innerHTML = '';
+      if(index >= questions.length){
+        document.getElementById('finishBtn').style.display = 'block';
+        return;
+      }
+      const q = questions[index];
+      const html = document.createElement('div');
+      html.className = 'question';
+      html.innerHTML = `<div class="question-text">${q.q}</div>`;
+      q.options.forEach(opt => {
+        const b = document.createElement('button');
+        b.innerText = opt;
+        b.className = 'option';
+        b.onclick = () => checkAnswer(opt, index);
+        html.appendChild(b);
+      });
+      qDiv.appendChild(html);
+    }
+
+    function checkAnswer(selected, index){
+      answers[index] = selected;
+      if(mode === 'instant'){
+        alert(selected === questions[index].answer ? "✔ Correct" : "❌ Wrong");
+      }
+      currentQ++;
+      showQuestion(currentQ);
+    }
+
+    function finishExam(){
+      let correct = 0;
+      answers.forEach((a,i) => {
+        if(a === questions[i].answer) correct++;
+      });
+      const percentage = Math.round((correct/questions.length)*100);
+      document.getElementById('result').innerText = `You got ${correct}/${questions.length} correct (${percentage}%)`;
+    }
+  </script>
+</body>
+</html>
