@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Exam System</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow-x: hidden;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-image: url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    h1 {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+
+    #msg {
+      text-align: center;
+      font-size: 1.2em;
+      margin-bottom: 20px;
+      padding: 10px;
+      border-radius: 5px;
+      min-height: 20px;
+      color: white;
+      font-weight: bold;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(4px);
+    }
+
+    #authBox {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 70vh;
+    }
+
+    .auth-box {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .auth-box h2 {
+      margin-bottom: 30px;
+      color: #1e3c72;
+      text-align: center;
+    }
+
+    .auth-box input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 30px;
+      font-size: 1em;
+    }
+
+    .auth-box input:focus {
+      outline: none;
+      border-color: #ff9800;
+      box-shadow: 0 0 5px rgba(255, 152, 0, 0.5);
+    }
+
+    .auth-box button {
+      width: 100%;
+      padding: 12px;
+      background: #ff9800;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-size: 1em;
+      cursor: pointer;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
+    .auth-box button:hover {
+      background: #e68900;
+    }
+
+    .auth-box p {
+      text-align: center;
+      margin: 20px 0 10px;
+      color: #555;
+    }
+
+    #examBox {
+      display: none;
+      width: 100%;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 15px 20px;
+      border-radius: 20px;
+      backdrop-filter: blur(5px);
+      position: relative;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex: 1;
+    }
+
+    .user-profile {
+      background: linear-gradient(135deg, #ff9800, #f39c12);
+      color: white;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.2em;
+      box-shadow: 0 3px 10px rgba(255, 152, 0, 0.4);
+    }
+
+    .user-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-details p {
+      margin: 0;
+      font-size: 0.9em;
+      color: #333;
+    }
+
+    .user-details .phone {
+      font-weight: bold;
+      color: #1e3c72;
+    }
+
+    .user-details .status {
+      font-size: 0.8em;
+      color: #ff9800;
+    }
+
+    .menu-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .menu-btn {
+      background: linear-gradient(135deg, #2c3e50, #34495e);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 1.1em;
+      font-weight: bold;
+      transition: 0.3s;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .menu-btn:hover {
+      background: linear-gradient(135deg, #1e2b38, #283847);
+      transform: translateY(-2px);
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: white;
+      min-width: 200px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+      z-index: 200;
+      overflow: hidden;
+    }
+
+    .dropdown-menu button {
+      width: 100%;
+      padding: 14px 20px;
+      text-align: left;
+      border: none;
+      background: white;
+      cursor: pointer;
+      font-size: 1em;
+      transition: 0.2s;
+      font-weight: 500;
+      border-bottom: 1px solid #eee;
+    }
+
+    .dropdown-menu button:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-menu button:hover {
+      background: #f9f9f9;
+      padding-left: 25px;
+    }
+
+    .show {
+      display: block;
+    }
+
+    .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
+      margin-top: 30px;
+      margin-bottom: 40px;
+    }
+
+    .course-card {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(4px);
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s;
+      cursor: pointer;
+      border-left: 5px solid #ff9800;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .course-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, #ff9800, #f39c12);
+    }
+
+    .course-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    .course-icon {
+      font-size: 3.5em;
+      background: rgba(255, 152, 0, 0.15);
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      margin: 0 auto 15px;
+    }
+
+    .course-info h3 {
+      color: #1e3c72;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .course-info p {
+      text-align: center;
+      color: #666;
+      font-size: 0.95em;
+    }
+
+    .infographic-fact {
+      font-size: 0.85rem;
+      background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 12px;
+      border-left: 4px solid #ff9800;
+      color: #e65100;
+      font-weight: 500;
+    }
+
+    #courseModal .modal-content,
+    #materialSection,
+    #examSection,
+    #premiumFeatureWrapper,
+    #contactOwnerSectionWrapper {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+    }
+
+    #courseModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.75);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      max-width: 450px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-icon {
+      font-size: 4em;
+      margin-bottom: 15px;
+    }
+
+    .modal-content h2 {
+      color: #1e3c72;
+      margin-bottom: 10px;
+      font-size: 1.8em;
+    }
+
+    .modal-content p {
+      color: #666;
+      margin-bottom: 25px;
+      font-size: 1em;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin: 25px 0;
+      flex-wrap: wrap;
+    }
+
+    .modal-material-btn, .modal-exam-btn, .modal-close-btn {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1em;
+      transition: all 0.3s;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .modal-material-btn {
+      background: linear-gradient(135deg, #3498db, #2980b9);
+      color: white;
+    }
+
+    .modal-material-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+    }
+
+    .modal-exam-btn {
+      background: linear-gradient(135deg, #27ae60, #229954);
+      color: white;
+    }
+
+    .modal-exam-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+    }
+
+    .modal-close-btn {
+      background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+      color: white;
+    }
+
+    .modal-close-btn:hover {
+      background: linear-gradient(135deg, #7f8c8d, #6c7a7c);
+    }
+
+    #materialSection, #examSection {
+      margin-top: 30px;
+      padding: 30px;
+      display: none;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .material-header, .exam-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .material-header h2, .exam-header h2 {
+      color: #1e3c72;
+      margin: 0;
+      font-size: 1.8em;
+    }
+
+    .chapters-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 20px 0;
+      padding: 15px 0;
+    }
+
+    .chapter-btn {
+      padding: 12px 20px;
+      background: #ecf0f1;
+      border: 2px solid #bdc3c7;
+      border-radius: 40px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+      font-size: 0.95em;
+    }
+
+    .chapter-btn:hover:not(.premium) {
+      background: #d5dbdb;
+      border-color: #95a5a6;
+    }
+
+    .chapter-btn.free {
+      background: linear-gradient(135deg, #2ecc71, #27ae60);
+      color: white;
+      border: none;
+    }
+
+    .chapter-btn.free:hover {
+      box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .chapter-btn.premium {
+      background: linear-gradient(135deg, #f39c12, #e67e22);
+      color: white;
+      border: none;
+      position: relative;
+    }
+
+    .chapter-btn.premium::after {
+      content: "🔒";
+      margin-left: 8px;
+    }
+
+    .chapter-btn.premium:hover {
+      box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .chapter-content {
+      background: linear-gradient(135deg, #f8f9fa, #ecf0f1);
+      padding: 25px;
+      border-radius: 15px;
+      margin-top: 20px;
+      border-left: 5px solid #3498db;
+      line-height: 1.8;
+      color: #333;
+    }
+
+    .chapter-content.exam-content {
+      border-left-color: #27ae60;
+    }
+
+    .close-material-btn, .close-exam-btn {
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: bold;
+    }
+
+    .close-material-btn:hover, .close-exam-btn:hover {
+      background: linear-gradient(135deg, #c0392b, #a93226);
+      transform: translateY(-2px);
+    }
+
+    #premiumFeatureWrapper {
+      margin-top: 30px;
+      padding: 30px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 243, 224, 0.95));
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(243, 156, 18, 0.2);
+      border-top: 3px solid #f39c12;
+    }
+
+    #premiumFeatureWrapper h2 {
+      color: #1e3c72;
+      margin-bottom: 25px;
+      text-align: center;
+      font-size: 1.8em;
+    }
+
+    .payment-method {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 15px;
+      border-left: 5px solid #ff9800;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s;
+    }
+
+    .payment-method:hover {
+      box-shadow: 0 5px 15px rgba(255, 152, 0, 0.2);
+      transform: translateX(5px);
+    }
+
+    .payment-method h3 {
+      color: #1e3c72;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .payment-method p {
+      margin: 8px 0;
+      color: #555;
+      font-size: 0.95em;
+    }
+
+    .payment-account-holder {
+      font-weight: bold;
+      color: #ff9800;
+      font-size: 1.1em;
+    }
+
+    .copy-btn {
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      margin-left: 10px;
+      cursor: pointer;
+      border-radius: 20px;
+      font-weight: bold;
+      transition: all 0.3s;
+      font-size: 0.9em;
+    }
+
+    .copy-btn:hover {
+      background: linear-gradient(135deg, #0056b3, #004085);
+      transform: scale(1.05);
+    }
+
+    .payment-instruction {
+      background: #e3f2fd;
+      padding: 20px;
+      border-radius: 15px;
+      margin: 20px 0;
+      border-left: 5px solid #2196f3;
+      color: #1565c0;
+      line-height: 1.8;
+    }
+
+    .telegram-handle {
+      font-family: monospace;
+      background: #fff3e0;
+      padding: 8px 12px;
+      border-radius: 5px;
+      color: #e65100;
+      font-weight: bold;
+      font-size: 1.05em;
+    }
+
+    .approval-btn {
+      background: linear-gradient(135deg, #28a745, #1e7e34);
+      color: white;
+      border: none;
+      padding: 14px 30px;
+      cursor: pointer;
+      margin-top: 20px;
+      border-radius: 30px;
+      font-weight: bold;
+      font-size: 1.05em;
+      transition: all 0.3s;
+      width: 100%;
+      display: block;
+    }
+
+    .approval-btn:hover {
+      background: linear-gradient(135deg, #1e7e34, #155724);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    }
+
+    .close-premium-btn {
+      background: #7f8c8d;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 30px;
+      cursor: pointer;
+      margin-top: 15px;
+      display: block;
+      width: 100%;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    .close-premium-btn:hover {
+      background: #6c7a7c;
+      transform: translateY(-2px);
+    }
+
+    #contactOwnerSectionWrapper {
+      margin-top: 30px;
+      padding: 30px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(224, 242, 254, 0.95));
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(52, 152, 219, 0.2);
+      border-top: 3px solid #3498db;
+      text-align: center;
+    }
+
+    #contactOwnerSectionWrapper h2 {
+      color: #1e3c72;
+      margin-bottom: 25px;
+      font-size: 1.8em;
+    }
+
+    .contact-item {
+      background: white;
+      padding: 18px;
+      margin-bottom: 15px;
+      border-radius: 12px;
+      border-left: 5px solid #3498db;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s;
+    }
+
+    .contact-item:hover {
+      box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+      transform: translateX(5px);
+    }
+
+    .contact-item p {
+      margin: 0;
+      color: #555;
+      font-size: 0.98em;
+    }
+
+    .contact-label {
+      font-weight: bold;
+      color: #1e3c72;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .close-contact-btn {
+      background: #95a5a6;
+      color: white;
+      border: none;
+      padding: 10px 25px;
+      border-radius: 30px;
+      cursor: pointer;
+      margin-top: 20px;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    .close-contact-btn:hover {
+      background: #7f8c8d;
+      transform: translateY(-2px);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.8em;
+      }
+
+      .dashboard-header {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .user-info {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .courses-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 15px;
+      }
+
+      .modal-content {
+        padding: 25px;
+        max-width: 90%;
+      }
+
+      .modal-buttons {
+        flex-direction: column;
+      }
+
+      .modal-material-btn, .modal-exam-btn, .modal-close-btn {
+        min-width: unset;
+      }
+
+      .payment-method {
+        padding: 15px;
+      }
+
+      .chapters-list {
+        flex-direction: column;
+      }
+
+      .chapter-btn {
+        width: 100%;
+      }
+
+      #materialSection, #examSection {
+        padding: 20px;
+      }
+
+      .dropdown-menu {
+        right: -20px;
+      }
+    }
+  </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs, addDoc, updateDoc, doc } 
+    from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAavkqPwNgzo3UASsz-feaQvTjobxwkj-s",
+      authDomain: "student-quiz-platform-9439a.firebaseapp.com",
+      projectId: "student-quiz-platform-9439a",
+      storageBucket: "student-quiz-platform-9439a.firebasestorage.app",
+      messagingSenderId: "815750551646",
+      appId: "1:815750551646:web:1c48edb729252bd667bccf"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+
+    window.login = async function () {
+      let phone = document.getElementById("loginPhone").value;
+      let password = document.getElementById("loginPassword").value;
+      
+      if (!phone || !password) {
+        document.getElementById("msg").innerHTML = "❌ Please fill all fields";
+        return;
+      }
+
+      const q = query(collection(db, "users"), where("phone", "==", phone), where("password", "==", password));
+      const snap = await getDocs(q);
+      
+      if (!snap.empty) {
+        currentUser = snap.docs[0].data();
+        currentUser.docId = snap.docs[0].id;
+        currentUser.phone = phone;
+        
+        document.getElementById("msg").innerHTML = "✔ Welcome! Login successful";
+        document.getElementById("authBox").style.display = "none";
+        document.getElementById("examBox").style.display = "block";
+        updateUserProfile();
+      } else {
+        document.getElementById("msg").innerHTML = "❌ Wrong phone or password";
+      }
+    };
+
+    window.register = async function () {
+      let phone = document.getElementById("regPhone").value;
+      let password = document.getElementById("regPassword").value;
+      
+      if (!phone || !password) {
+        document.getElementById("msg").innerHTML = "❌ Please fill all fields";
+        return;
+      }
+
+      const q = query(collection(db, "users"), where("phone", "==", phone));
+      const snap = await getDocs(q);
+
+      if (!snap.empty) {
+        document.getElementById("msg").innerHTML = "❌ Phone number already registered";
+        return;
+      }
+
+      await addDoc(collection(db, "users"), { 
+        phone, 
+        password,
+        premiumStatus: false,
+        paymentApproved: false,
+        createdAt: new Date()
+      });
+
+      document.getElementById("msg").innerHTML = "✔ Registered successfully! Now login";
+      showLogin();
+    };
+
+    window.updateUserProfile = function () {
+      if (currentUser) {
+        const userPhone = currentUser.phone;
+        const initial = userPhone ? userPhone.charAt(0).toUpperCase() : 'U';
+        const statusText = currentUser.paymentApproved ? "Premium ✓" : "Free";
+        
+        document.querySelector('.user-profile').textContent = initial;
+        document.querySelector('.user-details .phone').textContent = userPhone;
+        document.querySelector('.user-details .status').textContent = statusText;
+      }
+    };
+
+    window.showRegister = function () {
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("registerBox").style.display = "block";
+    };
+
+    window.showLogin = function () {
+      document.getElementById("registerBox").style.display = "none";
+      document.getElementById("loginBox").style.display = "block";
+    };
+
+    window.logout = function () {
+      currentUser = null;
+      document.getElementById("authBox").style.display = "flex";
+      document.getElementById("examBox").style.display = "none";
+      document.getElementById("msg").innerHTML = "";
+      closeMaterial();
+      closeExam();
+      document.getElementById("loginPhone").value = "";
+      document.getElementById("loginPassword").value = "";
+      document.getElementById("regPhone").value = "";
+      document.getElementById("regPassword").value = "";
+      closeDropdownMenu();
+    };
+
+    window.requestPaymentApproval = async function () {
+      if (!currentUser) {
+        alert("⚠️ User not found");
+        return;
+      }
+
+      await addDoc(collection(db, "paymentRequests"), {
+        userPhone: currentUser.phone,
+        timestamp: new Date(),
+        status: "pending",
+        userId: currentUser.docId
+      });
+
+      alert("✔️ Payment approval request sent!\n\nPlease wait for admin confirmation.\n\nAdmin will check your payment screenshot on Telegram and approve your premium access.");
+    };
+
+    window.getUserPremiumStatus = async function () {
+      if (!currentUser) return false;
+      
+      const q = query(collection(db, "users"), where("phone", "==", currentUser.phone));
+      const snap = await getDocs(q);
+      
+      if (!snap.empty) {
+        const userData = snap.docs[0].data();
+        currentUser.paymentApproved = userData.paymentApproved || false;
+        return currentUser.paymentApproved;
+      }
+      return false;
+    };
+
+    window.getCurrentUser = function () {
+      return currentUser;
+    };
+
+    window.getFirestore = () => db;
+  </script>
+</head>
+
+<body>
+<div class="container">
+  <h1>📚 Online Exam System</h1>
+  <p id="msg"></p>
+
+  <div id="authBox">
+    <div id="loginBox" class="auth-box">
+      <h2>🔐 Login</h2>
+      <input id="loginPhone" placeholder="Phone" type="text"><br>
+      <input id="loginPassword" type="password" placeholder="Password"><br>
+      <button onclick="login()">Login</button><br>
+      <p>Don't have an account?</p>
+      <button onclick="showRegister()">Register</button>
+    </div>
+    <div id="registerBox" class="auth-box" style="display:none;">
+      <h2>📝 Register</h2>
+      <input id="regPhone" placeholder="Phone" type="text"><br>
+      <input id="regPassword" type="password" placeholder="Password"><br>
+      <button onclick="register()">Create Account</button><br>
+      <p>Already have account?</p>
+      <button onclick="showLogin()">Login</button>
+    </div>
+  </div>
+
+  <div id="examBox">
+    <div class="dashboard-header">
+      <div class="user-info">
+        <div class="user-profile">👤</div>
+        <div class="user-details">
+          <p>Welcome!</p>
+          <p class="phone">Your Phone</p>
+          <p class="status">Free</p>
+        </div>
+      </div>
+
+      <div class="menu-container">
+        <button class="menu-btn" id="menuBtn" onclick="toggleDropdownMenu()">☰ Menu</button>
+        <div class="dropdown-menu" id="dropdownMenu">
+          <button id="menuPremium" onclick="togglePremiumSection()">⭐ Premium</button>
+          <button id="menuContact" onclick="toggleContactSection()">📞 Contact Owner</button>
+          <button id="menuLogout" onclick="logout()">🚪 Logout</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="courses-grid" id="coursesGrid">
+      <div class="course-card" onclick="openCourseModal('Anthropology', '🧬')"><div class="course-icon">🧬</div><div class="course-info"><h3>Anthropology</h3><p>Study of human cultures</p><div class="infographic-fact">🌍 Over 7,000 distinct cultures exist.</div></div></div>
+      <div class="course-card" onclick="openCourseModal('Emerging Technology', '💻')"><div class="course-icon">💻</div><div class="course-info"><h3>Emerging Technology</h3><p>AI, IoT, Blockchain</p><div class="infographic-fact">⚡ AI market to hit $1.5 trillion by 2030.</div></div></div>
+      <div class="course-card" onclick="openCourseModal('Entrepreneurship', '🚀')"><div class="course-icon">🚀</div><div class="course-info"><h3>Entrepreneurship</h3><p>Business creation</p><div class="infographic-fact">📊 90% of unicorns solve real problems.</div></div></div>
+      <div class="course-card" onclick="openCourseModal('Applied Mathematics', '📐')"><div class="course-icon">📐</div><div class="course-info"><h3>Applied Mathematics</h3><p>Real-world math</p><div class="infographic-fact">🧮 Cryptography & climate modeling.</div></div></div>
+      <div class="course-card" onclick="openCourseModal('Computer Programming', '⌨️')"><div class="course-icon">⌨️</div><div class="course-info"><h3>Computer Programming</h3><p>Coding & software</p><div class="infographic-fact">🐍 700+ languages exist.</div></div></div>
+      <div class="course-card" onclick="openCourseModal('English', '📝')"><div class="course-icon">📝</div><div class="course-info"><h3>English</h3><p>Language skills</p><div class="infographic-fact">🗣️ 1.5 billion speakers worldwide.</div></div></div>
+      <div class="course-card" onclick="openCourseModal('History of Ethiopia and the Horn', '🏛️')"><div class="course-icon">🏛️</div><div class="course-info"><h3>History of Ethiopia and the Horn</h3><p>Regional history</p><div class="infographic-fact">👑 Ancient Aksum kingdom.</div></div></div>
+      <div class="course-card" onclick="openCourseModal('Moral and Civic Education', '⚖️')"><div class="course-icon">⚖️</div><div class="course-info"><h3>Moral and Civic Education</h3><p>Ethics & citizenship</p><div class="infographic-fact">🤝 Democratic participation.</div></div></div>
+    </div>
+
+    <div id="contactOwnerSectionWrapper" class="hidden">
+      <h2>📞 Contact Owner</h2>
+      <div class="contact-item">
+        <span class="contact-label">📧 Email:</span>
+        <p>owner@examsystem.com</p>
+      </div>
+      <div class="contact-item">
+        <span class="contact-label">📱 Phone:</span>
+        <p>+251 98 888 8888</p>
+      </div>
+      <div class="contact-item">
+        <span class="contact-label">💬 Telegram:</span>
+        <p>@exam_support</p>
+      </div>
+      <button class="close-contact-btn" onclick="toggleContactSection()">Close</button>
+    </div>
+
+    <div id="premiumFeatureWrapper" class="hidden">
+      <h2>⭐ Premium Access</h2>
+      <p style="color:#666; font-size:1.05em; margin-bottom:25px;">Unlock all chapters and premium content</p>
+      
+      <div class="payment-method">
+        <h3>🏦 Commercial Bank of Ethiopia</h3>
+        <p><span class="contact-label">Account Holder:</span> <span class="payment-account-holder">Abraham</span></p>
+        <p><span class="contact-label">Account Number:</span></p>
+        <p><span id="bankAccount" style="font-family:monospace; font-weight:bold; font-size:1.1em;">1000837236527282</span> <button class="copy-btn" onclick="copyText('bankAccount')">📋 Copy</button></p>
+      </div>
+
+      <div class="payment-method">
+        <h3>📲 Telebirr Payment</h3>
+        <p><span class="contact-label">Phone Number:</span></p>
+        <p><span id="telebirrNumber" style="font-family:monospace; font-weight:bold; font-size:1.1em;">0985686008</span> <button class="copy-btn" onclick="copyText('telebirrNumber')">📋 Copy</button></p>
+      </div>
+
+      <div class="payment-instruction">
+        <strong>📋 Instructions:</strong><br>
+        1️⃣ Make payment using either method above<br>
+        2️⃣ Take a screenshot of your payment confirmation<br>
+        3️⃣ Send screenshot + your phone number to: <span class="telegram-handle">@YourTelegramUsername</span><br>
+        4️⃣ Click the approval button below<br>
+        5️⃣ Admin will verify and activate your premium access
+      </div>
+
+      <p style="background:#fff3e0; padding:15px; border-radius:10px; color:#e65100; margin:20px 0; font-weight:bold;">
+        ⚠️ Replace <span class="telegram-handle">@YourTelegramUsername</span> with your actual Telegram handle in the code
+      </p>
+
+      <button class="approval-btn" onclick="requestPaymentApproval()">✅ Send Payment Approval Request</button>
+      <button class="close-premium-btn" onclick="togglePremiumSection()">Close</button>
+    </div>
+
+    <div id="courseModal" onclick="closeCourseModal(event)">
+      <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-icon" id="modalIcon"></div>
+        <h2 id="modalTitle"></h2>
+        <p id="modalDescription"></p>
+        <div class="modal-buttons">
+          <button class="modal-material-btn" onclick="handleMaterialClick()">📖 Material</button>
+          <button class="modal-exam-btn" onclick="handleExamClick()">✏️ Exam</button>
+        </div>
+        <button class="modal-close-btn" onclick="closeCourseModal()">Close</button>
+      </div>
+    </div>
+
+    <div id="materialSection">
+      <div class="material-header">
+        <h2 id="materialTitle">📚 Course Material</h2>
+        <button class="close-material-btn" onclick="closeMaterial()">Close</button>
+      </div>
+      <div style="clear:both; margin:20px 0;"></div>
+      <div id="materialChaptersList" class="chapters-list"></div>
+      <div id="materialChapterContent" class="chapter-content"></div>
+    </div>
+
+    <div id="examSection">
+      <div class="exam-header">
+        <h2 id="examTitle">✏️ Exam</h2>
+        <button class="close-exam-btn" onclick="closeExam()">Close</button>
+      </div>
+      <div style="clear:both; margin:20px 0;"></div>
+      <div id="examChaptersList" class="chapters-list"></div>
+      <div id="examChapterContent" class="chapter-content exam-content"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const coursesMaterials = {
+    'Anthropology': { 1: '📘 Free material: Introduction to Anthropology – human evolution.', 2: '🔒 Premium: Cultural relativism case studies.', 3: '🔒 Premium: Archaeological methods.', 4: '🔒 Premium: Linguistic anthropology.', 5: '🔒 Premium: Applied anthropology.' },
+    'Emerging Technology': { 1: '🤖 Free: What is AI?', 2: '🔒 Premium: Blockchain explained.', 3: '🔒 Premium: IoT networks.', 4: '🔒 Premium: Quantum computing.', 5: '🔒 Premium: Future trends.' },
+    'Entrepreneurship': { 1: '📈 Free: Idea validation.', 2: '🔒 Premium: Business models.', 3: '🔒 Premium: Funding strategies.', 4: '🔒 Premium: Marketing.', 5: '🔒 Premium: Scaling up.' },
+    'Applied Mathematics': { 1: '📐 Free: Linear algebra basics.', 2: '🔒 Premium: Differential equations.', 3: '🔒 Premium: Statistics.', 4: '🔒 Premium: Numerical methods.', 5: '🔒 Premium: Mathematical modeling.' },
+    'Computer Programming': { 1: '💻 Free: Intro to Python.', 2: '🔒 Premium: OOP in Java.', 3: '🔒 Premium: Data structures.', 4: '🔒 Premium: Algorithms.', 5: '🔒 Premium: Web dev basics.' },
+    'English': { 1: '📖 Free: Grammar essentials.', 2: '🔒 Premium: Academic writing.', 3: '🔒 Premium: Public speaking.', 4: '🔒 Premium: Literature analysis.', 5: '🔒 Premium: Business English.' },
+    'History of Ethiopia and the Horn': { 1: '🏛️ Free: Aksumite Kingdom.', 2: '🔒 Premium: Zagwe dynasty.', 3: '🔒 Premium: Gondar period.', 4: '🔒 Premium: Modern history.', 5: '🔒 Premium: Cultural heritage.' },
+    'Moral and Civic Education': { 1: '⚖️ Free: Ethics fundamentals.', 2: '🔒 Premium: Human rights.', 3: '🔒 Premium: Democracy.', 4: '🔒 Premium: Constitution.', 5: '🔒 Premium: Civic duties.' }
+  };
+
+  const courseExams = {
+    'Anthropology': { 1: '✏️ Chapter 1 Exam - FREE', 2: '🔒 Premium', 3: '🔒 Premium', 4: '🔒 Premium', 5: '🔒 Premium' },
+    'Emerging Technology': { 1: '✏️ Chapter 1 Exam - FREE', 2: '🔒 Premium', 3: '🔒 Premium', 4: '🔒 Premium', 5: '🔒 Premium' },
+    'Entrepreneurship': { 1: '✏️ Chapter 1 Exam - FREE', 2: '🔒 Premium', 3: '🔒 Premium', 4: '🔒 Premium', 5: '🔒 Premium' },
+    'Applied Mathematics': { 1: '✏️ Chapter 1 Exam - FREE', 2: '🔒 Premium', 3: '🔒 Premium', 4: '🔒 Premium', 5: '🔒 Premium' },
+    'Computer Programming': { 1: '✏️ Chapter 1 Exam - FREE', 2: '🔒 Premium', 3: '🔒 Premium', 4: '🔒 Premium', 5: '🔒 Premium' },
+    'English': { 1: '✏️ Chapter 1 Exam - FREE', 2: '🔒 Premium', 3: '🔒 Premium', 4: '🔒 Premium', 5: '🔒 Premium' },
+    'History of Ethiopia and the Horn': { 1: '✏️ Chapter 1 Exam - FREE', 2: '🔒 Premium', 3: '🔒 Premium', 4: '🔒 Premium', 5: '🔒 Premium' },
+    'Moral and Civic Education': { 1: '✏️ Chapter 1 Exam - FREE', 2: '🔒 Premium', 3: '🔒 Premium', 4: '🔒 Premium', 5: '🔒 Premium' }
+  };
+
+  const courseDescriptions = {
+    'Anthropology': 'Study of human cultures.',
+    'Emerging Technology': 'Latest innovations.',
+    'Entrepreneurship': 'Start your business.',
+    'Applied Mathematics': 'Real-world math.',
+    'Computer Programming': 'Learn coding.',
+    'English': 'Language skills.',
+    'History of Ethiopia and the Horn': 'Regional history.',
+    'Moral and Civic Education': 'Ethics & citizenship.'
+  };
+
+  let currentCourse = '';
+  let currentMode = '';
+
+  window.openCourseModal = function (courseName, icon) {
+    currentCourse = courseName;
+    document.getElementById('modalIcon').textContent = icon;
+    document.getElementById('modalTitle').textContent = courseName;
+    document.getElementById('modalDescription').textContent = courseDescriptions[courseName];
+    document.getElementById('courseModal').style.display = 'flex';
+  };
+
+  window.closeCourseModal = function (event) {
+    if (event && event.target.id !== 'courseModal') return;
+    document.getElementById('courseModal').style.display = 'none';
+  };
+
+  window.handleMaterialClick = async function () {
+    currentMode = 'material';
+    closeCourseModal();
+    const isPremium = await getUserPremiumStatus();
+    displayMaterialChapters(isPremium);
+    document.getElementById('materialSection').style.display = 'block';
+    document.getElementById('examSection').style.display = 'none';
+    document.getElementById('materialSection').scrollIntoView({ behavior: 'smooth' });
+  };
+
+  window.handleExamClick = async function () {
+    currentMode = 'exam';
+    closeCourseModal();
+    const isPremium = await getUserPremiumStatus();
+    displayExamChapters(isPremium);
+    document.getElementById('examSection').style.display = 'block';
+    document.getElementById('materialSection').style.display = 'none';
+    document.getElementById('examSection').scrollIntoView({ behavior: 'smooth' });
+  };
+
+  window.displayMaterialChapters = function (isPremium = false) {
+    const chapters = coursesMaterials[currentCourse];
+    let html = '';
+    for (let i = 1; i <= 5; i++) {
+      const isLocked = i > 1 && !isPremium;
+      const buttonClass = i === 1 ? 'free' : (isLocked ? 'premium' : 'free');
+      html += `<button class="chapter-btn ${buttonClass}" onclick="displayMaterialContent(${i})"
+        ${isLocked ? 'title="Requires premium access"' : ''}>Chapter ${i}</button>`;
+    }
+    document.getElementById('materialChaptersList').innerHTML = html;
+    document.getElementById('materialTitle').textContent = `📚 ${currentCourse} - Materials`;
+  };
+
+  window.displayExamChapters = function (isPremium = false) {
+    const exams = courseExams[currentCourse];
+    let html = '';
+    for (let i = 1; i <= 5; i++) {
+      const isLocked = i > 1 && !isPremium;
+      const buttonClass = i === 1 ? 'free' : (isLocked ? 'premium' : 'free');
+      html += `<button class="chapter-btn ${buttonClass}" onclick="displayExamContent(${i})"
+        ${isLocked ? 'title="Requires premium access"' : ''}>Chapter ${i}</button>`;
+    }
+    document.getElementById('examChaptersList').innerHTML = html;
+    document.getElementById('examTitle').textContent = `✏️ ${currentCourse} - Exams`;
+  };
+
+  window.displayMaterialContent = async function (chapterNum) {
+    const isPremium = await getUserPremiumStatus();
+    if (chapterNum > 1 && !isPremium) {
+      alert('🔒 This chapter requires premium access.\n\nClick Menu → Premium to upgrade.');
+      togglePremiumSection();
+      return;
+    }
+    const content = coursesMaterials[currentCourse][chapterNum];
+    document.getElementById('materialChapterContent').innerHTML = `<h3>Chapter ${chapterNum}</h3><p>${content}</p>`;
+  };
+
+  window.displayExamContent = async function (chapterNum) {
+    const isPremium = await getUserPremiumStatus();
+    if (chapterNum > 1 && !isPremium) {
+      alert('🔒 This chapter requires premium access.\n\nClick Menu → Premium to upgrade.');
+      togglePremiumSection();
+      return;
+    }
+    const content = courseExams[currentCourse][chapterNum];
+    document.getElementById('examChapterContent').innerHTML = `<h3>Chapter ${chapterNum} - Exam</h3><p>${content}</p>`;
+  };
+
+  window.closeMaterial = function () {
+    document.getElementById('materialSection').style.display = 'none';
+  };
+
+  window.closeExam = function () {
+    document.getElementById('examSection').style.display = 'none';
+  };
+
+  window.toggleDropdownMenu = function () {
+    const menu = document.getElementById('dropdownMenu');
+    menu.classList.toggle('show');
+  };
+
+  window.closeDropdownMenu = function () {
+    document.getElementById('dropdownMenu').classList.remove('show');
+  };
+
+  window.togglePremiumSection = function () {
+    const premium = document.getElementById('premiumFeatureWrapper');
+    if (premium.classList.contains('hidden')) {
+      premium.classList.remove('hidden');
+      document.getElementById('contactOwnerSectionWrapper').classList.add('hidden');
+    } else {
+      premium.classList.add('hidden');
+    }
+    closeDropdownMenu();
+  };
+
+  window.toggleContactSection = function () {
+    const contact = document.getElementById('contactOwnerSectionWrapper');
+    if (contact.classList.contains('hidden')) {
+      contact.classList.remove('hidden');
+      document.getElementById('premiumFeatureWrapper').classList.add('hidden');
+    } else {
+      contact.classList.add('hidden');
+    }
+    closeDropdownMenu();
+  };
+
+  window.copyText = function (elementId) {
+    const text = document.getElementById(elementId).textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      alert('✅ Copied to clipboard!');
+    }).catch(() => {
+      alert('❌ Failed to copy');
+    });
+  };
+
+  document.addEventListener('click', function (event) {
+    const menu = document.getElementById('dropdownMenu');
+    if (!event.target.closest('.menu-container')) {
+      menu.classList.remove('show');
+    }
+  });
+</script>
+
+</body>
+</html>
