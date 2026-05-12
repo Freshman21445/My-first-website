@@ -729,15 +729,7 @@
 
   /* ── EXAM CONTENT ── */
   window.openExamContent = function(diff){
-    var content = getExamContent(currentCourse, currentChapter, diff);
-    var labels  = {low:'🟢 Low', medium:'🟡 Medium', difficult:'🔴 Difficult'};
-    var classes = {low:'low', medium:'med', difficult:'hard'};
-    document.getElementById('examContentTitle').textContent =
-      labels[diff] + ' — Chapter ' + currentChapter + ' | ' + currentCourse;
-    var box = document.getElementById('examContentBox');
-    box.className = 'content-box ' + (classes[diff] || 'low');
-    box.innerHTML = content;
-    window.goTo('examContentDash');
+    const examUrl = `exam.html?course=${encodeURIComponent( window.open(examUrl, '_blank');
   };
 
   /* ── COPY TEXT ── */
