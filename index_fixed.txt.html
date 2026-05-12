@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Exam System</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html,body { height:100%; width:100%; overflow-x:hidden; }
+
+    body {
+      font-family:'Segoe UI',Arial,sans-serif;
+      background-image:url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format');
+      background-size:cover; background-position:center;
+      background-repeat:no-repeat; background-attachment:fixed;
+      min-height:100vh; overflow-y:auto; position:relative;
+    }
+    body::before {
+      content:""; position:fixed; top:0; left:0;
+      width:100%; height:100%; background:rgba(0,0,0,0.52); z-index:0;
+    }
+    .container {
+      position:relative; z-index:1; max-width:1200px;
+      margin:0 auto; padding:20px; min-height:100vh;
+      display:flex; flex-direction:column;
+    }
+    h1 {
+      text-align:center; color:white; margin-bottom:20px;
+      font-size:2.4em; text-shadow:2px 2px 6px rgba(0,0,0,0.6); padding-top:20px;
+    }
+    #msg {
+      text-align:center; font-size:1.1em; margin-bottom:18px;
+      padding:10px; border-radius:8px; min-height:20px;
+      color:white; font-weight:bold;
+      background:rgba(0,0,0,0.4); backdrop-filter:blur(4px);
+    }
+
+    /* AUTH */
+    #authBox { display:flex; justify-content:center; align-items:center; flex:1; }
+    .auth-box {
+      background:rgba(255,255,255,0.93); backdrop-filter:blur(8px);
+      padding:40px; border-radius:20px;
+      box-shadow:0 15px 35px rgba(0,0,0,0.3);
+      width:100%; max-width:400px;
+    }
+    .auth-box h2 { margin-bottom:28px; color:#1e3c72; text-align:center; }
+    .auth-box input {
+      width:100%; padding:14px; margin-bottom:14px;
+      border:1px solid #ddd; border-radius:30px; font-size:1em;
+    }
+    .auth-box input:focus { outline:none; border-color:#ff9800; box-shadow:0 0 5px rgba(255,152,0,0.5); }
+    .auth-box button {
+      width:100%; padding:12px; background:#ff9800; color:white;
+      border:none; border-radius:30px; font-size:1em; cursor:pointer;
+      margin-bottom:12px; font-weight:bold; transition:background 0.2s;
+    }
+    .auth-box button:hover { background:#e68900; }
+    .auth-box p { text-align:center; margin:16px 0 8px; color:#555; }
+
+    /* APP */
+    #appBox { display:none; width:100%; }
+
+    /* HEADER */
+    .dashboard-header {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:24px; background:rgba(255,255,255,0.96);
+      padding:14px 20px; border-radius:18px;
+      backdrop-filter:blur(5px); box-shadow:0 5px 15px rgba(0,0,0,0.12);
+    }
+    .user-info { display:flex; align-items:center; gap:14px; flex:1; }
+    .user-profile {
+      background:linear-gradient(135deg,#ff9800,#f39c12); color:white;
+      width:44px; height:44px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:bold; font-size:1.2em;
+      box-shadow:0 3px 10px rgba(255,152,0,0.4);
+    }
+    .user-details p { margin:0; font-size:0.9em; color:#333; }
+    .user-details .phone { font-weight:bold; color:#1e3c72; }
+    .user-details .status { font-size:0.8em; color:#ff9800; }
+
+    .menu-btn {
+      background:linear-gradient(135deg,#2c3e50,#34495e); color:white;
+      border:none; padding:12px 24px; border-radius:30px;
+      cursor:pointer; font-size:1.05em; font-weight:bold;
+      transition:0.3s; box-shadow:0 4px 10px rgba(0,0,0,0.25);
+    }
+    .menu-btn:hover { background:linear-gradient(135deg,#1e2b38,#283847); transform:translateY(-2px); }
+
+    /* PANELS */
+    .dash-panel { display:none; animation:slideIn 0.28s ease; }
+    .dash-panel.active { display:block; }
+    @keyframes slideIn {
+      from { opacity:0; transform:translateY(18px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .panel-card {
+      background:rgba(255,255,255,0.97); backdrop-filter:blur(10px);
+      border-radius:20px; padding:32px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.18); margin-bottom:30px;
+    }
+    .panel-header {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:26px; padding-bottom:16px; border-bottom:2px solid #f0f0f0;
+    }
+    .panel-header h2 { color:#1e3c72; font-size:1.7em; margin:0; }
+    .back-btn {
+      background:linear-gradient(135deg,#95a5a6,#7f8c8d); color:white;
+      border:none; padding:10px 22px; border-radius:30px;
+      cursor:pointer; font-weight:bold; font-size:0.95em; transition:all 0.25s;
+    }
+    .back-btn:hover { background:linear-gradient(135deg,#7f8c8d,#6c7a7c); transform:translateY(-2px); }
+
+    /* COURSES GRID */
+    .courses-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
+      gap:22px; padding-bottom:30px;
+    }
+    .course-card {
+      background:rgba(255,255,255,0.95); backdrop-filter:blur(4px);
+      border-radius:20px; padding:24px;
+      box-shadow:0 8px 25px rgba(0,0,0,0.14);
+      transition:all 0.3s; cursor:pointer;
+      border-left:5px solid #ff9800; position:relative; overflow:hidden;
+    }
+    .course-card::before {
+      content:""; position:absolute; top:0; left:0;
+      width:100%; height:4px; background:linear-gradient(90deg,#ff9800,#f39c12);
+    }
+    .course-card:hover { transform:translateY(-8px); box-shadow:0 16px 36px rgba(0,0,0,0.22); }
+    .course-icon {
+      font-size:3.2em; background:rgba(255,152,0,0.13);
+      width:76px; height:76px; display:flex; align-items:center;
+      justify-content:center; border-radius:50%; margin:0 auto 14px;
+    }
+    .course-info h3 { color:#1e3c72; text-align:center; margin-bottom:7px; }
+    .course-info p  { text-align:center; color:#666; font-size:0.93em; }
+    .infographic-fact {
+      font-size:0.83rem;
+      background:linear-gradient(135deg,#fff3e0,#ffe0b2);
+      padding:11px; border-radius:10px; margin-top:11px;
+      border-left:4px solid #ff9800; color:#e65100; font-weight:500;
+    }
+
+    /* COURSE ACTIONS */
+    .course-actions {
+      display:flex; gap:20px; justify-content:center;
+      flex-wrap:wrap; padding:20px 0;
+    }
+    .action-btn {
+      padding:18px 40px; border:none; border-radius:30px; cursor:pointer;
+      font-weight:bold; font-size:1.1em; transition:all 0.3s;
+      min-width:180px; text-align:center;
+    }
+    .material-action-btn { background:linear-gradient(135deg,#3498db,#2980b9); color:white; }
+    .material-action-btn:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(52,152,219,0.45); }
+    .exam-action-btn { background:linear-gradient(135deg,#27ae60,#229954); color:white; }
+    .exam-action-btn:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(39,174,96,0.45); }
+
+    /* CHAPTERS */
+    .chapters-list { display:flex; flex-wrap:wrap; gap:12px; margin:18px 0; }
+    .chapter-btn {
+      padding:12px 22px; border-radius:40px; cursor:pointer;
+      font-weight:bold; transition:all 0.3s; font-size:0.95em; border:none;
+    }
+    .chapter-btn.free { background:linear-gradient(135deg,#2ecc71,#27ae60); color:white; }
+    .chapter-btn.free:hover { box-shadow:0 5px 15px rgba(46,204,113,0.4); transform:translateY(-2px); }
+    .chapter-btn.locked { background:linear-gradient(135deg,#f39c12,#e67e22); color:white; cursor:not-allowed; }
+    .chapter-btn.locked:hover { box-shadow:0 5px 15px rgba(243,156,18,0.4); transform:translateY(-2px); }
+
+    /* MENU DASHBOARD */
+    .menu-options-list { display:flex; flex-direction:column; gap:16px; margin-top:10px; }
+    .menu-option-btn {
+      display:flex; align-items:center; gap:18px; padding:22px 28px;
+      border:none; border-radius:16px; cursor:pointer;
+      font-size:1.15em; font-weight:bold; transition:all 0.3s;
+      text-align:left; width:100%;
+    }
+    .menu-option-btn .opt-icon {
+      font-size:1.8em; width:52px; height:52px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    }
+    .menu-option-btn .opt-label { flex:1; }
+    .menu-option-btn .opt-label span { display:block; font-size:0.78em; font-weight:400; margin-top:3px; opacity:0.75; }
+    .menu-option-btn.premium-opt { background:linear-gradient(135deg,#fff3e0,#ffe0b2); color:#e65100; border:2px solid #ffcc80; }
+    .menu-option-btn.premium-opt .opt-icon { background:rgba(255,152,0,0.18); }
+    .menu-option-btn.premium-opt:hover { background:linear-gradient(135deg,#ffe0b2,#ffcc80); transform:translateX(6px); }
+    .menu-option-btn.contact-opt { background:linear-gradient(135deg,#e3f2fd,#bbdefb); color:#0d47a1; border:2px solid #90caf9; }
+    .menu-option-btn.contact-opt .opt-icon { background:rgba(33,150,243,0.15); }
+    .menu-option-btn.contact-opt:hover { background:linear-gradient(135deg,#bbdefb,#90caf9); transform:translateX(6px); }
+    .menu-option-btn.logout-opt { background:linear-gradient(135deg,#fce4ec,#f8bbd0); color:#880e4f; border:2px solid #f48fb1; }
+    .menu-option-btn.logout-opt .opt-icon { background:rgba(233,30,99,0.12); }
+    .menu-option-btn.logout-opt:hover { background:linear-gradient(135deg,#f8bbd0,#f48fb1); transform:translateX(6px); }
+
+    /* MATERIAL ITEMS */
+    .items-list { display:flex; flex-direction:column; gap:14px; margin-top:10px; }
+    .item-btn {
+      display:flex; align-items:center; gap:18px; padding:20px 26px;
+      background:linear-gradient(135deg,#e3f2fd,#bbdefb);
+      border:2px solid #90caf9; border-radius:16px; cursor:pointer;
+      font-size:1.08em; font-weight:bold; color:#0d47a1;
+      transition:all 0.3s; text-align:left; width:100%;
+    }
+    .item-btn .item-icon {
+      font-size:1.7em; background:rgba(33,150,243,0.15);
+      width:50px; height:50px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    }
+    .item-btn .item-info { flex:1; }
+    .item-btn .item-info span { display:block; font-size:0.78em; font-weight:400; color:#1565c0; margin-top:3px; }
+    .item-btn:hover { background:linear-gradient(135deg,#bbdefb,#90caf9); transform:translateX(6px); box-shadow:0 6px 18px rgba(33,150,243,0.25); }
+
+    /* DIFFICULTY */
+    .difficulty-list { display:flex; flex-direction:column; gap:16px; margin-top:10px; }
+    .diff-btn {
+      display:flex; align-items:center; gap:18px; padding:22px 28px;
+      border:none; border-radius:16px; cursor:pointer;
+      font-size:1.15em; font-weight:bold;
+      transition:all 0.3s; text-align:left; width:100%;
+    }
+    .diff-btn .diff-icon {
+      font-size:1.8em; width:52px; height:52px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    }
+    .diff-btn .diff-label { flex:1; }
+    .diff-btn .diff-label span { display:block; font-size:0.78em; font-weight:400; margin-top:3px; opacity:0.75; }
+    .diff-btn.low  { background:linear-gradient(135deg,#e8f5e9,#c8e6c9); color:#1b5e20; border:2px solid #a5d6a7; }
+    .diff-btn.low .diff-icon  { background:rgba(76,175,80,0.15); }
+    .diff-btn.low:hover  { background:linear-gradient(135deg,#c8e6c9,#a5d6a7); transform:translateX(6px); }
+    .diff-btn.med  { background:linear-gradient(135deg,#fff8e1,#ffecb3); color:#e65100; border:2px solid #ffe082; }
+    .diff-btn.med .diff-icon  { background:rgba(255,193,7,0.18); }
+    .diff-btn.med:hover  { background:linear-gradient(135deg,#ffecb3,#ffe082); transform:translateX(6px); }
+    .diff-btn.hard { background:linear-gradient(135deg,#fce4ec,#f8bbd0); color:#880e4f; border:2px solid #f48fb1; }
+    .diff-btn.hard .diff-icon { background:rgba(233,30,99,0.12); }
+    .diff-btn.hard:hover { background:linear-gradient(135deg,#f8bbd0,#f48fb1); transform:translateX(6px); }
+
+    /* CONTENT BOX */
+    .content-box {
+      background:linear-gradient(135deg,#f8f9fa,#ecf0f1);
+      padding:28px; border-radius:16px;
+      border-left:5px solid #3498db;
+      line-height:1.9; color:#333; font-size:1.02em;
+    }
+    .content-box.mat { border-left-color:#3498db; background:linear-gradient(135deg,#e3f2fd,#f0f8ff); }
+    .content-box.low { border-left-color:#27ae60; background:linear-gradient(135deg,#f0fff4,#e8f5e9); }
+    .content-box.med { border-left-color:#ff9800; background:linear-gradient(135deg,#fff8e1,#fffde7); }
+    .content-box.hard{ border-left-color:#e91e63; background:linear-gradient(135deg,#fce4ec,#fdf2f5); }
+
+    /* PREMIUM & CONTACT */
+    .premium-intro { color:#666; font-size:1.03em; margin-bottom:22px; text-align:center; }
+    .payment-method {
+      background:white; padding:20px; margin-bottom:18px;
+      border-radius:14px; border-left:5px solid #ff9800;
+      box-shadow:0 3px 10px rgba(0,0,0,0.07); transition:all 0.3s;
+    }
+    .payment-method:hover { transform:translateX(5px); box-shadow:0 6px 18px rgba(255,152,0,0.2); }
+    .payment-method h3 { color:#1e3c72; margin-bottom:11px; }
+    .payment-method p { margin:7px 0; color:#555; font-size:0.95em; }
+    .lbl { font-weight:bold; color:#1e3c72; display:block; margin-bottom:4px; }
+    .acct { font-weight:bold; color:#ff9800; font-size:1.08em; font-family:monospace; }
+    .copy-btn {
+      background:linear-gradient(135deg,#007bff,#0056b3); color:white;
+      border:none; padding:6px 14px; margin-left:10px; cursor:pointer;
+      border-radius:20px; font-weight:bold; font-size:0.88em; transition:all 0.3s;
+    }
+    .copy-btn:hover { background:linear-gradient(135deg,#0056b3,#004085); transform:scale(1.06); }
+    .pay-steps {
+      background:#e3f2fd; padding:20px; border-radius:14px; margin:18px 0;
+      border-left:5px solid #2196f3; color:#1565c0; line-height:1.85;
+    }
+    .tg { font-family:monospace; background:#fff3e0; padding:5px 10px; border-radius:5px; color:#e65100; font-weight:bold; }
+    .approval-btn {
+      background:linear-gradient(135deg,#28a745,#1e7e34); color:white;
+      border:none; padding:14px 30px; cursor:pointer; margin-top:18px;
+      border-radius:30px; font-weight:bold; font-size:1.04em;
+      transition:all 0.3s; width:100%; display:block;
+    }
+    .approval-btn:hover { background:linear-gradient(135deg,#1e7e34,#155724); transform:translateY(-2px); }
+    .contact-item {
+      background:white; padding:17px; margin-bottom:14px;
+      border-radius:12px; border-left:5px solid #3498db;
+      box-shadow:0 3px 10px rgba(0,0,0,0.07); transition:all 0.3s;
+    }
+    .contact-item:hover { transform:translateX(5px); }
+    .contact-item p { margin:0; color:#555; font-size:0.97em; }
+
+    @media(max-width:768px){
+      h1{font-size:1.75em;}
+      .dashboard-header{flex-direction:column;gap:14px;}
+      .user-info{width:100%;justify-content:center;}
+      .courses-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+      .course-actions{flex-direction:column;align-items:center;}
+      .action-btn{width:100%;max-width:320px;}
+      .chapters-list{flex-direction:column;}
+      .chapter-btn{width:100%;}
+      .panel-card{padding:20px;}
+      .panel-header{flex-direction:column;gap:12px;align-items:flex-start;}
+    }
+  </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs, addDoc }
+      from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+    const cfg = {
+      apiKey:"AIzaSyAavkqPwNgzo3UASsz-feaQvTjobxwkj-s",
+      authDomain:"student-quiz-platform-9439a.firebaseapp.com",
+      projectId:"student-quiz-platform-9439a",
+      storageBucket:"student-quiz-platform-9439a.firebasestorage.app",
+      messagingSenderId:"815750551646",
+      appId:"1:815750551646:web:1c48edb729252bd667bccf"
+    };
+    const app = initializeApp(cfg);
+    const db  = getFirestore(app);
+    let cu = null;
+
+    window.login = async function(){
+      const ph = document.getElementById("loginPhone").value.trim();
+      const pw = document.getElementById("loginPassword").value;
+      if(!ph||!pw){setMsg("Please fill all fields");return;}
+      const snap = await getDocs(query(collection(db,"users"),where("phone","==",ph),where("password","==",pw)));
+      if(!snap.empty){
+        cu=snap.docs[0].data(); cu.docId=snap.docs[0].id; cu.phone=ph;
+        setMsg("Welcome! Login successful");
+        document.getElementById("authBox").style.display="none";
+        document.getElementById("appBox").style.display="block";
+        window.updateProfile();
+        window.goTo("mainDash");
+      } else { setMsg("Wrong phone or password"); }
+    };
+
+    window.register = async function(){
+      const ph=document.getElementById("regPhone").value.trim();
+      const pw=document.getElementById("regPassword").value;
+      if(!ph||!pw){setMsg("Please fill all fields");return;}
+      const snap=await getDocs(query(collection(db,"users"),where("phone","==",ph)));
+      if(!snap.empty){setMsg("Phone already registered");return;}
+      await addDoc(collection(db,"users"),{phone:ph,password:pw,premiumStatus:false,paymentApproved:false,createdAt:new Date()});
+      setMsg("Registered! Now login."); window.showLogin();
+    };
+
+    window.updateProfile = function(){
+      if(!cu)return;
+      document.querySelector(".user-profile").textContent=cu.phone.charAt(0).toUpperCase();
+      document.querySelector(".user-details .phone").textContent=cu.phone;
+      document.querySelector(".user-details .status").textContent=cu.paymentApproved?"Premium":"Free";
+    };
+
+    window.showRegister=function(){
+      document.getElementById("loginBox").style.display="none";
+      document.getElementById("registerBox").style.display="block";
+    };
+    window.showLogin=function(){
+      document.getElementById("registerBox").style.display="none";
+      document.getElementById("loginBox").style.display="block";
+    };
+
+    window.logout=function(){
+      cu=null;
+      document.getElementById("authBox").style.display="flex";
+      document.getElementById("appBox").style.display="none";
+      setMsg("");
+      ["loginPhone","loginPassword","regPhone","regPassword"].forEach(function(id){document.getElementById(id).value="";});
+    };
+
+    window.requestApproval=async function(){
+      if(!cu){alert("User not found");return;}
+      await addDoc(collection(db,"paymentRequests"),{userPhone:cu.phone,timestamp:new Date(),status:"pending",userId:cu.docId});
+      alert("Payment approval request sent! Please wait for admin confirmation.");
+    };
+
+    window.isPremium=async function(){
+      if(!cu)return false;
+      const snap=await getDocs(query(collection(db,"users"),where("phone","==",cu.phone)));
+      if(!snap.empty){cu.paymentApproved=snap.docs[0].data().paymentApproved||false;return cu.paymentApproved;}
+      return false;
+    };
+
+    function setMsg(t){document.getElementById("msg").textContent=t;}
+  </script>
+</head>
+<body>
+<div class="container">
+  <h1>📚 Online Exam System</h1>
+  <p id="msg"></p>
+
+  <!-- AUTH -->
+  <div id="authBox">
+    <div id="loginBox" class="auth-box">
+      <h2>🔐 Login</h2>
+      <input id="loginPhone" placeholder="Phone" type="text">
+      <input id="loginPassword" placeholder="Password" type="password">
+      <button onclick="login()">Login</button>
+      <p>Don't have an account?</p>
+      <button onclick="showRegister()">Register</button>
+    </div>
+    <div id="registerBox" class="auth-box" style="display:none">
+      <h2>📝 Register</h2>
+      <input id="regPhone" placeholder="Phone" type="text">
+      <input id="regPassword" placeholder="Password" type="password">
+      <button onclick="register()">Create Account</button>
+      <p>Already have an account?</p>
+      <button onclick="showLogin()">Login</button>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="appBox">
+
+    <!-- Header (always visible) -->
+    <div class="dashboard-header">
+      <div class="user-info">
+        <div class="user-profile">U</div>
+        <div class="user-details">
+          <p>Welcome!</p>
+          <p class="phone">Your Phone</p>
+          <p class="status">Free</p>
+        </div>
+      </div>
+      <button class="menu-btn" onclick="goTo('menuDash')">☰ Menu</button>
+    </div>
+
+    <!-- DASHBOARD 1: Courses -->
+    <div class="dash-panel" id="mainDash">
+      <div class="courses-grid">
+        <div class="course-card" onclick="openCourse('Anthropology','🧬','Study of human cultures')">
+          <div class="course-icon">🧬</div>
+          <div class="course-info"><h3>Anthropology</h3><p>Study of human cultures</p>
+          <div class="infographic-fact">🌍 Over 7,000 distinct cultures exist.</div></div>
+        </div>
+        <div class="course-card" onclick="openCourse('Emerging Technology','💻','AI, IoT, Blockchain')">
+          <div class="course-icon">💻</div>
+          <div class="course-info"><h3>Emerging Technology</h3><p>AI, IoT, Blockchain</p>
+          <div class="infographic-fact">⚡ AI market to hit $1.5 trillion by 2030.</div></div>
+        </div>
+        <div class="course-card" onclick="openCourse('Entrepreneurship','🚀','Business creation')">
+          <div class="course-icon">🚀</div>
+          <div class="course-info"><h3>Entrepreneurship</h3><p>Business creation</p>
+          <div class="infographic-fact">📊 90% of unicorns solve real problems.</div></div>
+        </div>
+        <div class="course-card" onclick="openCourse('Applied Mathematics','📐','Linear algebra and more')">
+          <div class="course-icon">📐</div>
+          <div class="course-info"><h3>Applied Mathematics</h3><p>Linear algebra and more</p>
+          <div class="infographic-fact">🧮 Used in cryptography and climate modeling.</div></div>
+        </div>
+        <div class="course-card" onclick="openCourse('Computer Programming','⌨️','Coding and software')">
+          <div class="course-icon">⌨️</div>
+          <div class="course-info"><h3>Computer Programming</h3><p>Coding and software</p>
+          <div class="infographic-fact">🐍 Over 700 programming languages exist.</div></div>
+        </div>
+        <div class="course-card" onclick="openCourse('English','📝','Language skills')">
+          <div class="course-icon">📝</div>
+          <div class="course-info"><h3>English</h3><p>Language skills</p>
+          <div class="infographic-fact">🗣️ 1.5 billion speakers worldwide.</div></div>
+        </div>
+        <div class="course-card" onclick="openCourse('History of Ethiopia','🏛️','Regional history')">
+          <div class="course-icon">🏛️</div>
+          <div class="course-info"><h3>History of Ethiopia</h3><p>Regional history</p>
+          <div class="infographic-fact">👑 Home of the ancient Aksum kingdom.</div></div>
+        </div>
+        <div class="course-card" onclick="openCourse('Moral and Civic Education','⚖️','Ethics and citizenship')">
+          <div class="course-icon">⚖️</div>
+          <div class="course-info"><h3>Moral and Civic Education</h3><p>Ethics and citizenship</p>
+          <div class="infographic-fact">🤝 Foundation of democratic participation.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD 2: Menu -->
+    <div class="dash-panel" id="menuDash">
+      <div class="panel-card">
+        <div class="panel-header">
+          <h2>☰ Menu</h2>
+          <button class="back-btn" onclick="goTo('mainDash')">← Back</button>
+        </div>
+        <div class="menu-options-list">
+          <button class="menu-option-btn premium-opt" onclick="goTo('premiumDash')">
+            <div class="opt-icon">⭐</div>
+            <div class="opt-label">Premium Access<span>Unlock all chapters and content</span></div>
+          </button>
+          <button class="menu-option-btn contact-opt" onclick="goTo('contactDash')">
+            <div class="opt-icon">📞</div>
+            <div class="opt-label">Contact Owner<span>Reach out for help or inquiries</span></div>
+          </button>
+          <button class="menu-option-btn logout-opt" onclick="logout()">
+            <div class="opt-icon">🚪</div>
+            <div class="opt-label">Logout<span>Sign out of your account</span></div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD 3: Course Detail -->
+    <div class="dash-panel" id="courseDash">
+      <div class="panel-card">
+        <div class="panel-header">
+          <h2 id="courseTitle">Course</h2>
+          <button class="back-btn" onclick="goTo('mainDash')">← Back</button>
+        </div>
+        <p id="courseDesc" style="color:#666;margin-bottom:24px;font-size:1em;"></p>
+        <div class="course-actions">
+          <button class="action-btn material-action-btn" onclick="openChapters('material')">📖 Materials</button>
+          <button class="action-btn exam-action-btn" onclick="openChapters('exam')">✏️ Exams</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD 4: Chapters -->
+    <div class="dash-panel" id="chaptersDash">
+      <div class="panel-card">
+        <div class="panel-header">
+          <h2 id="chaptersTitle">Chapters</h2>
+          <button class="back-btn" onclick="goTo('courseDash')">← Back</button>
+        </div>
+        <p id="chaptersHint" style="color:#666;margin-bottom:8px;font-size:0.96em;"></p>
+        <div id="chaptersList" class="chapters-list"></div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD 5: Material Items -->
+    <div class="dash-panel" id="materialItemsDash">
+      <div class="panel-card" style="border-top:3px solid #3498db">
+        <div class="panel-header">
+          <h2 id="materialItemsTitle">Materials</h2>
+          <button class="back-btn" onclick="goTo('chaptersDash')">← Back</button>
+        </div>
+        <p style="color:#666;margin-bottom:16px;font-size:0.96em;">Select a material to view its content.</p>
+        <div class="items-list">
+          <button class="item-btn" onclick="openMaterialContent(1)">
+            <div class="item-icon">📄</div>
+            <div class="item-info">Material 1<span>Core concepts and foundational overview</span></div>
+          </button>
+          <button class="item-btn" onclick="openMaterialContent(2)">
+            <div class="item-icon">📄</div>
+            <div class="item-info">Material 2<span>Detailed study notes and explanations</span></div>
+          </button>
+          <button class="item-btn" onclick="openMaterialContent(3)">
+            <div class="item-icon">📄</div>
+            <div class="item-info">Material 3<span>Summary, examples and key takeaways</span></div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD 6: Material Content -->
+    <div class="dash-panel" id="materialContentDash">
+      <div class="panel-card" style="border-top:3px solid #3498db">
+        <div class="panel-header">
+          <h2 id="materialContentTitle">Material</h2>
+          <button class="back-btn" onclick="goTo('materialItemsDash')">← Back</button>
+        </div>
+        <div id="materialContentBox" class="content-box mat"></div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD 7: Exam Difficulty -->
+    <div class="dash-panel" id="difficultyDash">
+      <div class="panel-card" style="border-top:3px solid #27ae60">
+        <div class="panel-header">
+          <h2 id="difficultyTitle">Choose Difficulty</h2>
+          <button class="back-btn" onclick="goTo('chaptersDash')">← Back</button>
+        </div>
+        <p style="color:#666;margin-bottom:16px;font-size:0.96em;">Select the difficulty level for your quiz.</p>
+        <div class="difficulty-list">
+          <button class="diff-btn low" onclick="openExamContent('low')">
+            <div class="diff-icon">🟢</div>
+            <div class="diff-label">Low<span>Basic questions — great for getting started</span></div>
+          </button>
+          <button class="diff-btn med" onclick="openExamContent('medium')">
+            <div class="diff-icon">🟡</div>
+            <div class="diff-label">Medium<span>Intermediate questions — test your understanding</span></div>
+          </button>
+          <button class="diff-btn hard" onclick="openExamContent('difficult')">
+            <div class="diff-icon">🔴</div>
+            <div class="diff-label">Difficult<span>Advanced questions — challenge yourself</span></div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD 8: Exam Content -->
+    <div class="dash-panel" id="examContentDash">
+      <div class="panel-card" style="border-top:3px solid #27ae60">
+        <div class="panel-header">
+          <h2 id="examContentTitle">Exam</h2>
+          <button class="back-btn" onclick="goTo('difficultyDash')">← Back</button>
+        </div>
+        <div id="examContentBox" class="content-box low"></div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD 9: Premium -->
+    <div class="dash-panel" id="premiumDash">
+      <div class="panel-card" style="border-top:3px solid #f39c12">
+        <div class="panel-header">
+          <h2>⭐ Premium Access</h2>
+          <button class="back-btn" onclick="goTo('menuDash')">← Back</button>
+        </div>
+        <p class="premium-intro">Unlock all chapters by completing one of the payment methods below.</p>
+        <div class="payment-method">
+          <h3>🏦 Commercial Bank of Ethiopia</h3>
+          <p><span class="lbl">Account Holder:</span> <span class="acct">Abraham</span></p>
+          <p><span class="lbl">Account Number:</span></p>
+          <p><span id="bankNum" class="acct">1000837236527282</span>
+          <button class="copy-btn" onclick="copyText('bankNum')">📋 Copy</button></p>
+        </div>
+        <div class="payment-method">
+          <h3>📲 Telebirr Payment</h3>
+          <p><span class="lbl">Phone Number:</span></p>
+          <p><span id="teleNum" class="acct">0985686008</span>
+          <button class="copy-btn" onclick="copyText('teleNum')">📋 Copy</button></p>
+        </div>
+        <div class="pay-steps">
+          <strong>📋 Payment Steps:</strong><br><br>
+          1. Make payment using either method above<br>
+          2. Take a screenshot of your payment confirmation<br>
+          3. Send screenshot and your phone number to: <span class="tg">@abraham_exam</span><br>
+          4. Click the button below to request approval<br>
+          5. Admin will verify and activate your premium access
+        </div>
+        <button class="approval-btn" onclick="requestApproval()">✅ Send Payment Approval Request</button>
+      </div>
+    </div>
+
+    <!-- DASHBOARD 10: Contact -->
+    <div class="dash-panel" id="contactDash">
+      <div class="panel-card" style="border-top:3px solid #3498db">
+        <div class="panel-header">
+          <h2>📞 Contact Owner</h2>
+          <button class="back-btn" onclick="goTo('menuDash')">← Back</button>
+        </div>
+        <div class="contact-item"><span class="lbl">📧 Email:</span><p>owner@examsystem.com</p></div>
+        <div class="contact-item"><span class="lbl">📱 Phone:</span><p>+251 98 888 8888</p></div>
+        <div class="contact-item"><span class="lbl">💬 Telegram:</span><p>@exam_support</p></div>
+      </div>
+    </div>
+
+  </div><!-- /appBox -->
+</div><!-- /container -->
+
+<script>
+  /* ── STATE ── */
+  var currentCourse   = '';
+  var currentMode     = '';
+  var currentChapter  = 1;
+
+  /* ── ALL PANELS ── */
+  var PANELS = ['mainDash','menuDash','courseDash','chaptersDash',
+    'materialItemsDash','materialContentDash',
+    'difficultyDash','examContentDash',
+    'premiumDash','contactDash'];
+
+  /* ── NAVIGATION ── */
+  window.goTo = function(id){
+    for(var i=0;i<PANELS.length;i++){
+      document.getElementById(PANELS[i]).classList.remove('active');
+    }
+    document.getElementById(id).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
+  /* ── OPEN COURSE ── */
+  window.openCourse = function(name, icon, desc){
+    currentCourse = name;
+    document.getElementById('courseTitle').textContent = icon + ' ' + name;
+    document.getElementById('courseDesc').textContent  = desc;
+    window.goTo('courseDash');
+  };
+
+  /* ── OPEN CHAPTERS ── */
+  window.openChapters = async function(mode){
+    currentMode = mode;
+    var premium = false;
+    try { premium = await window.isPremium(); } catch(e){ premium = false; }
+
+    var label = mode === 'material' ? '📖 Materials — ' : '✏️ Exams — ';
+    var hint  = mode === 'material'
+      ? 'Select a chapter to view its materials.'
+      : 'Select a chapter to take the quiz.';
+
+    document.getElementById('chaptersTitle').textContent = label + currentCourse;
+    document.getElementById('chaptersHint').textContent  = hint;
+
+    var html = '';
+    for(var i=1; i<=5; i++){
+      var locked = (i > 1 && !premium);
+      var cls    = locked ? 'locked' : 'free';
+      var lkTxt  = locked ? ' 🔒' : '';
+      html += '<button class="chapter-btn ' + cls + '" onclick="onChapter(' + i + ')">Chapter ' + i + lkTxt + '</button>';
+    }
+    document.getElementById('chaptersList').innerHTML = html;
+    window.goTo('chaptersDash');
+  };
+
+  /* ── CHAPTER CLICK ── */
+  window.onChapter = async function(num){
+    var premium = false;
+    try { premium = await window.isPremium(); } catch(e){ premium = false; }
+    if(num > 1 && !premium){
+      alert('This chapter requires Premium access. Go to Menu > Premium to upgrade.');
+      window.goTo('premiumDash');
+      return;
+    }
+    currentChapter = num;
+    if(currentMode === 'material'){
+      document.getElementById('materialItemsTitle').textContent =
+        '📖 Chapter ' + num + ' Materials — ' + currentCourse;
+      window.goTo('materialItemsDash');
+    } else {
+      document.getElementById('difficultyTitle').textContent =
+        '✏️ Chapter ' + num + ' Exam — ' + currentCourse;
+      window.goTo('difficultyDash');
+    }
+  };
+
+  /* ── MATERIAL CONTENT ── */
+  window.openMaterialContent = function(num){
+    var titles = ['Core Concepts', 'Detailed Study Notes', 'Summary and Examples'];
+    var content = getMaterialContent(currentCourse, currentChapter, num);
+    document.getElementById('materialContentTitle').textContent =
+      'Chapter ' + currentChapter + ' — Material ' + num + ' | ' + currentCourse;
+    var box = document.getElementById('materialContentBox');
+    box.className = 'content-box mat';
+    box.innerHTML = content;
+    window.goTo('materialContentDash');
+  };
+
+  /* ── EXAM CONTENT ── */
+  window.openExamContent = function(diff){
+    var examUrl = 'exam.html?course=' + encodeURIComponent(currentCourse) +
+                  '&level=' + encodeURIComponent(diff) +
+                  '&chapter=' + encodeURIComponent(currentChapter);
+    window.location.href = examUrl;
+  };
+
+  /* ── COPY TEXT ── */
+  window.copyText = function(id){
+    navigator.clipboard.writeText(document.getElementById(id).textContent)
+      .then(function(){ alert('Copied to clipboard!'); })
+      .catch(function(){ alert('Could not copy. Please copy manually.'); });
+  };
+
+  /* ════════════════════════════════════════
+     MATERIAL CONTENT DATA
+  ════════════════════════════════════════ */
+  function getMaterialContent(course, chapter, num){
+    if(chapter > 1){ return '<p style="color:#e67e22;font-weight:bold;font-size:1.1em;">🔒 Premium Content<br><br>This chapter requires premium access. Go to Menu → Premium to unlock all chapters.</p>'; }
+
+    var data = {
+      'Anthropology': {
+        1:'<h3>Introduction to Anthropology</h3><br>Anthropology is the scientific study of humans, human behavior, and societies across time and space.<br><br><strong>Key Topics:</strong><br>• Definition and four fields of anthropology<br>• Cultural vs. biological anthropology<br>• Historical development of the discipline<br>• Key thinkers: Franz Boas, Margaret Mead',
+        2:'<h3>Human Evolution Basics</h3><br>This material covers the biological foundations of humankind, tracing our evolutionary journey from early hominids to modern Homo sapiens.<br><br><strong>Key Topics:</strong><br>• Primate origins and classification<br>• Hominid fossil record<br>• Out-of-Africa migration theory<br>• Genetic diversity in modern humans',
+        3:'<h3>Cultural Diversity Overview</h3><br>Culture is the learned behavior and symbolic systems shared by a group.<br><br><strong>Key Topics:</strong><br>• What is culture?<br>• Ethnocentrism vs. cultural relativism<br>• Symbols, rituals, and norms<br>• Globalization and cultural change'
+      },
+      'Emerging Technology': {
+        1:'<h3>What is Artificial Intelligence?</h3><br>AI is the simulation of human intelligence in machines programmed to think and learn.<br><br><strong>Key Topics:</strong><br>• History of AI (1950 to present)<br>• Narrow AI vs. General AI<br>• Rule-based vs. learning-based systems<br>• Real-world AI applications today',
+        2:'<h3>Machine Learning Fundamentals</h3><br>Machine learning allows computers to learn from data without being explicitly programmed.<br><br><strong>Key Topics:</strong><br>• Supervised, unsupervised, reinforcement learning<br>• Training data and model evaluation<br>• Overfitting and underfitting<br>• Popular algorithms: linear regression, decision trees',
+        3:'<h3>Deep Learning and Neural Networks</h3><br>Deep learning uses multi-layered neural networks to recognize patterns in large datasets.<br><br><strong>Key Topics:</strong><br>• Neurons and activation functions<br>• Backpropagation explained<br>• Convolutional Neural Networks (CNNs)<br>• Applications: image recognition, NLP'
+      },
+      'Entrepreneurship': {
+        1:'<h3>Idea Validation</h3><br>Before building a product, validate your idea with real customers to reduce risk.<br><br><strong>Key Topics:</strong><br>• The Lean Startup methodology<br>• Problem-solution fit<br>• Customer interviews<br>• Minimum Viable Product (MVP)',
+        2:'<h3>Market Research Techniques</h3><br>Understanding your market is critical before launching any venture.<br><br><strong>Key Topics:</strong><br>• Primary vs. secondary research<br>• Surveys and focus groups<br>• Competitor analysis framework<br>• Market segmentation',
+        3:'<h3>Market Sizing and Opportunity</h3><br>Quantifying your market helps attract investors and set realistic goals.<br><br><strong>Key Topics:</strong><br>• TAM, SAM, SOM explained<br>• Top-down vs. bottom-up sizing<br>• Industry reports and databases<br>• Revenue projection basics'
+      },
+      'Applied Mathematics': {
+        1:'<h3>Vectors and Vector Spaces</h3><br>Vectors are mathematical objects with both magnitude and direction.<br><br><strong>Key Topics:</strong><br>• Vector notation and representation<br>• Vector addition and scalar multiplication<br>• Dot product and cross product<br>• Linear independence and span',
+        2:'<h3>Matrices and Operations</h3><br>Matrices are rectangular arrays of numbers used extensively in science and engineering.<br><br><strong>Key Topics:</strong><br>• Matrix addition and multiplication<br>• Transpose and inverse<br>• Special matrices: identity, diagonal, symmetric<br>• Solving systems with matrices',
+        3:'<h3>Determinants and Eigenvalues</h3><br>Determinants measure the volume scaling of a linear transformation.<br><br><strong>Key Topics:</strong><br>• Computing 2x2 and 3x3 determinants<br>• Properties of determinants<br>• Eigenvalues and eigenvectors<br>• Applications in PCA and physics'
+      },
+      'Computer Programming': {
+        1:'<h3>Variables, Types and I/O</h3><br>Learn how Python stores and displays data.<br><br><strong>Key Topics:</strong><br>• int, float, str, bool types<br>• Variable assignment rules<br>• print() and input() functions<br>• Type conversion: int(), str(), float()',
+        2:'<h3>Control Flow</h3><br>Control how your program makes decisions and repeats actions.<br><br><strong>Key Topics:</strong><br>• if / elif / else statements<br>• Comparison and logical operators<br>• while loops and for loops<br>• break, continue, pass keywords',
+        3:'<h3>Functions and Modules</h3><br>Organize your code with reusable functions and modules.<br><br><strong>Key Topics:</strong><br>• Defining functions with def<br>• Parameters, arguments, return values<br>• Scope: local vs. global<br>• Importing standard library modules'
+      },
+      'English': {
+        1:'<h3>Parts of Speech</h3><br>Understand the building blocks of English grammar.<br><br><strong>Key Topics:</strong><br>• Nouns: common, proper, abstract<br>• Verbs: action, linking, auxiliary<br>• Adjectives and adverbs<br>• Pronouns, prepositions, conjunctions',
+        2:'<h3>Sentence Structure</h3><br>Learn how to build clear, correct sentences.<br><br><strong>Key Topics:</strong><br>• Subject, predicate, object<br>• Simple, compound, complex sentences<br>• Clauses and phrases<br>• Common sentence errors and fixes',
+        3:'<h3>Tenses and Mood</h3><br>Master verb tenses to express time accurately.<br><br><strong>Key Topics:</strong><br>• Simple, continuous, perfect tenses<br>• Present, past, future forms<br>• Subjunctive and imperative mood<br>• Common tense mistakes'
+      },
+      'History of Ethiopia': {
+        1:'<h3>Rise of Aksum</h3><br>The Aksumite Empire was one of the great civilizations of the ancient world.<br><br><strong>Key Topics:</strong><br>• Geographic location and climate<br>• Early settlements and agriculture<br>• Trade routes: Red Sea, Arabia, India<br>• Emergence of the Aksumite state',
+        2:'<h3>Religion and Culture of Aksum</h3><br>Religion played a central role in shaping Aksumite society.<br><br><strong>Key Topics:</strong><br>• Pre-Christian religious practices<br>• Introduction of Christianity (4th century)<br>• Construction of obelisks (stelae)<br>• The Ge-ez script and literature',
+        3:'<h3>Decline and Legacy</h3><br>Understanding why great empires fall reveals important historical lessons.<br><br><strong>Key Topics:</strong><br>• Environmental and agricultural decline<br>• Shifts in trade routes<br>• Rise of Islam and regional changes<br>• Legacy in modern Ethiopian identity'
+      },
+      'Moral and Civic Education': {
+        1:'<h3>What is Ethics?</h3><br>Ethics is the branch of philosophy that deals with questions of right and wrong conduct.<br><br><strong>Key Topics:</strong><br>• Normative vs. descriptive ethics<br>• Meta-ethics overview<br>• Moral intuition and reasoning<br>• The is-ought problem',
+        2:'<h3>Major Ethical Theories</h3><br>Philosophers have proposed different frameworks for moral decision-making.<br><br><strong>Key Topics:</strong><br>• Deontology: the categorical imperative<br>• Consequentialism: Utilitarianism<br>• Virtue Ethics: character-based morality<br>• Care Ethics and feminist perspectives',
+        3:'<h3>Ethics in Society</h3><br>Applied ethics examines how moral principles play out in real contexts.<br><br><strong>Key Topics:</strong><br>• Business ethics and corporate responsibility<br>• Bioethics: healthcare decisions<br>• Environmental ethics<br>• Digital ethics and privacy'
+      }
+    };
+
+    var courseData = data[course];
+    if(courseData && courseData[num]) return courseData[num];
+    return '<p>Content for ' + course + ' — Material ' + num + ' coming soon.</p>';
+  }
+
+  /* ════════════════════════════════════════
+     EXAM CONTENT DATA
+  ════════════════════════════════════════ */
+  function getExamContent(course, chapter, diff){
+    if(chapter > 1){ return '<p style="color:#e67e22;font-weight:bold;font-size:1.1em;">🔒 Premium Content<br><br>This chapter exam requires premium access. Go to Menu → Premium to unlock.</p>'; }
+
+    var data = {
+      'Anthropology': {
+        low: '<h3>Low Difficulty — Chapter 1 Quiz</h3><br><strong>1. Anthropology is the study of:</strong><br>a) Animals<br>b) Human cultures ✓<br>c) Plants<br>d) Rocks<br><br><strong>2. Which field of anthropology studies language?</strong><br>a) Biological<br>b) Archaeological<br>c) Linguistic ✓<br>d) Applied<br><br><strong>3. Margaret Mead was a famous:</strong><br>a) Physicist<br>b) Anthropologist ✓<br>c) Economist<br>d) Chemist',
+        medium: '<h3>Medium Difficulty — Chapter 1 Quiz</h3><br><strong>1. Cultural relativism means:</strong><br>a) All cultures are morally equal<br>b) Judging a culture by its own standards ✓<br>c) Superiority of Western culture<br>d) None of the above<br><br><strong>2. The four-field approach includes all EXCEPT:</strong><br>a) Biological anthropology<br>b) Cultural anthropology<br>c) Political anthropology ✓<br>d) Linguistic anthropology<br><br><strong>3. Participant observation is used in:</strong><br>a) Archaeology<br>b) Ethnography ✓<br>c) Genetics<br>d) Statistics',
+        difficult: '<h3>Difficult — Chapter 1 Quiz</h3><br><strong>1. Levi-Strauss argued that myths share:</strong><br>a) Random structures<br>b) Universal binary oppositions ✓<br>c) No logic<br>d) Language shapes reality<br><br><strong>2. Thick description was introduced by:</strong><br>a) Franz Boas<br>b) Malinowski<br>c) Clifford Geertz ✓<br>d) Ruth Benedict<br><br><strong>3. Emic vs. etic approaches differ in that:</strong><br>a) Emic is outsider, etic is insider<br>b) Emic is insider, etic is outsider ✓<br>c) Both are outsider perspectives<br>d) Both are insider perspectives'
+      },
+      'Emerging Technology': {
+        low: '<h3>Low Difficulty — Chapter 1 Quiz</h3><br><strong>1. AI stands for:</strong><br>a) Automated Information<br>b) Artificial Intelligence ✓<br>c) Advanced Internet<br>d) Automated Interface<br><br><strong>2. Machine learning is a subset of:</strong><br>a) Hardware<br>b) AI ✓<br>c) Networks<br>d) Robotics<br><br><strong>3. A chatbot is an example of:</strong><br>a) Quantum computing<br>b) AI application ✓<br>c) Blockchain<br>d) IoT',
+        medium: '<h3>Medium Difficulty — Chapter 1 Quiz</h3><br><strong>1. Supervised learning requires:</strong><br>a) Unlabeled data<br>b) Labeled training data ✓<br>c) No data<br>d) Only test data<br><br><strong>2. Overfitting in ML means:</strong><br>a) Model performs well on new data<br>b) Model memorizes training data but fails on new data ✓<br>c) Model is too simple<br>d) Training takes too long<br><br><strong>3. Neural networks are inspired by:</strong><br>a) Computer circuits<br>b) The human brain ✓<br>c) Database systems<br>d) Search engines',
+        difficult: '<h3>Difficult — Chapter 1 Quiz</h3><br><strong>1. The Turing Test measures:</strong><br>a) Computing speed<br>b) Whether a machine can exhibit intelligent behavior ✓<br>c) Memory capacity<br>d) Energy efficiency<br><br><strong>2. Backpropagation adjusts:</strong><br>a) Input data<br>b) Network architecture<br>c) Weights using gradient descent ✓<br>d) Activation functions only<br><br><strong>3. The vanishing gradient problem occurs in:</strong><br>a) Shallow networks<br>b) Deep networks with sigmoid activations ✓<br>c) Decision trees<br>d) Linear regression'
+      },
+      'Entrepreneurship': {
+        low: '<h3>Low Difficulty — Chapter 1 Quiz</h3><br><strong>1. MVP stands for:</strong><br>a) Most Valuable Player<br>b) Minimum Viable Product ✓<br>c) Maximum Value Proposition<br>d) Minimum Value Plan<br><br><strong>2. The first step in validating a business idea is:</strong><br>a) Build the product<br>b) Talk to potential customers ✓<br>c) Secure funding<br>d) Hire a team<br><br><strong>3. The Lean Startup was introduced by:</strong><br>a) Steve Jobs<br>b) Eric Ries ✓<br>c) Bill Gates<br>d) Elon Musk',
+        medium: '<h3>Medium Difficulty — Chapter 1 Quiz</h3><br><strong>1. Problem-solution fit means:</strong><br>a) Your team likes the idea<br>b) Customers confirm the problem and your solution addresses it ✓<br>c) You have secured funding<br>d) The product is fully built<br><br><strong>2. A pivot means:</strong><br>a) Shutting down the company<br>b) Changing strategy based on validated learning ✓<br>c) Hiring more employees<br>d) Expanding to new markets<br><br><strong>3. TAM stands for:</strong><br>a) Total Addressable Market ✓<br>b) Target Audience Management<br>c) Tech Acceleration Model<br>d) Total Asset Management',
+        difficult: '<h3>Difficult — Chapter 1 Quiz</h3><br><strong>1. Customer Development involves:</strong><br>a) Discovery, Validation, Creation, Building ✓<br>b) Building, Testing, Selling, Scaling<br>c) Planning, Funding, Launching, Growing<br>d) Ideating, Prototyping, Testing, Pivoting<br><br><strong>2. A beachhead market strategy means:</strong><br>a) Targeting all customers at once<br>b) Starting with a narrow, winnable segment ✓<br>c) Focusing on premium customers only<br>d) Entering the largest market first<br><br><strong>3. Jobs-to-be-Done theory was popularized by:</strong><br>a) Peter Drucker<br>b) Clayton Christensen ✓<br>c) Michael Porter<br>d) Jim Collins'
+      },
+      'Applied Mathematics': {
+        low: '<h3>Low Difficulty — Chapter 1 Quiz</h3><br><strong>1. A vector has:</strong><br>a) Only magnitude<br>b) Magnitude and direction ✓<br>c) Only direction<br>d) Neither<br><br><strong>2. The identity matrix has:</strong><br>a) All zeros<br>b) 1s on diagonal, 0s elsewhere ✓<br>c) All ones<br>d) Random values<br><br><strong>3. Matrix addition requires matrices to be:</strong><br>a) Square<br>b) The same size ✓<br>c) Triangular<br>d) Diagonal',
+        medium: '<h3>Medium Difficulty — Chapter 1 Quiz</h3><br><strong>1. Matrix multiplication AB equals BA:</strong><br>a) Always<br>b) Never<br>c) Sometimes ✓<br>d) Only for square matrices<br><br><strong>2. The determinant of [a b; c d] is:</strong><br>a) a+d<br>b) ad-bc ✓<br>c) ab-cd<br>d) ac+bd<br><br><strong>3. Eigenvalues of matrix A satisfy:</strong><br>a) Av = lambda*v ✓<br>b) Av = v + lambda<br>c) A + v = lambda<br>d) A*lambda = v',
+        difficult: '<h3>Difficult — Chapter 1 Quiz</h3><br><strong>1. The rank of a matrix is:</strong><br>a) The number of rows<br>b) The number of columns<br>c) The dimension of the column space ✓<br>d) The trace of the matrix<br><br><strong>2. Gram-Schmidt orthogonalization produces:</strong><br>a) A diagonal matrix<br>b) An orthonormal basis ✓<br>c) The inverse of a matrix<br>d) The eigendecomposition<br><br><strong>3. The Spectral Theorem applies to:</strong><br>a) All matrices<br>b) Symmetric real matrices with real eigenvalues ✓<br>c) Only diagonal matrices<br>d) Invertible matrices only'
+      },
+      'Computer Programming': {
+        low: '<h3>Low Difficulty — Chapter 1 Quiz</h3><br><strong>1. What type is "Hello"?</strong><br>a) Integer<br>b) String ✓<br>c) Float<br>d) Boolean<br><br><strong>2. Which keyword defines a function?</strong><br>a) function<br>b) def ✓<br>c) fn<br>d) func<br><br><strong>3. print("Hello") outputs:</strong><br>a) "Hello" with quotes<br>b) Hello without quotes ✓<br>c) Error<br>d) Nothing',
+        medium: '<h3>Medium Difficulty — Chapter 1 Quiz</h3><br><strong>1. What does int("5") return?</strong><br>a) "5"<br>b) 5 as integer ✓<br>c) 5.0<br>d) Error<br><br><strong>2. x = 5; x += 3; print(x) outputs:</strong><br>a) 5<br>b) 3<br>c) 8 ✓<br>d) 53<br><br><strong>3. Which loop runs while a condition is true?</strong><br>a) for loop<br>b) while loop ✓<br>c) do loop<br>d) repeat loop',
+        difficult: '<h3>Difficult — Chapter 1 Quiz</h3><br><strong>1. *args in a function allows:</strong><br>a) Only keyword arguments<br>b) Variable number of positional arguments ✓<br>c) Only two arguments<br>d) No arguments<br><br><strong>2. type(3/2) in Python 3 returns:</strong><br>a) int<br>b) float ✓<br>c) str<br>d) complex<br><br><strong>3. [x**2 for x in range(4)] produces:</strong><br>a) [1, 4, 9, 16]<br>b) [0, 1, 4, 9] ✓<br>c) [0, 1, 2, 3]<br>d) [1, 2, 3, 4]'
+      },
+      'English': {
+        low: '<h3>Low Difficulty — Chapter 1 Quiz</h3><br><strong>1. In "Dogs love playing," the subject is:</strong><br>a) Love<br>b) Dogs ✓<br>c) Playing<br>d) None<br><br><strong>2. Which word is a verb?</strong><br>a) Beautiful<br>b) Happiness<br>c) Run ✓<br>d) Quick<br><br><strong>3. An adjective describes:</strong><br>a) A verb<br>b) A noun or pronoun ✓<br>c) Another adjective only<br>d) A preposition',
+        medium: '<h3>Medium Difficulty — Chapter 1 Quiz</h3><br><strong>1. "She runs every day" uses which tense?</strong><br>a) Past simple<br>b) Present simple ✓<br>c) Present continuous<br>d) Future simple<br><br><strong>2. A compound sentence contains:</strong><br>a) One independent clause<br>b) Two or more independent clauses ✓<br>c) A dependent clause only<br>d) No subject<br><br><strong>3. In "I wanted to go, but it rained," the conjunction is:</strong><br>a) Wanted<br>b) Rained<br>c) But ✓<br>d) Go',
+        difficult: '<h3>Difficult — Chapter 1 Quiz</h3><br><strong>1. The subjunctive mood is used for:</strong><br>a) Statements of fact<br>b) Hypothetical or contrary-to-fact situations ✓<br>c) Questions only<br>d) Commands only<br><br><strong>2. A dangling modifier error occurs when:</strong><br>a) Subject and verb disagree<br>b) The modifier does not clearly modify the intended noun ✓<br>c) Two clauses are joined without punctuation<br>d) A pronoun has no antecedent<br><br><strong>3. "The book, which was on the shelf, fell." The clause is:</strong><br>a) Restrictive<br>b) Non-restrictive ✓<br>c) Adverbial<br>d) Nominal'
+      },
+      'History of Ethiopia': {
+        low: '<h3>Low Difficulty — Chapter 1 Quiz</h3><br><strong>1. Aksum was located in present-day:</strong><br>a) Kenya<br>b) Ethiopia ✓<br>c) Egypt<br>d) Sudan<br><br><strong>2. What script did the Aksumites use?</strong><br>a) Arabic<br>b) Latin<br>c) Ge-ez ✓<br>d) Hebrew<br><br><strong>3. Aksum was known for trade in:</strong><br>a) Rice and wheat<br>b) Ivory, gold, and spices ✓<br>c) Cotton and silk<br>d) Oil and minerals',
+        medium: '<h3>Medium Difficulty — Chapter 1 Quiz</h3><br><strong>1. Christianity became the state religion of Aksum under:</strong><br>a) Yohannes IV<br>b) Ezana ✓<br>c) Tewodros<br>d) Haile Selassie<br><br><strong>2. The tall stone structures built by Aksumites are called:</strong><br>a) Pyramids<br>b) Obelisks or Stelae ✓<br>c) Cathedrals<br>d) Ziggurats<br><br><strong>3. Aksum traded mainly through which sea?</strong><br>a) Mediterranean<br>b) Red Sea ✓<br>c) Indian Ocean<br>d) Caspian Sea',
+        difficult: '<h3>Difficult — Chapter 1 Quiz</h3><br><strong>1. The Aksumite currency was significant because:</strong><br>a) It was made of wood<br>b) It was one of the first sub-Saharan African coinage systems ✓<br>c) It was borrowed from Rome<br>d) It had no international value<br><br><strong>2. The decline of Aksum was primarily linked to:</strong><br>a) Military conquest by Egypt<br>b) Shifts in trade routes and environmental degradation ✓<br>c) A massive earthquake<br>d) Invasion by the Zagwe dynasty<br><br><strong>3. Ezana inscription at Aksum is evidence of:</strong><br>a) Founding of the empire<br>b) Adoption of Christianity and military campaigns ✓<br>c) A peace treaty with Rome<br>d) Construction of obelisks'
+      },
+      'Moral and Civic Education': {
+        low: '<h3>Low Difficulty — Chapter 1 Quiz</h3><br><strong>1. Ethics deals with:</strong><br>a) Physical science<br>b) Right and wrong behavior ✓<br>c) Mathematical logic<br>d) Political power<br><br><strong>2. Virtue ethics was developed by:</strong><br>a) Kant<br>b) Mill<br>c) Aristotle ✓<br>d) Plato<br><br><strong>3. "Do unto others as you would have them do to you" is:</strong><br>a) Consequentialism<br>b) The Golden Rule ✓<br>c) Relativism<br>d) Nihilism',
+        medium: '<h3>Medium Difficulty — Chapter 1 Quiz</h3><br><strong>1. Utilitarianism judges actions by:</strong><br>a) Their intention alone<br>b) Their consequences for overall happiness ✓<br>c) Adherence to rules<br>d) Cultural norms<br><br><strong>2. The categorical imperative is from:</strong><br>a) Aristotle<br>b) Kant ✓<br>c) Mill<br>d) Hume<br><br><strong>3. Moral relativism holds that:</strong><br>a) There is one universal moral code<br>b) Moral truths are objective<br>c) Moral standards are relative to culture ✓<br>d) Ethics is impossible',
+        difficult: '<h3>Difficult — Chapter 1 Quiz</h3><br><strong>1. The trolley problem illustrates tension between:</strong><br>a) Deontology and relativism<br>b) Deontological and consequentialist ethics ✓<br>c) Virtue ethics and nihilism<br>d) Applied and meta-ethics<br><br><strong>2. Rawls veil of ignorance is designed to:</strong><br>a) Prove God exists<br>b) Derive principles of justice without bias ✓<br>c) Justify authoritarianism<br>d) Argue for cultural relativism<br><br><strong>3. Care ethics (Gilligan) prioritizes:</strong><br>a) Universal rules<br>b) Consequences for society<br>c) Relationships and context ✓<br>d) Individual rights only'
+      }
+    };
+
+    var courseData = data[course];
+    if(courseData && courseData[diff]) return courseData[diff];
+    return '<p>Exam content for ' + course + ' (' + diff + ') coming soon.</p>';
+  }
+</script>
+</body>
+</html>
