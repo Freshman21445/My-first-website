@@ -1,5 +1,6 @@
+AB
 /* Subject Cards Grid */
-.subjects-grid {
+.Subject {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
