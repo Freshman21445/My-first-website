@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Exam</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html,body { height:100%; width:100%; overflow-x:hidden; }
+    body {
+      font-family:'Segoe UI',Arial,sans-serif;
+      background-image:url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format');
+      background-size:cover; background-position:center;
+      background-repeat:no-repeat; background-attachment:fixed;
+      min-height:100vh; overflow-y:auto; position:relative;
+    }
+    body::before {
+      content:""; position:fixed; top:0; left:0;
+      width:100%; height:100%; background:rgba(0,0,0,0.60); z-index:0;
+    }
+    .container {
+      position:relative; z-index:1; max-width:800px;
+      margin:0 auto; padding:20px; min-height:100vh;
+    }
+    h1 {
+      text-align:center; color:white; margin-bottom:20px;
+      font-size:1.6em; text-shadow:2px 2px 6px rgba(0,0,0,0.6); padding-top:20px;
+    }
+    .card {
+      background:rgba(255,255,255,0.97); border-radius:20px;
+      padding:32px; box-shadow:0 10px 30px rgba(0,0,0,0.25); margin-bottom:24px;
+    }
+    #courseTitle {
+      color:#1e3c72; font-size:1.15em; font-weight:bold;
+      margin-bottom:20px; text-align:center;
+    }
+
+    /* MODE SELECTION */
+    #modeSelection { text-align:center; }
+    #modeSelection h2 { color:#1e3c72; margin-bottom:10px; font-size:1.3em; }
+    #modeSelection p  { color:#666; margin-bottom:24px; font-size:0.97em; }
+    .mode-btns { display:flex; gap:18px; justify-content:center; flex-wrap:wrap; }
+    .mode-btn {
+      padding:16px 36px; border:none; border-radius:30px;
+      font-size:1.05em; font-weight:bold; cursor:pointer; transition:all 0.3s;
+    }
+    .mode-btn.instant { background:linear-gradient(135deg,#ff9800,#e68900); color:white; }
+    .mode-btn.instant:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(255,152,0,0.45); }
+    .mode-btn.finish  { background:linear-gradient(135deg,#27ae60,#229954); color:white; }
+    .mode-btn.finish:hover  { transform:translateY(-3px); box-shadow:0 8px 20px rgba(39,174,96,0.45); }
+
+    /* LOADING */
+    #loadingDiv {
+      text-align:center; padding:30px; color:#888; display:none;
+    }
+    .loading-spinner {
+      width:40px; height:40px; border:4px solid #eee;
+      border-top:4px solid #ff9800; border-radius:50%;
+      animation:spin 0.8s linear infinite; margin:0 auto 14px;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* QUESTIONS */
+    #questionsDiv {
+      max-height:65vh; overflow-y:auto; padding-right:6px;
+      scrollbar-width:thin; scrollbar-color:#ff9800 #f0f0f0;
+    }
+    #questionsDiv::-webkit-scrollbar { width:6px; }
+    #questionsDiv::-webkit-scrollbar-track { background:#f0f0f0; border-radius:10px; }
+    #questionsDiv::-webkit-scrollbar-thumb { background:#ff9800; border-radius:10px; }
+    .question { margin-bottom:10px; }
+    .question-text {
+      font-size:1.08em; color:#1e3c72; margin-bottom:14px; line-height:1.6;
+    }
+    .options-list { display:flex; flex-direction:column; gap:10px; }
+    .option {
+      padding:12px 20px; border:2px solid #ddd; border-radius:30px;
+      background:#f9f9f9; font-size:0.97em; cursor:pointer;
+      text-align:left; transition:all 0.2s; font-weight:500; color:#333;
+    }
+    .option:hover { background:#fff3e0; border-color:#ff9800; color:#e65100; }
+    .option.correct { background:#e8f5e9; border-color:#27ae60; color:#1b5e20; }
+    .option.wrong   { background:#fce4ec; border-color:#e91e63; color:#880e4f; }
+    .option:disabled { cursor:not-allowed; }
+
+    /* EXPLANATION BOX */
+    .explanation-box {
+      margin-top:14px; padding:14px 18px; background:#e8f5e9;
+      border-left:4px solid #27ae60; border-radius:10px;
+      color:#1b5e20; font-size:0.92em; line-height:1.6; display:none;
+    }
+    .explanation-box.wrong-exp {
+      background:#fff3e0; border-left-color:#ff9800; color:#e65100;
+    }
+
+    /* PROGRESS */
+    .progress-bar-wrap {
+      background:#eee; border-radius:30px; height:8px; margin-bottom:20px; overflow:hidden;
+    }
+    .progress-bar { height:8px; border-radius:30px; background:linear-gradient(90deg,#ff9800,#f39c12); transition:width 0.4s; }
+    .progress-label { color:#888; font-size:0.88em; margin-bottom:8px; text-align:right; }
+
+    /* FINISH BTN */
+    #finishBtn {
+      display:none; width:100%; padding:14px; background:linear-gradient(135deg,#27ae60,#229954);
+      color:white; border:none; border-radius:30px; font-size:1.05em;
+      font-weight:bold; cursor:pointer; margin-top:20px; transition:all 0.3s;
+    }
+    #finishBtn:hover { background:linear-gradient(135deg,#1e7e34,#155724); transform:translateY(-2px); }
+
+    /* SELECTED (finish mode) */
+    .option.selected { background:#e3f2fd; border-color:#1565c0; color:#0d47a1; }
+
+    /* EXPLANATION TOGGLE BUTTON */
+    .exp-toggle-btn {
+      display:none; margin-top:12px; padding:7px 18px;
+      background:rgba(30,60,114,0.08); border:1.5px solid #1e3c72;
+      border-radius:20px; color:#1e3c72; font-size:0.85em; font-weight:600;
+      cursor:pointer; transition:all 0.2s;
+    }
+    .exp-toggle-btn:hover { background:#1e3c72; color:white; }
+    .exp-toggle-btn.visible { display:inline-block; }
+
+    /* RESULT */
+    #result {
+      text-align:center; font-size:1.1em; color:#1e3c72; line-height:2;
+    }
+    #result .result-btn {
+      margin-top:12px; padding:12px 30px; background:linear-gradient(135deg,#ff9800,#e68900);
+      color:white; border:none; border-radius:30px; font-size:1em;
+      font-weight:bold; cursor:pointer; transition:all 0.3s; display:inline-block;
+    }
+    #result .result-btn:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(255,152,0,0.4); }
+    #result .review-btn {
+      margin-top:12px; margin-left:10px; padding:12px 30px;
+      background:linear-gradient(135deg,#1e3c72,#2a5298);
+      color:white; border:none; border-radius:30px; font-size:1em;
+      font-weight:bold; cursor:pointer; transition:all 0.3s; display:inline-block;
+    }
+    #result .review-btn:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(30,60,114,0.4); }
+
+    /* REVIEW SECTION */
+    #reviewSection { display:none; margin-top:24px; }
+    #reviewSection h3 { color:#1e3c72; margin-bottom:14px; font-size:1.1em; }
+
+    /* BACK LINK */
+    .back-link {
+      display:inline-block; margin-bottom:18px; color:rgba(255,255,255,0.85);
+      text-decoration:none; font-weight:bold; font-size:0.97em;
+      background:rgba(255,255,255,0.15); padding:8px 20px; border-radius:30px;
+      backdrop-filter:blur(4px); transition:all 0.2s;
+    }
+    .back-link:hover { background:rgba(255,255,255,0.25); color:white; }
+
+    /* Question type badge */
+    .q-type-badge {
+      display:inline-block; padding:3px 10px; border-radius:20px;
+      font-size:0.75em; font-weight:700; margin-bottom:10px;
+    }
+    .q-type-badge.mc  { background:#e3f2fd; color:#1565c0; }
+    .q-type-badge.tf  { background:#f3e5f5; color:#6a1b9a; }
+
+    @media(max-width:600px){
+      .card { padding:20px; }
+      h1 { font-size:1.25em; }
+      .mode-btns { flex-direction:column; align-items:center; }
+      .mode-btn { width:100%; max-width:280px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" id="backLink" href="#" onclick="history.back(); return false;">← Back to Chapters</a>
+  <h1>📚 Online Exam System</h1>
+
+  <div class="card">
+    <div id="courseTitle"></div>
+
+    <!-- LOADING -->
+    <div id="loadingDiv">
+      <div class="loading-spinner"></div>
+      <p>Loading questions...</p>
+    </div>
+
+    <!-- MODE SELECTION -->
+    <div id="modeSelection">
+      <h2>Choose Exam Mode</h2>
+      <p>How would you like to receive feedback on your answers?</p>
+      <div class="mode-btns">
+        <button class="mode-btn instant" onclick="startExam('instant')">⚡ Instant Feedback</button>
+        <button class="mode-btn finish"  onclick="startExam('finish')">✅ After Finishing</button>
+      </div>
+    </div>
+
+    <!-- QUESTIONS -->
+    <div id="questionsDiv"></div>
+
+    <!-- PROGRESS -->
+    <div id="progressWrap" style="display:none;">
+      <p class="progress-label" id="progressLabel"></p>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+    </div>
+
+    <!-- FINISH -->
+    <button id="finishBtn" onclick="finishExam()">📋 Finish &amp; See Results</button>
+
+    <!-- RESULT -->
+    <div id="result"></div>
+
+    <!-- REVIEW -->
+    <div id="reviewSection">
+      <h3>📋 Review Your Answers</h3>
+      <div id="reviewList"></div>
+    </div>
+  </div>
+</div>
+
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+  import { getFirestore, collection, query, where, getDocs }
+    from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+
+  const cfg = {
+    apiKey:"AIzaSyAavkqPwNgzo3UASsz-feaQvTjobxwkj-s",
+    authDomain:"student-quiz-platform-9439a.firebaseapp.com",
+    projectId:"student-quiz-platform-9439a",
+    storageBucket:"student-quiz-platform-9439a.firebasestorage.app",
+    messagingSenderId:"815750551646",
+    appId:"1:815750551646:web:1c48edb729252bd667bccf"
+  };
+  const app = initializeApp(cfg);
+  const db  = getFirestore(app);
+  const auth = getAuth(app);
+  await signInAnonymously(auth);
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const course  = urlParams.get('course')  || 'Unknown Course';
+  const level   = urlParams.get('level')   || 'low';
+  const chapter = parseInt(urlParams.get('chapter') || '1');
+
+  document.getElementById('courseTitle').textContent =
+    course + ' — Chapter ' + chapter + ' (' + level.charAt(0).toUpperCase() + level.slice(1) + ' Level)';
+
+  document.getElementById('backLink').href =
+    'index.html?course=' + encodeURIComponent(course) + '&chapter=' + chapter;
+
+  let mode      = '';
+  let questions = [];
+  let answers   = [];
+
+  /* ── BUILT-IN FALLBACK QUESTIONS ── */
+  const fallbackQuestions = {
+    'Computer Programming': {
+      low: [
+        {q:'What is 2+2?', options:['3','4','5','6'], answer:'4', type:'multiple_choice', explanation:'Basic arithmetic: 2+2 equals 4.'},
+        {q:'Which is a programming language?', options:['HTML','CSS','Python','Markdown'], answer:'Python', type:'multiple_choice', explanation:'Python is a programming language; HTML, CSS, and Markdown are markup/styling languages.'},
+        {q:'What does print() do?', options:['Output to screen','Read input','Loop','Delete'], answer:'Output to screen', type:'multiple_choice', explanation:'print() outputs text or values to the screen/console.'}
+      ],
+      medium: [
+        {q:'What does JS stand for?', options:['JavaScript','JavaSystem','JustScript','JavaServer'], answer:'JavaScript', type:'multiple_choice', explanation:'JS is the commonly used abbreviation for JavaScript.'},
+        {q:'Which symbol is used for single-line comments in JS?', options:['//','/*','#','--'], answer:'//', type:'multiple_choice', explanation:'In JavaScript, // marks the beginning of a single-line comment.'},
+        {q:'int("5") returns 5 as an integer.', options:['True','False'], answer:'True', type:'true_false', explanation:'int("5") converts the string "5" to the integer 5.'}
+      ],
+      difficult: [
+        {q:'What is recursion?', options:['A function calling itself','A loop','A type','A class'], answer:'A function calling itself', type:'multiple_choice', explanation:'Recursion is when a function calls itself to solve a smaller version of the same problem.'},
+        {q:'type(3/2) in Python 3 returns float.', options:['True','False'], answer:'True', type:'true_false', explanation:'In Python 3, dividing two integers always returns a float.'},
+        {q:'[x**2 for x in range(4)] produces:', options:['[1,4,9,16]','[0,1,4,9]','[0,1,2,3]','[1,2,3,4]'], answer:'[0,1,4,9]', type:'multiple_choice', explanation:'range(4) gives 0,1,2,3. Squaring each: 0,1,4,9.'}
+      ]
+    },
+    'Anthropology': {
+      low: [
+        {q:'Anthropology is the study of:', options:['Rocks','Humans','Plants','Stars'], answer:'Humans', type:'multiple_choice', explanation:'Anthropology is the scientific study of humans, human behavior, and societies.'},
+        {q:'Archaeology is a subfield of anthropology.', options:['True','False'], answer:'True', type:'true_false', explanation:'Archaeology is one of the four main subfields of anthropology.'},
+        {q:'Margaret Mead was a famous:', options:['Physicist','Anthropologist','Economist','Chemist'], answer:'Anthropologist', type:'multiple_choice', explanation:'Margaret Mead was a renowned cultural anthropologist known for her fieldwork in Samoa.'}
+      ],
+      medium: [
+        {q:'Ethnography is:', options:['Writing about cultures','Lab experiment','Survey','Genetic analysis'], answer:'Writing about cultures', type:'multiple_choice', explanation:'Ethnography is a qualitative research method involving in-depth study and description of cultures.'},
+        {q:'Cultural relativism means judging a culture by its own standards.', options:['True','False'], answer:'True', type:'true_false', explanation:'Cultural relativism is the principle that a culture should be understood on its own terms, not judged by another culture\'s standards.'},
+        {q:'Participant observation is used in:', options:['Archaeology','Ethnography','Genetics','Statistics'], answer:'Ethnography', type:'multiple_choice', explanation:'Participant observation is a key method in ethnographic research.'}
+      ],
+      difficult: [
+        {q:'Who proposed cultural relativism?', options:['Franz Boas','Charles Darwin','Karl Marx','Sigmund Freud'], answer:'Franz Boas', type:'multiple_choice', explanation:'Franz Boas, known as the "Father of American Anthropology," pioneered cultural relativism.'},
+        {q:'Thick description was introduced by Clifford Geertz.', options:['True','False'], answer:'True', type:'true_false', explanation:'Clifford Geertz introduced the concept of "thick description" in his interpretive approach to culture.'},
+        {q:'In emic vs. etic approaches, emic is:', options:['Outsider view','Insider view','Both outsider','Both insider'], answer:'Insider view', type:'multiple_choice', explanation:'Emic refers to the insider/native perspective, while etic refers to the outsider/analytical perspective.'}
+      ]
+    },
+    'Emerging Technology': {
+      low: [
+        {q:'AI stands for:', options:['Artificial Intelligence','Automated Interface','Algorithmic Input','Advanced Integration'], answer:'Artificial Intelligence', type:'multiple_choice', explanation:'AI stands for Artificial Intelligence — the simulation of human intelligence in machines.'},
+        {q:'A Smart Thermostat is an IoT device.', options:['True','False'], answer:'True', type:'true_false', explanation:'Smart thermostats connect to the internet and can be controlled remotely — making them IoT devices.'},
+        {q:'A chatbot is an example of:', options:['Quantum computing','AI application','Blockchain','IoT'], answer:'AI application', type:'multiple_choice', explanation:'Chatbots use AI (natural language processing) to simulate conversation.'}
+      ],
+      medium: [
+        {q:'Machine Learning is a subset of AI.', options:['True','False'], answer:'True', type:'true_false', explanation:'Machine Learning is a branch of AI that enables systems to learn from data.'},
+        {q:'Supervised learning requires:', options:['Unlabeled data','Labeled training data','No data','Only test data'], answer:'Labeled training data', type:'multiple_choice', explanation:'Supervised learning uses labeled data — each training example has an input and a known correct output.'},
+        {q:'Overfitting means the model memorizes training data but fails on new data.', options:['True','False'], answer:'True', type:'true_false', explanation:'An overfitted model performs well on training data but cannot generalize to unseen data.'}
+      ],
+      difficult: [
+        {q:'Which algorithm is commonly used for image recognition?', options:['CNN','LSTM','SVM','KNN'], answer:'CNN', type:'multiple_choice', explanation:'Convolutional Neural Networks (CNNs) are specifically designed for image recognition tasks.'},
+        {q:'Backpropagation adjusts network weights using gradient descent.', options:['True','False'], answer:'True', type:'true_false', explanation:'Backpropagation computes gradients of the loss function and uses them to update weights via gradient descent.'},
+        {q:'The Turing Test measures whether a machine can exhibit intelligent behavior.', options:['True','False'], answer:'True', type:'true_false', explanation:'Alan Turing proposed this test: if a machine can converse indistinguishably from a human, it passes.'}
+      ]
+    },
+    'Entrepreneurship': {
+      low: [
+        {q:'What does MVP stand for?', options:['Minimum Viable Product','Most Valuable Player','Maximum Value Plan','Market Validation Process'], answer:'Minimum Viable Product', type:'multiple_choice', explanation:'MVP is a product with just enough features to validate a business idea with early customers.'},
+        {q:'The Lean Startup was introduced by Eric Ries.', options:['True','False'], answer:'True', type:'true_false', explanation:'Eric Ries wrote The Lean Startup, introducing the build-measure-learn feedback loop.'},
+        {q:'A business plan is used to guide the business.', options:['True','False'], answer:'True', type:'true_false', explanation:'A business plan outlines the business goals, strategies, and how the business will operate.'}
+      ],
+      medium: [
+        {q:'TAM stands for:', options:['Total Addressable Market','Target Audience Management','Tech Acceleration Model','Total Asset Management'], answer:'Total Addressable Market', type:'multiple_choice', explanation:'TAM is the total revenue opportunity if 100% of the market were captured.'},
+        {q:'A pivot means changing strategy based on validated learning.', options:['True','False'], answer:'True', type:'true_false', explanation:'A pivot is a structured course correction based on what the startup has learned from market testing.'},
+        {q:'Problem-solution fit means customers confirm the problem and your solution addresses it.', options:['True','False'], answer:'True', type:'true_false', explanation:'Problem-solution fit is achieved when you\'ve validated that the problem exists and your solution solves it.'}
+      ],
+      difficult: [
+        {q:'A beachhead market strategy means:', options:['Targeting all customers','Starting with a narrow winnable segment','Focusing on premium only','Entering the largest market'], answer:'Starting with a narrow winnable segment', type:'multiple_choice', explanation:'The beachhead strategy focuses on dominating a small, specific market first before expanding.'},
+        {q:'Jobs-to-be-Done was popularized by Clayton Christensen.', options:['True','False'], answer:'True', type:'true_false', explanation:'Clayton Christensen popularized the Jobs-to-be-Done framework for understanding customer motivation.'},
+        {q:'Customer Development steps are:', options:['Discovery, Validation, Creation, Building','Build, Test, Sell, Scale','Plan, Fund, Launch, Grow','Ideate, Prototype, Test, Pivot'], answer:'Discovery, Validation, Creation, Building', type:'multiple_choice', explanation:'Steve Blank\'s Customer Development model: Customer Discovery → Validation → Creation → Company Building.'}
+      ]
+    },
+    'Applied Mathematics': {
+      low: [
+        {q:'A vector has both magnitude and direction.', options:['True','False'], answer:'True', type:'true_false', explanation:'A vector is defined by having both a magnitude (size) and a direction, unlike a scalar which has magnitude only.'},
+        {q:'Matrix addition requires matrices of:', options:['Same size','Square shape','Equal determinant','Same eigenvalues'], answer:'Same size', type:'multiple_choice', explanation:'Matrix addition is only defined for matrices with the same number of rows and columns.'},
+        {q:'The identity matrix has 1s on the diagonal and 0s elsewhere.', options:['True','False'], answer:'True', type:'true_false', explanation:'The identity matrix I has 1s on the main diagonal and 0s everywhere else, acting as the "1" of matrix multiplication.'}
+      ],
+      medium: [
+        {q:'The determinant of [a b; c d] is:', options:['a+d','ad-bc','ab-cd','ac+bd'], answer:'ad-bc', type:'multiple_choice', explanation:'For a 2×2 matrix, det = ad - bc.'},
+        {q:'Matrix multiplication is always commutative (AB = BA).', options:['True','False'], answer:'False', type:'true_false', explanation:'Matrix multiplication is generally NOT commutative — AB does not equal BA in most cases.'},
+        {q:'Eigenvalues of matrix A satisfy:', options:['Av=lambda*v','Av=v+lambda','A+v=lambda','A*lambda=v'], answer:'Av=lambda*v', type:'multiple_choice', explanation:'An eigenvector v and eigenvalue λ satisfy Av = λv — the matrix transforms the vector by a scalar factor.'}
+      ],
+      difficult: [
+        {q:'The rank of a matrix is the dimension of its column space.', options:['True','False'], answer:'True', type:'true_false', explanation:'The rank is the dimension of the vector space spanned by the columns (or rows) of the matrix.'},
+        {q:'Gram-Schmidt orthogonalization produces an orthonormal basis.', options:['True','False'], answer:'True', type:'true_false', explanation:'Gram-Schmidt takes a set of linearly independent vectors and produces an orthonormal basis for the same space.'},
+        {q:'The Spectral Theorem applies to:', options:['All matrices','Symmetric real matrices with real eigenvalues','Only diagonal matrices','Invertible matrices only'], answer:'Symmetric real matrices with real eigenvalues', type:'multiple_choice', explanation:'The Spectral Theorem states that every real symmetric matrix is diagonalizable and has real eigenvalues.'}
+      ]
+    },
+    'English': {
+      low: [
+        {q:'Which is a noun?', options:['Run','Beautiful','Happiness','Quickly'], answer:'Happiness', type:'multiple_choice', explanation:'Happiness is an abstract noun. Run is a verb, Beautiful is an adjective, Quickly is an adverb.'},
+        {q:'"She walks" is in the present tense.', options:['True','False'], answer:'True', type:'true_false', explanation:'"She walks" uses the present simple tense — describing a habitual or current action.'},
+        {q:'An adjective describes a noun or pronoun.', options:['True','False'], answer:'True', type:'true_false', explanation:'Adjectives modify nouns or pronouns, providing more information about them.'}
+      ],
+      medium: [
+        {q:'A compound sentence contains two or more independent clauses.', options:['True','False'], answer:'True', type:'true_false', explanation:'A compound sentence joins two or more independent clauses, usually with a coordinating conjunction.'},
+        {q:'"She runs every day" is which tense?', options:['Past simple','Present simple','Present continuous','Future simple'], answer:'Present simple', type:'multiple_choice', explanation:'Present simple is used for habits and routines, as in "She runs every day."'},
+        {q:'In "I wanted to go, but it rained," the conjunction is:', options:['Wanted','Rained','But','Go'], answer:'But', type:'multiple_choice', explanation:'"But" is a coordinating conjunction joining the two independent clauses.'}
+      ],
+      difficult: [
+        {q:'The subjunctive mood is used for hypothetical situations.', options:['True','False'], answer:'True', type:'true_false', explanation:'The subjunctive mood expresses hypothetical, wishful, doubtful, or contrary-to-fact statements.'},
+        {q:'A dangling modifier fails to clearly modify the intended noun.', options:['True','False'], answer:'True', type:'true_false', explanation:'A dangling modifier is a word or phrase that does not clearly attach to the noun it is meant to describe.'},
+        {q:'"The book, which was on the shelf, fell." The clause is:', options:['Restrictive','Non-restrictive','Adverbial','Nominal'], answer:'Non-restrictive', type:'multiple_choice', explanation:'Non-restrictive clauses add extra information and are set off by commas; they are not essential to the sentence\'s meaning.'}
+      ]
+    },
+    'History of Ethiopia': {
+      low: [
+        {q:'Aksum was located in Ethiopia.', options:['True','False'], answer:'True', type:'true_false', explanation:'The Aksumite Empire was located in what is now northern Ethiopia and Eritrea.'},
+        {q:'The Aksumites used the script:', options:["Ge'ez",'Latin','Arabic','Hebrew'], answer:"Ge'ez", type:'multiple_choice', explanation:"The Ge'ez script was developed in the Aksumite period and is still used in Ethiopian Orthodox Church liturgy."},
+        {q:'Aksum was known for trade in:', options:['Rice and wheat','Ivory, gold, and spices','Cotton and silk','Oil and minerals'], answer:'Ivory, gold, and spices', type:'multiple_choice', explanation:'Aksum thrived through trade of ivory, gold, and spices along the Red Sea trade routes.'}
+      ],
+      medium: [
+        {q:'Christianity became the state religion of Aksum under King Ezana.', options:['True','False'], answer:'True', type:'true_false', explanation:'King Ezana converted to Christianity in the 4th century CE, making it the official state religion of Aksum.'},
+        {q:'The tall stone structures built by Aksumites are called:', options:['Pyramids','Obelisks or Stelae','Cathedrals','Ziggurats'], answer:'Obelisks or Stelae', type:'multiple_choice', explanation:'The Aksumite stelae (obelisks) are towering stone monuments, many still standing in Aksum today.'},
+        {q:'Aksum traded mainly through the Red Sea.', options:['True','False'], answer:'True', type:'true_false', explanation:'The Red Sea was Aksum\'s main trade highway, connecting it to Arabia, India, and the Mediterranean.'}
+      ],
+      difficult: [
+        {q:'The Aksumite coinage system was one of the first in sub-Saharan Africa.', options:['True','False'], answer:'True', type:'true_false', explanation:'Aksum developed one of the earliest coinage systems in Africa, issuing gold, silver, and bronze coins.'},
+        {q:'The decline of Aksum was primarily linked to:', options:['Military conquest by Egypt','Shifts in trade routes and environmental degradation','A massive earthquake','Invasion by the Zagwe dynasty'], answer:'Shifts in trade routes and environmental degradation', type:'multiple_choice', explanation:'The rise of Islam shifting Red Sea trade routes, combined with deforestation and soil degradation, contributed to Aksum\'s decline.'},
+        {q:'The Ezana inscription is evidence of the adoption of Christianity in Aksum.', options:['True','False'], answer:'True', type:'true_false', explanation:'The Ezana Stone inscription at Aksum records King Ezana\'s military campaigns and his conversion to Christianity.'}
+      ]
+    },
+    'Moral and Civic Education': {
+      low: [
+        {q:'Ethics deals with right and wrong.', options:['True','False'], answer:'True', type:'true_false', explanation:'Ethics is the branch of philosophy concerned with moral principles that govern right and wrong conduct.'},
+        {q:'Virtue ethics was developed by:', options:['Kant','Mill','Aristotle','Plato'], answer:'Aristotle', type:'multiple_choice', explanation:'Aristotle developed virtue ethics, focusing on character and virtues rather than rules or consequences.'},
+        {q:'The Golden Rule says "Do unto others as you would have them do unto you."', options:['True','False'], answer:'True', type:'true_false', explanation:'The Golden Rule is a universal ethical principle found across many cultures and religions.'}
+      ],
+      medium: [
+        {q:'Utilitarianism judges actions by their consequences for overall happiness.', options:['True','False'], answer:'True', type:'true_false', explanation:'Utilitarianism (Mill, Bentham) holds that the right action maximizes overall happiness or utility.'},
+        {q:'The categorical imperative is from:', options:['Aristotle','Kant','Mill','Hume'], answer:'Kant', type:'multiple_choice', explanation:'Immanuel Kant\'s categorical imperative is the central principle of his deontological ethics.'},
+        {q:'Moral relativism holds that moral standards are relative to culture.', options:['True','False'], answer:'True', type:'true_false', explanation:'Moral relativism is the view that moral judgments are not universally valid but vary by culture or individual.'}
+      ],
+      difficult: [
+        {q:'The trolley problem illustrates tension between deontological and consequentialist ethics.', options:['True','False'], answer:'True', type:'true_false', explanation:'The trolley problem pits the deontological rule against killing vs. the consequentialist goal of minimizing harm.'},
+        {q:"Rawls' veil of ignorance is designed to derive principles of justice without bias.", options:['True','False'], answer:'True', type:'true_false', explanation:"Rawls' veil of ignorance asks us to design society's rules without knowing our place in it, ensuring impartiality."},
+        {q:'Care ethics (Gilligan) prioritizes:', options:['Universal rules','Consequences for society','Relationships and context','Individual rights only'], answer:'Relationships and context', type:'multiple_choice', explanation:'Carol Gilligan\'s care ethics emphasizes relationships, empathy, and context over abstract universal principles.'}
+      ]
+    }
+  };
+
+  function getFallback(c, l) {
+    if (fallbackQuestions[c] && fallbackQuestions[c][l]) return fallbackQuestions[c][l];
+    return [
+      {q:'What is the capital of France?', options:['Berlin','Madrid','Paris','Lisbon'], answer:'Paris', type:'multiple_choice', explanation:'Paris is the capital and largest city of France.'},
+      {q:'Mars is known as the Red Planet.', options:['True','False'], answer:'True', type:'true_false', explanation:'Mars appears red due to iron oxide (rust) on its surface.'},
+      {q:'William Shakespeare wrote Romeo and Juliet.', options:['True','False'], answer:'True', type:'true_false', explanation:'Romeo and Juliet is one of Shakespeare\'s most famous tragic plays.'}
+    ];
+  }
+
+  /* ── LOAD QUESTIONS FROM FIRESTORE FIRST ── */
+  async function loadQuestions() {
+    document.getElementById('loadingDiv').style.display = 'block';
+    document.getElementById('modeSelection').style.display = 'none';
+    try {
+      const q = query(
+        collection(db, 'adminExams'),
+        where('course', '==', course),
+        where('chapter', '==', chapter),
+        where('difficulty', '==', level)
+      );
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        questions = snap.docs.map(function(doc) {
+          var d = doc.data();
+          var opts = d.type === 'true_false' ? ['True','False'] : (d.options || []);
+          return { q: d.question, options: opts, answer: d.answer, type: d.type || 'multiple_choice', explanation: d.explanation || '' };
+        });
+      } else {
+        questions = getFallback(course, level);
+      }
+    } catch(e) {
+      questions = getFallback(course, level);
+    }
+    document.getElementById('loadingDiv').style.display = 'none';
+    document.getElementById('modeSelection').style.display = 'block';
+  }
+
+  loadQuestions();
+
+  /* ── UPDATE PROGRESS ── */
+  function updateProgress() {
+    var total    = questions.length;
+    var answered = answers.filter(function(a){ return a !== null; }).length;
+    document.getElementById('progressLabel').textContent = answered + ' of ' + total + ' answered';
+    document.getElementById('progressBar').style.width = Math.round((answered / total) * 100) + '%';
+  }
+
+  /* ── BUILD ONE QUESTION ELEMENT ── */
+  function buildQuestionEl(index, lockAndColor) {
+    var q    = questions[index];
+    var wrap = document.createElement('div');
+    wrap.className = 'question';
+    wrap.id = 'qwrap_' + index;
+    wrap.style.borderBottom = '1px solid #eee';
+    wrap.style.paddingBottom = '18px';
+    wrap.style.marginBottom  = '18px';
+
+    var badge = document.createElement('span');
+    badge.className = 'q-type-badge ' + (q.type === 'true_false' ? 'tf' : 'mc');
+    badge.textContent = q.type === 'true_false' ? 'True / False' : 'Multiple Choice';
+    wrap.appendChild(badge);
+
+    var qText = document.createElement('div');
+    qText.className = 'question-text';
+    qText.innerHTML = '<strong>Q' + (index + 1) + ':</strong> ' + q.q;
+    wrap.appendChild(qText);
+
+    var optList = document.createElement('div');
+    optList.className = 'options-list';
+
+    q.options.forEach(function(opt) {
+      var btn = document.createElement('button');
+      btn.textContent = opt;
+      btn.className   = 'option';
+
+      if (lockAndColor) {
+        btn.disabled = true;
+        var userAns  = answers[index];
+        if (opt === q.answer) btn.classList.add('correct');
+        else if (opt === userAns && userAns !== q.answer) btn.classList.add('wrong');
+      } else {
+        if (answers[index] === opt) btn.classList.add('selected');
+        btn.onclick = function() { selectAnswer(opt, index, wrap); };
+      }
+      optList.appendChild(btn);
+    });
+    wrap.appendChild(optList);
+
+    /* explanation toggle button */
+    if (q.explanation) {
+      var expBtn = document.createElement('button');
+      expBtn.className = 'exp-toggle-btn' + (lockAndColor || (mode === 'instant' && answers[index] !== null) ? ' visible' : '');
+      expBtn.textContent = '💡 See Explanation';
+      expBtn.onclick = function() {
+        var box = wrap.querySelector('.explanation-box');
+        if (box.style.display === 'block') {
+          box.style.display = 'none';
+          expBtn.textContent = '💡 See Explanation';
+        } else {
+          box.style.display = 'block';
+          expBtn.textContent = '🔼 Hide Explanation';
+        }
+      };
+      wrap.appendChild(expBtn);
+
+      var expBox = document.createElement('div');
+      var isCorrect = answers[index] === q.answer;
+      expBox.className = 'explanation-box' + (!isCorrect && answers[index] !== null ? ' wrong-exp' : '');
+      expBox.style.display = 'none';
+      expBox.innerHTML = q.explanation;
+      wrap.appendChild(expBox);
+    }
+
+    return wrap;
+  }
+
+  /* ── SHOW ALL QUESTIONS AT ONCE ── */
+  function showAllQuestions() {
+    var qDiv = document.getElementById('questionsDiv');
+    qDiv.innerHTML = '';
+    questions.forEach(function(_, i) {
+      qDiv.appendChild(buildQuestionEl(i, false));
+    });
+  }
+
+  /* ── START EXAM ── */
+  window.startExam = function(selectedMode) {
+    mode    = selectedMode;
+    answers = new Array(questions.length).fill(null);
+    document.getElementById('modeSelection').style.display = 'none';
+    document.getElementById('progressWrap').style.display  = 'block';
+    document.getElementById('finishBtn').style.display     = 'block';
+    updateProgress();
+    showAllQuestions();
+  };
+
+  /* ── SELECT ANSWER ── */
+  function selectAnswer(selected, index, wrap) {
+    answers[index] = selected;
+    updateProgress();
+
+    var q       = questions[index];
+    var correct = q.answer;
+    var btns    = wrap.querySelectorAll('.option');
+
+    if (mode === 'instant') {
+      /* color immediately and lock */
+      btns.forEach(function(b) {
+        b.disabled = true;
+        b.classList.remove('selected');
+        if (b.textContent === correct) b.classList.add('correct');
+        else if (b.textContent === selected && selected !== correct) b.classList.add('wrong');
+      });
+      /* update explanation box color and show toggle button */
+      var expBox = wrap.querySelector('.explanation-box');
+      if (expBox) {
+        var isCorrect = selected === correct;
+        expBox.className = 'explanation-box' + (isCorrect ? '' : ' wrong-exp');
+      }
+    } else {
+      /* finish mode — just highlight selection */
+      btns.forEach(function(b) {
+        b.classList.remove('selected');
+        if (b.textContent === selected) b.classList.add('selected');
+      });
+    }
+
+    /* reveal explanation toggle button (instant mode only — finish mode shows after Review) */
+    if (mode === 'instant') {
+      var expBtn = wrap.querySelector('.exp-toggle-btn');
+      if (expBtn) expBtn.classList.add('visible');
+    }
+  }
+
+  /* ── FINISH EXAM ── */
+  window.finishExam = function() {
+    document.getElementById('finishBtn').style.display  = 'none';
+    document.getElementById('progressWrap').style.display = 'none';
+    document.getElementById('questionsDiv').innerHTML   = '';
+
+    var correct    = 0;
+    answers.forEach(function(a, i) { if (a === questions[i].answer) correct++; });
+    var total      = questions.length;
+    var percentage = Math.round((correct / total) * 100);
+    var emoji      = percentage >= 80 ? '🌟' : percentage >= 50 ? '👍' : '📖';
+    var backUrl    = 'index.html?course=' + encodeURIComponent(course) + '&chapter=' + chapter;
+
+    document.getElementById('result').innerHTML =
+      '<p style="font-size:2.5em;margin-bottom:8px;">' + emoji + '</p>' +
+      '<p><strong>You got ' + correct + ' / ' + total + ' correct</strong></p>' +
+      '<p style="font-size:1.3em;color:#ff9800;font-weight:bold;margin-bottom:16px;">' + percentage + '%</p>' +
+      '<button class="result-btn" onclick="location.reload()">🔁 Try Again</button>' +
+      '<button class="review-btn" onclick="showReview()">📋 Review Answers</button>' +
+      '<br><button class="result-btn" style="background:linear-gradient(135deg,#636e72,#4a4f52);margin-top:16px;" onclick="history.back()">← Go Back</button>';
+  };
+
+  /* ── SHOW REVIEW ── */
+  window.showReview = function() {
+    var reviewSection = document.getElementById('reviewSection');
+    var reviewList    = document.getElementById('reviewList');
+    reviewList.innerHTML = '';
+
+    questions.forEach(function(q, i) {
+      reviewList.appendChild(buildQuestionEl(i, true));
+    });
+
+    reviewSection.style.display = 'block';
+    reviewSection.scrollIntoView({ behavior: 'smooth' });
+  };
+</script>
+<script src="https://replit-cdn.com/replit-pill/replit-pill.global.js" data-repl-id="cdb04d22-fd51-4a02-92a7-9ccdb37293a5"></script></body>
+</html>
