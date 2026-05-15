@@ -1493,15 +1493,15 @@
           window.updateProfile();
 
           /* ── Return from exam: go back to difficulty selection ── */
-          var rp = new URLSearchParams(window.location.search);
-          var returnCourse = rp.get('course');
-          var returnChapter = parseInt(rp.get('chapter') || '1');
-          if(returnCourse){
-            currentCourse  = returnCourse;
-            currentChapter = returnChapter;
+          var examReturn = sessionStorage.getItem('_examReturn');
+          if(examReturn){
+            sessionStorage.removeItem('_examReturn');
+            var ret = JSON.parse(examReturn);
+            currentCourse  = ret.course;
+            currentChapter = ret.chapter;
             currentMode    = 'exam';
             document.getElementById('difficultyTitle').textContent =
-              '✏️ Chapter ' + returnChapter + ' Exam — ' + returnCourse;
+              '✏️ Chapter ' + ret.chapter + ' Exam — ' + ret.course;
             window.goTo('difficultyDash');
           } else {
             window.goTo("mainDash");
@@ -2304,6 +2304,7 @@
   };
 
   window.openExamContent = function(diff){
+    sessionStorage.setItem('_examReturn', JSON.stringify({course: currentCourse, chapter: currentChapter}));
     var examUrl = 'exam.html?course=' + encodeURIComponent(currentCourse) +
                   '&level=' + encodeURIComponent(diff) +
                   '&chapter=' + encodeURIComponent(currentChapter);
