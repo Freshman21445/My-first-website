@@ -145,7 +145,8 @@
     #finishBtn:hover { background:linear-gradient(135deg,#1e7e34,#155724); transform:translateY(-2px); }
 
     /* SELECTED (finish mode) */
-    .option.selected { background:#e3f2fd; border-color:#1565c0; color:#0d47a1; }
+    .option.selected { background:transparent; color:#333; }
+    .option.selected .radio-circle { border-color:#4caf50; background:#4caf50; }
 
     /* EXPLANATION TOGGLE BUTTON */
     .exp-toggle-btn {
@@ -303,7 +304,7 @@
   document.getElementById('backLink').href = 'index.html';
   document.getElementById('backLink').addEventListener('click', function(e){
     e.preventDefault();
-    window.location.href = 'index.html';
+    history.back();
   });
 
   let mode      = '';
@@ -724,7 +725,7 @@
       '<p style="font-size:1.3em;color:#ff9800;font-weight:bold;margin-bottom:16px;">' + percentage + '%</p>' +
       '<button class="result-btn" onclick="location.reload()">🔁 Try Again</button>' +
       reviewBtnHtml +
-      '<br><button class="result-btn" style="background:linear-gradient(135deg,#636e72,#4a4f52);margin-top:16px;" onclick="window.location.href=\'index.html\'">← Go Back</button>';
+      '<br><button class="result-btn" style="background:linear-gradient(135deg,#636e72,#4a4f52);margin-top:16px;" onclick="history.back()">← Go Back</button>';
   };
 
   /* ── SHOW REVIEW ── */
