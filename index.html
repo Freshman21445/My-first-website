@@ -1534,28 +1534,35 @@
 
     <!-- Login -->
     <div id="loginBox" class="auth-box" style="display:none">
+      <div style="width:100%;text-align:left;margin-bottom:6px;">
+        <button class="back-btn" onclick="showLanding()">← Go Back</button>
+      </div>
       <h2>🔐 Login</h2>
       <input id="loginPhone" placeholder="Phone Number" type="text">
       <input id="loginPassword" placeholder="Password" type="password">
       <p id="loginErr" style="color:#ff6b6b;font-size:0.88em;text-align:center;min-height:18px;margin:-6px 0 4px;"></p>
       <button onclick="login()">Login</button>
       <button class="forgot-link" onclick="showForgotPassword()">Forgot Password?</button>
-      <button class="forgot-link" style="color:rgba(255,255,255,0.7);margin-top:8px;" onclick="showLanding()">← Back</button>
     </div>
 
     <!-- Register -->
     <div id="registerBox" class="auth-box" style="display:none">
+      <div style="width:100%;text-align:left;margin-bottom:6px;">
+        <button class="back-btn" onclick="showLanding()">← Go Back</button>
+      </div>
       <h2>📝 Sign Up</h2>
       <input id="regName" placeholder="Full Name" type="text">
       <input id="regPhone" placeholder="Phone Number" type="text">
       <input id="regPassword" placeholder="Password" type="password">
       <p id="regErr" style="color:#ff6b6b;font-size:0.88em;text-align:center;min-height:18px;margin:-6px 0 4px;"></p>
       <button onclick="register()">Create Account</button>
-      <button class="forgot-link" style="color:rgba(255,255,255,0.7);margin-top:8px;" onclick="showLanding()">← Back</button>
     </div>
 
     <!-- Forgot Password -->
     <div id="forgotBox" class="auth-box" style="display:none">
+      <div style="width:100%;text-align:left;margin-bottom:6px;">
+        <button class="back-btn" onclick="showLogin()">← Go Back</button>
+      </div>
       <h2>🔑 Forgot Password</h2>
       <p style="color:rgba(255,255,255,0.78);text-align:center;margin-bottom:20px;font-size:0.95em;">
         Contact support to reset your password.
