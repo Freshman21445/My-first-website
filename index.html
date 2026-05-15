@@ -184,7 +184,7 @@
     .back-btn:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,0.2); }
 
     /* COURSES GRID */
-    .courses-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px; padding:0 8px 20px; }
+    .courses-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px; padding:0 0 20px; }
 
     /* COURSE CARDS — photo-overlay style */
     .course-card {
@@ -509,16 +509,15 @@
 
     @media(max-width:768px){
       h1{font-size:1.9em;}
-      .container{padding:14px;}
+      .container{padding:8px 0;}
       .dashboard-header{flex-wrap:wrap;gap:10px;}
       .hero-banner{flex-direction:column;}
-      .courses-grid{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;}
+      .courses-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
       .course-actions{flex-direction:column;align-items:center;}
       .action-btn{width:100%;max-width:320px;}
       .chapters-list{flex-direction:column;}
       .chapter-btn{width:100%;}
-      .container{padding:10px;}
-      .panel-card{padding:20px; width:100%; border-radius:16px;}
+      .panel-card{padding:16px 8px; width:100%; border-radius:16px;}
       .mat-content-page{padding:16px 14px;border-radius:10px;}
       .panel-header{flex-direction:column;gap:12px;align-items:flex-start;}
       .hero-stats{gap:10px;}
@@ -533,7 +532,7 @@
     }
     @media(max-width:480px){
       h1{font-size:1.45em;letter-spacing:0.5px;padding-top:10px;margin-bottom:8px;}
-      .container{padding:10px;}
+      .container{padding:6px 0;}
       #msg{font-size:0.85em;padding:6px 16px;}
 
       /* Auth & Landing */

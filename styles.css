@@ -900,7 +900,7 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .subjects-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 12px; }
+    .subjects-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0; }
     .subject-card { min-height: 180px; padding: 20px 12px; gap: 10px; }
     .subject-card img { width: 70px; height: 70px; }
     .subject-card h2 { font-size: 16px; }
@@ -920,7 +920,7 @@
 }
 
 @media (max-width: 480px) {
-    .subjects-grid { gap: 10px; padding: 10px; }
+    .subjects-grid { gap: 8px; padding: 0; }
     .subject-card { min-height: 160px; padding: 16px 10px; gap: 8px; }
     .subject-card img { width: 60px; height: 60px; }
     .subject-card h2 { font-size: 14px; }
@@ -938,6 +938,6 @@
         from { transform: translateY(-30px); opacity: 0; }
         to { transform: translateY(0); opacity: 1; }
     }
-    .subjects-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; padding: 24px; }
+    .subjects-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; padding: 0; }
     .subject-card { min-height: 220px; }
 }
