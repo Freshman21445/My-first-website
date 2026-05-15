@@ -20,19 +20,19 @@
     }
     .container {
       position:relative; z-index:1; width:100%; max-width:none;
-      margin:0; padding:20px 12px; min-height:100vh;
+      margin:0; padding:8px 0; min-height:100vh;
     }
     .card-wrap {
-      max-width:800px; width:100%; margin:0 auto;
+      max-width:none; width:100%; margin:0;
     }
     h1 {
       text-align:center; color:white; margin-bottom:20px;
       font-size:1.6em; text-shadow:2px 2px 6px rgba(0,0,0,0.6); padding-top:20px;
     }
     .card {
-      background:#f5f2ee; border-radius:20px;
-      padding:32px; box-shadow:0 10px 30px rgba(0,0,0,0.12); margin-bottom:24px;
-      width:100%; max-width:800px; margin-left:auto; margin-right:auto;
+      background:#f5f2ee; border-radius:16px;
+      padding:24px 16px; box-shadow:0 10px 30px rgba(0,0,0,0.12); margin-bottom:24px;
+      width:100%; max-width:none; margin-left:0; margin-right:0;
     }
     #courseTitle {
       color:#1e3c72; font-size:1.15em; font-weight:bold;
@@ -198,8 +198,8 @@
     .q-type-badge.tf  { background:#f3e5f5; color:#6a1b9a; }
 
     @media(max-width:600px){
-      .container { padding:6px 4px; }
-      .card { padding:16px 12px; border-radius:12px; width:100%; max-width:100%; }
+      .container { padding:4px 0; }
+      .card { padding:16px 10px; border-radius:12px; width:100%; max-width:none; }
       h1 { font-size:1.2em; padding-top:12px; margin-bottom:14px; }
       .mode-btns { flex-direction:column; align-items:center; }
       .mode-btn { width:100%; max-width:320px; padding:14px 24px; font-size:1em; }
@@ -219,8 +219,8 @@
       .back-link { padding:7px 16px; font-size:0.9em; margin-bottom:12px; }
     }
     @media(max-width:380px){
-      .container { padding:4px 2px; }
-      .card { padding:12px 8px; width:100%; max-width:100%; }
+      .container { padding:2px 0; }
+      .card { padding:12px 6px; width:100%; max-width:none; }
       h1 { font-size:1.05em; }
       .option { padding:11px 10px; font-size:0.9em; }
     }
