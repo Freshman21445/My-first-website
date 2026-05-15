@@ -306,18 +306,8 @@
   let examScreen = 'mode';
 
   window.safeBack = function() {
-    if (examScreen === 'results') {
-      document.getElementById('result').innerHTML = '';
-      document.getElementById('reviewSection').style.display = 'none';
-      document.getElementById('modeSelection').style.display = 'block';
-      examScreen = 'mode';
-      mode    = '';
-      answers = [];
-    } else {
-      window.history.back();
-    }
-  };
-
+  window.history.back();
+};
 
   let mode      = '';
   let questions = [];
