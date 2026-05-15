@@ -303,13 +303,13 @@
   document.getElementById('courseTitle').textContent =
     course + ' — Chapter ' + chapter + ' (' + level.charAt(0).toUpperCase() + level.slice(1) + ' Level)';
 
-  function safeBack() {
+  window.safeBack = function() {
     if (window.history.length > 1 && document.referrer && document.referrer.indexOf(window.location.hostname) !== -1) {
       history.back();
     } else {
       window.location.href = 'index.html';
     }
-  }
+  };
 
 
   let mode      = '';
