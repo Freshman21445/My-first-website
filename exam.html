@@ -182,7 +182,7 @@
 
     /* BACK LINK */
     .back-link {
-      display:inline-block; margin-bottom:18px; color:rgba(255,255,255,0.85);
+      display:block; width:fit-content; margin-bottom:18px; color:rgba(255,255,255,0.85);
       text-decoration:none; font-weight:bold; font-size:0.97em;
       background:rgba(255,255,255,0.15); padding:8px 20px; border-radius:30px;
       backdrop-filter:blur(4px); transition:all 0.2s;
@@ -228,7 +228,7 @@
 </head>
 <body>
 <div class="container">
-  <a class="back-link" id="backLink" href="#">← Back</a>
+  <a class="back-link" id="backLink" href="#">← Go Back</a>
   <h1>📚 Online Exam System</h1>
 
   <div class="card">
@@ -733,7 +733,7 @@
       '<p style="font-size:1.3em;color:#ff9800;font-weight:bold;margin-bottom:16px;">' + percentage + '%</p>' +
       '<button class="result-btn" onclick="location.reload()">🔁 Try Again</button>' +
       reviewBtnHtml +
-      '<br><button class="result-btn" style="background:linear-gradient(135deg,#636e72,#4a4f52);margin-top:16px;" onclick="safeBack()">← Go Back</button>';
+      '';
   };
 
   /* ── SHOW REVIEW ── */

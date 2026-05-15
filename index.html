@@ -172,7 +172,7 @@
       width:100%; max-width:none;
     }
     .panel-header {
-      display:flex; justify-content:space-between; align-items:center;
+      display:flex; justify-content:flex-start; gap:16px; align-items:center;
       margin-bottom:26px; padding-bottom:16px; border-bottom:2px solid #f0f0f0;
     }
     .panel-header h2 { color:#1e3c72; font-size:1.7em; margin:0; }
@@ -180,8 +180,10 @@
       background:linear-gradient(135deg,#636e72,#4a4f52); color:white;
       border:none; padding:10px 22px; border-radius:30px;
       cursor:pointer; font-weight:700; font-size:0.95em; transition:all 0.25s;
+      order:-1; flex-shrink:0;
     }
     .back-btn:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,0.2); }
+    .panel-back-row { margin-bottom:12px; text-align:left; }
 
     /* COURSES GRID */
     .courses-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px; padding:0 0 20px; }
@@ -382,6 +384,7 @@
     .admin-panel-header h2 { color:#1a1a2e; font-size:1.55em; margin:0; }
     .admin-back-btn { background:linear-gradient(135deg,#636e72,#4a4f52); color:white; border:none; padding:9px 20px; border-radius:30px; cursor:pointer; font-weight:700; font-size:0.9em; transition:all 0.25s; }
     .admin-back-btn:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,0.2); }
+    .admin-back-row { margin-bottom:12px; text-align:left; }
     .admin-add-btn { background:linear-gradient(135deg,#27ae60,#1e8449); color:white; border:none; padding:10px 22px; border-radius:30px; cursor:pointer; font-weight:700; font-size:0.95em; transition:all 0.3s; }
     .admin-add-btn:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(39,174,96,0.4); }
 
@@ -1630,7 +1633,7 @@
       <div class="panel-card">
         <div class="panel-header">
           <h2>☰ Menu</h2>
-          <button class="back-btn" onclick="goBack()">← Back</button>
+          <button class="back-btn" onclick="goBack()">← Go Back</button>
         </div>
         <div class="menu-options-list">
           <button class="menu-option-btn account-opt" onclick="goTo('myAccountDash')">
@@ -1654,7 +1657,7 @@
       <div class="panel-card">
         <div class="panel-header">
           <h2 id="courseTitle">Course</h2>
-          <button class="back-btn" onclick="goBack()">← Back</button>
+          <button class="back-btn" onclick="goBack()">← Go Back</button>
         </div>
         <div class="course-actions">
           <button class="action-btn material-action-btn" onclick="openChapters('material')">
@@ -1672,7 +1675,7 @@
       <div class="panel-card">
         <div class="panel-header">
           <h2 id="chaptersTitle">Chapters</h2>
-          <button class="back-btn" onclick="goBack()">← Back</button>
+          <button class="back-btn" onclick="goBack()">← Go Back</button>
         </div>
         <p id="chaptersHint" style="color:#666;margin-bottom:8px;font-size:0.96em;"></p>
         <div id="chaptersList" class="chapters-list"></div>
@@ -1684,7 +1687,7 @@
       <div class="panel-card" style="border-top:3px solid #3498db">
         <div class="panel-header">
           <h2 id="materialItemsTitle">Materials</h2>
-          <button class="back-btn" onclick="goBack()">← Back</button>
+          <button class="back-btn" onclick="goBack()">← Go Back</button>
         </div>
         <p style="color:#666;margin-bottom:16px;font-size:0.96em;">Select a material to view its content.</p>
         <div class="items-list">
@@ -1709,7 +1712,7 @@
       <div class="panel-card" style="border-top:3px solid #3498db">
         <div class="panel-header">
           <h2 id="materialContentTitle">Material</h2>
-          <button class="back-btn" onclick="goBack()">← Back</button>
+          <button class="back-btn" onclick="goBack()">← Go Back</button>
         </div>
         <div id="materialContentBox" class="mat-content-page"></div>
       </div>
@@ -1720,7 +1723,7 @@
       <div class="panel-card" style="border-top:3px solid #27ae60">
         <div class="panel-header">
           <h2 id="difficultyTitle">Choose Difficulty</h2>
-          <button class="back-btn" onclick="goBack()">← Back</button>
+          <button class="back-btn" onclick="goBack()">← Go Back</button>
         </div>
         <p style="color:#666;margin-bottom:16px;font-size:0.96em;">Select the difficulty level for your quiz.</p>
         <div class="difficulty-list">
@@ -1745,7 +1748,7 @@
       <div class="panel-card" style="border-top:3px solid #27ae60">
         <div class="panel-header">
           <h2 id="examContentTitle">Exam</h2>
-          <button class="back-btn" onclick="goBack()">← Back</button>
+          <button class="back-btn" onclick="goBack()">← Go Back</button>
         </div>
         <div id="examContentBox" class="content-box low"></div>
       </div>
@@ -1756,7 +1759,7 @@
       <div class="panel-card" style="border-top:3px solid #f39c12">
         <div class="panel-header">
           <h2>⭐ Premium Access</h2>
-          <button class="back-btn" onclick="goBack()">← Back</button>
+          <button class="back-btn" onclick="goBack()">← Go Back</button>
         </div>
         <p class="premium-intro">Unlock all chapters by completing one of the payment methods below.</p>
         <div class="payment-method">
@@ -1789,7 +1792,7 @@
       <div class="panel-card" style="border-top:3px solid #3498db">
         <div class="panel-header">
           <h2>📞 Contact Owner</h2>
-          <button class="back-btn" onclick="goBack()">← Back</button>
+          <button class="back-btn" onclick="goBack()">← Go Back</button>
         </div>
         <div class="contact-item"><span class="lbl">📧 Email:</span><p>owner@examsystem.com</p></div>
         <div class="contact-item"><span class="lbl">📱 Phone:</span><p>+251 98 888 8888</p></div>
@@ -1802,7 +1805,7 @@
       <div class="panel-card" style="border-top:3px solid #27ae60">
         <div class="panel-header">
           <h2>👤 My Account</h2>
-          <button class="back-btn" onclick="goBack()">← Back</button>
+          <button class="back-btn" onclick="goBack()">← Go Back</button>
         </div>
 
         <!-- Choice step -->
@@ -1881,12 +1884,12 @@
     <!-- ADMIN PANEL 2: Exams List -->
     <div class="admin-panel" id="adminExamsDash">
       <div class="admin-panel-card">
+        <div class="admin-back-row">
+          <button class="admin-back-btn" onclick="adminGoBack()">← Go Back</button>
+        </div>
         <div class="admin-panel-header">
           <h2>📝 Exam Questions</h2>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <button class="admin-add-btn" onclick="openAddExam()">➕ Add Question</button>
-            <button class="admin-back-btn" onclick="adminGoBack()">← Back</button>
-          </div>
+          <button class="admin-add-btn" onclick="openAddExam()">➕ Add Question</button>
         </div>
         <!-- Filter Bar -->
         <div class="admin-filter-bar">
@@ -1925,9 +1928,11 @@
     <!-- ADMIN PANEL 3: Add/Edit Exam Form -->
     <div class="admin-panel" id="adminExamFormDash">
       <div class="admin-panel-card">
+        <div class="admin-back-row">
+          <button class="admin-back-btn" onclick="adminGoBack()">← Go Back</button>
+        </div>
         <div class="admin-panel-header">
           <h2 id="examFormTitle">➕ Add New Question</h2>
-          <button class="admin-back-btn" onclick="adminGoBack()">← Back</button>
         </div>
         <div class="admin-form">
           <!-- Row 1: Course + Chapter -->
@@ -2068,9 +2073,11 @@
     <!-- ADMIN PANEL 4: Users -->
     <div class="admin-panel" id="adminUsersDash">
       <div class="admin-panel-card">
+        <div class="admin-back-row">
+          <button class="admin-back-btn" onclick="adminGoBack()">← Go Back</button>
+        </div>
         <div class="admin-panel-header">
           <h2>👥 Users &amp; Approvals</h2>
-          <button class="admin-back-btn" onclick="adminGoBack()">← Back</button>
         </div>
         <div class="users-tabs">
           <button class="users-tab-btn active" data-tab="all" onclick="switchUsersTab('all')">All Users</button>
@@ -2087,9 +2094,11 @@
     <!-- ADMIN PANEL 5: Materials -->
     <div class="admin-panel" id="adminMaterialsDash">
       <div class="admin-panel-card">
+        <div class="admin-back-row">
+          <button class="admin-back-btn" onclick="adminGoBack()">← Go Back</button>
+        </div>
         <div class="admin-panel-header">
           <h2>📚 Course Materials</h2>
-          <button class="admin-back-btn" onclick="adminGoBack()">← Back</button>
         </div>
         <p style="color:#666;font-size:0.95em;margin-bottom:16px;">Select a course and chapter, then write or edit the material content for each of the 3 material slots.</p>
         <!-- Course + Chapter Selector -->
