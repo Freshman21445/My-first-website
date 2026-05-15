@@ -161,7 +161,7 @@
     .hero-stat .stat-lbl { font-size:0.7em; color:rgba(255,255,255,0.82); margin-top:5px; display:block; text-transform:uppercase; letter-spacing:0.6px; }
 
     /* PANELS */
-    .dash-panel { display:none; animation:slideIn 0.28s ease; }
+    .dash-panel { display:none; animation:slideIn 0.28s ease; width:100%; }
     .dash-panel.active { display:block; }
     @keyframes slideIn { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
 
@@ -169,6 +169,7 @@
       background:rgba(255,255,255,0.97); backdrop-filter:blur(10px);
       border-radius:20px; padding:32px;
       box-shadow:0 10px 30px rgba(0,0,0,0.18); margin-bottom:30px;
+      width:100%; max-width:none;
     }
     .panel-header {
       display:flex; justify-content:space-between; align-items:center;
@@ -516,7 +517,7 @@
       .action-btn{width:100%;max-width:320px;}
       .chapters-list{flex-direction:column;}
       .chapter-btn{width:100%;}
-      .panel-card{padding:20px;}
+      .panel-card{padding:20px; width:100%;}
       .panel-header{flex-direction:column;gap:12px;align-items:flex-start;}
       .hero-stats{gap:10px;}
       .admin-form-row{grid-template-columns:1fr;}
@@ -564,7 +565,7 @@
       .course-card{min-height:190px;}
       .card-emoji{font-size:2em;width:54px;height:54px;}
       .card-title{font-size:1em;}
-      .panel-card{padding:16px;border-radius:16px;}
+      .panel-card{padding:16px;border-radius:16px;width:100%;}
       .panel-header h2{font-size:1.3em;}
       .back-btn{padding:8px 16px;font-size:0.88em;}
 
