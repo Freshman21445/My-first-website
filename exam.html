@@ -78,33 +78,34 @@
     .exp-img { width:100%; max-height:200px; object-fit:contain; border-radius:8px; margin-top:10px; display:block; }
     .q-num-row {
       display:flex; justify-content:space-between; align-items:center;
-      padding:14px 16px 6px;
+      padding:12px 12px 6px; gap:8px;
     }
-    .q-num { font-size:1.25em; font-weight:800; color:#222; }
-    .q-divider { height:2px; background:#7c4dff; margin:0 16px 10px; }
+    .q-num { font-size:1.25em; font-weight:800; color:#222; flex:1; }
+    .q-num-actions { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+    .q-divider { height:2px; background:#7c4dff; margin:0 0 10px; }
     .question-text {
       font-size:1em; color:#222; line-height:1.5;
-      padding:0 16px 14px; margin:0;
+      padding:0 10px 12px; margin:0;
     }
     .options-list { display:flex; flex-direction:column; }
     .hint-btn {
-      display:none; padding:10px 16px; background:none;
-      border:none; border-top:1px solid #eee;
-      color:#7c4dff; font-size:0.9em; font-weight:600;
-      cursor:pointer; width:100%; text-align:left;
+      display:none; background:rgba(124,77,255,0.1); border:1px solid rgba(124,77,255,0.35);
+      color:#7c4dff; font-size:0.85em; font-weight:800;
+      cursor:pointer; padding:3px 9px; border-radius:20px;
+      transition:all 0.2s; line-height:1; flex-shrink:0;
     }
-    .hint-btn:hover { background:#f5f0ff; }
-    .hint-btn.visible { display:block; }
+    .hint-btn:hover { background:rgba(124,77,255,0.2); }
+    .hint-btn.visible { display:inline-flex; align-items:center; gap:3px; }
     .hint-box {
-      margin:0; padding:14px 16px; background:#f9f9f9;
-      border-top:1px solid #eee;
+      margin:0; padding:10px 12px; background:#f3eeff;
+      border-top:2px solid #7c4dff;
       color:#333; font-size:0.92em; line-height:1.6; display:none;
     }
     .option {
-      padding:13px 16px; border:none; border-top:1px solid #ede9e3;
+      padding:12px 10px; border:none; border-top:1px solid #ede9e3;
       background:#faf8f5; font-size:0.97em; cursor:pointer;
       text-align:left; transition:background 0.15s; font-weight:400;
-      color:#333; display:flex; align-items:center; gap:12px; width:100%;
+      color:#333; display:flex; align-items:center; gap:10px; width:100%;
       border-radius:0;
     }
     .option .radio-circle {
@@ -124,11 +125,11 @@
 
     /* EXPLANATION BOX */
     .explanation-box {
-      margin:0; padding:14px 16px; background:#f9f9f9;
-      border-top:1px solid #eee;
+      margin:0; padding:10px 12px; background:#f0f8ff;
+      border-top:2px solid #2196f3;
       color:#333; font-size:0.92em; line-height:1.6; display:none;
     }
-    .explanation-box.wrong-exp { background:#fff8e1; }
+    .explanation-box.wrong-exp { background:#fff8e1; border-top-color:#ff9800; }
 
     /* PROGRESS */
     .progress-bar-wrap {
@@ -150,13 +151,13 @@
 
     /* EXPLANATION TOGGLE BUTTON */
     .exp-toggle-btn {
-      display:none; padding:10px 16px; background:none;
-      border:none; border-top:1px solid #eee;
-      color:#7c4dff; font-size:0.9em; font-weight:600;
-      cursor:pointer; width:100%; text-align:left;
+      display:none; background:rgba(33,150,243,0.1); border:1px solid rgba(33,150,243,0.35);
+      color:#1565c0; font-size:0.85em; font-weight:800;
+      cursor:pointer; padding:3px 9px; border-radius:20px;
+      transition:all 0.2s; line-height:1; flex-shrink:0;
     }
-    .exp-toggle-btn:hover { background:#f5f0ff; }
-    .exp-toggle-btn.visible { display:block; }
+    .exp-toggle-btn:hover { background:rgba(33,150,243,0.22); }
+    .exp-toggle-btn.visible { display:inline-flex; align-items:center; gap:3px; }
 
     /* RESULT */
     #result {
@@ -510,8 +511,11 @@
     numRow.className = 'q-num-row';
     var numEl = document.createElement('span');
     numEl.className = 'q-num';
-    numEl.textContent = index + 1;
+    numEl.textContent = 'Q' + (index + 1);
     numRow.appendChild(numEl);
+    var numActions = document.createElement('div');
+    numActions.className = 'q-num-actions';
+    numRow.appendChild(numActions);
     wrap.appendChild(numRow);
 
     /* Divider */
@@ -577,17 +581,18 @@
       var hintBtn = document.createElement('button');
       hintBtn.className = 'hint-btn visible';
       hintBtn.id = 'hintBtn_' + index;
-      hintBtn.textContent = 'Hint';
+      hintBtn.innerHTML = '∆ Hint';
       var hintBox = document.createElement('div');
       hintBox.className = 'hint-box';
       hintBox.id = 'hintBox_' + index;
       var hintText = q.hint || ('Hint: the correct answer starts with "' + (q.answer ? q.answer.charAt(0) : '?') + '"');
       hintBox.textContent = hintText;
       hintBtn.onclick = function(){
-        hintBox.style.display = (hintBox.style.display === 'block') ? 'none' : 'block';
-        hintBtn.textContent = (hintBox.style.display === 'block') ? 'Hide Hint' : 'Hint';
+        var showing = hintBox.style.display === 'block';
+        hintBox.style.display = showing ? 'none' : 'block';
+        hintBtn.innerHTML = showing ? '∆ Hint' : '▽ Hint';
       };
-      wrap.appendChild(hintBtn);
+      numActions.appendChild(hintBtn);
       wrap.appendChild(hintBox);
     }
 
@@ -600,18 +605,14 @@
     if (hasExplanation) {
       var expBtn = document.createElement('button');
       expBtn.className = 'exp-toggle-btn' + (lockAndColor || (mode === 'instant' && answers[index] !== null) ? ' visible' : '');
-      expBtn.textContent = '▲ Explanation';
+      expBtn.innerHTML = '∆ Explanation';
       expBtn.onclick = function() {
         var box = wrap.querySelector('.explanation-box');
-        if (box.style.display === 'block') {
-          box.style.display = 'none';
-          expBtn.textContent = '▲ Explanation';
-        } else {
-          box.style.display = 'block';
-          expBtn.textContent = '▼ Explanation';
-        }
+        var showing = box.style.display === 'block';
+        box.style.display = showing ? 'none' : 'block';
+        expBtn.innerHTML = showing ? '∆ Explanation' : '▽ Explanation';
       };
-      wrap.appendChild(expBtn);
+      numActions.appendChild(expBtn);
 
       var expBox = document.createElement('div');
       var isCorrect = answers[index] === q.answer;
