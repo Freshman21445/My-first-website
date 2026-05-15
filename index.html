@@ -183,40 +183,42 @@
     .back-btn:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,0.2); }
 
     /* COURSES GRID */
-    .courses-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:22px; padding-bottom:30px; }
+    .courses-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:22px; padding-bottom:30px; }
 
-    /* COURSE CARDS */
+    /* COURSE CARDS — photo-overlay style */
     .course-card {
       border-radius:22px; overflow:hidden; cursor:pointer;
-      box-shadow:0 10px 32px rgba(0,0,0,0.28); transition:all 0.35s;
-      min-height:230px; display:flex; flex-direction:column; border:none; padding:0;
+      box-shadow:0 10px 32px rgba(0,0,0,0.35); transition:all 0.35s;
+      height:190px; position:relative; border:none; padding:0; background:#1a1a2e;
     }
-    .course-card:hover { transform:translateY(-10px) scale(1.02); box-shadow:0 24px 52px rgba(0,0,0,0.4); }
-    .card-body {
-      flex:1; padding:26px 22px 18px; position:relative; overflow:hidden;
-      display:flex; flex-direction:column; justify-content:space-between;
+    .course-card:hover { transform:translateY(-8px) scale(1.02); box-shadow:0 28px 56px rgba(0,0,0,0.5); }
+    .cc-img {
+      position:absolute; inset:0; background-size:cover; background-position:center;
+      transition:transform 0.4s ease;
     }
-    .card-body::before { content:""; position:absolute; top:-45px; right:-45px; width:140px; height:140px; border-radius:50%; background:rgba(255,255,255,0.1); }
-    .card-body::after  { content:""; position:absolute; bottom:-30px; left:-30px; width:100px; height:100px; border-radius:50%; background:rgba(255,255,255,0.07); }
-    .card-top { display:flex; align-items:flex-start; gap:14px; position:relative; z-index:1; }
-    .card-emoji { font-size:2.5em; background:rgba(255,255,255,0.22); width:64px; height:64px; border-radius:18px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 4px 16px rgba(0,0,0,0.25); }
-    .card-title { color:white; font-size:1.12em; font-weight:800; margin-bottom:5px; text-shadow:0 1px 4px rgba(0,0,0,0.35); }
-    .card-desc  { color:rgba(255,255,255,0.8); font-size:0.83em; line-height:1.45; }
-    .card-fact { margin-top:16px; background:rgba(255,255,255,0.18); border-radius:12px; padding:12px 14px; border:1px solid rgba(255,255,255,0.25); position:relative; z-index:1; }
-    .card-fact .fact-lbl  { color:rgba(255,255,255,0.6); font-size:0.68em; text-transform:uppercase; letter-spacing:0.9px; font-weight:700; margin-bottom:4px; }
-    .card-fact .fact-text { color:white; font-size:0.87em; font-weight:600; line-height:1.4; }
-    .card-footer-bar { padding:10px 22px 13px; background:rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:space-between; }
-    .card-footer-bar .chap-info { color:rgba(255,255,255,0.82); font-size:0.8em; font-weight:600; }
-    .card-arrow { color:white; font-size:1.15em; font-weight:800; }
+    .course-card:hover .cc-img { transform:scale(1.08); }
+    .cc-overlay {
+      position:absolute; inset:0;
+      background:linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.72) 100%);
+    }
+    .cc-namestrip {
+      position:absolute; bottom:0; left:0; right:0;
+      padding:18px 20px 16px;
+      color:white; font-size:1.15em; font-weight:800;
+      text-shadow:0 2px 10px rgba(0,0,0,0.7); letter-spacing:0.2px;
+    }
 
-    .cc-anthro { background:linear-gradient(145deg,#8e44ad,#6c3483); }
-    .cc-tech   { background:linear-gradient(145deg,#0984e3,#00b894); }
-    .cc-entre  { background:linear-gradient(145deg,#e17055,#c0392b); }
-    .cc-math   { background:linear-gradient(145deg,#2d3436,#0984e3); }
-    .cc-prog   { background:linear-gradient(145deg,#00b894,#00cec9); }
-    .cc-eng    { background:linear-gradient(145deg,#e84393,#c0392b); }
-    .cc-hist   { background:linear-gradient(145deg,#f39c12,#d35400); }
-    .cc-civic  { background:linear-gradient(145deg,#2980b9,#6c3483); }
+    /* TOAST NOTIFICATION */
+    .toast-notif {
+      position:fixed; bottom:32px; left:50%;
+      transform:translateX(-50%) translateY(90px);
+      background:rgba(20,20,50,0.96); color:white;
+      padding:13px 28px; border-radius:30px; font-size:0.97em;
+      font-weight:700; z-index:99999; box-shadow:0 8px 28px rgba(0,0,0,0.45);
+      transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+      opacity:0; pointer-events:none; white-space:nowrap;
+    }
+    .toast-notif.show { transform:translateX(-50%) translateY(0); opacity:1; }
 
     /* COURSE ACTIONS */
     .course-actions { display:flex; gap:24px; justify-content:center; flex-wrap:wrap; padding:24px 0; }
@@ -228,12 +230,12 @@
     .exam-action-btn:hover { transform:translateY(-6px) scale(1.04); box-shadow:0 16px 36px rgba(39,174,96,0.5); }
 
     /* CHAPTERS */
-    .chapters-list { display:flex; flex-wrap:wrap; gap:12px; margin:18px 0; }
-    .chapter-btn { padding:12px 22px; border-radius:40px; cursor:pointer; font-weight:700; transition:all 0.3s; font-size:0.95em; border:none; }
+    .chapters-list { display:flex; flex-wrap:wrap; gap:14px; margin:18px 0; }
+    .chapter-btn { padding:22px 42px; border-radius:40px; cursor:pointer; font-weight:800; transition:all 0.3s; font-size:1.08em; border:none; }
     .chapter-btn.free   { background:linear-gradient(135deg,#2ecc71,#27ae60); color:white; }
-    .chapter-btn.free:hover { box-shadow:0 5px 15px rgba(46,204,113,0.4); transform:translateY(-2px); }
+    .chapter-btn.free:hover { box-shadow:0 8px 22px rgba(46,204,113,0.45); transform:translateY(-3px); }
     .chapter-btn.locked { background:linear-gradient(135deg,#f39c12,#e67e22); color:white; cursor:not-allowed; }
-    .chapter-btn.locked:hover { box-shadow:0 5px 15px rgba(243,156,18,0.4); transform:translateY(-2px); }
+    .chapter-btn.locked:hover { box-shadow:0 8px 22px rgba(243,156,18,0.45); transform:translateY(-3px); }
 
     /* MENU DASHBOARD */
     .menu-options-list { display:flex; flex-direction:column; gap:16px; margin-top:10px; }
@@ -678,11 +680,13 @@
     };
 
     window.updateProfile = function(){
+      var nameEl = document.getElementById('userDisplayName');
+      if(nameEl) nameEl.textContent = cu.name || cu.phone || '';
+      var statusEl = document.getElementById('userStatusBadge');
+      if(statusEl) statusEl.textContent = cu.paymentApproved ? '⭐ Premium' : '🆓 Free';
       if(!cu)return;
       var initial=(cu.name||cu.phone||'U').charAt(0).toUpperCase();
       document.querySelector(".user-profile").textContent=initial;
-      document.querySelector(".user-details .phone").textContent=cu.name||cu.phone||'';
-      document.querySelector(".user-details .status").textContent=cu.paymentApproved?"⭐ Premium":"🆓 Free";
     };
 
     window.showRegister=function(){
@@ -737,40 +741,40 @@
     };
 
     window.saveMyAccount = async function(){
-      if(!cu){ alert('Not logged in.'); return; }
+      if(!cu){ showToast('Not logged in.'); return; }
       var updates={};
       var nameRow=document.getElementById('acctNameRow');
       var phoneRow=document.getElementById('acctPhoneRow');
       var pwRow=document.getElementById('acctPasswordRow');
       if(nameRow && nameRow.style.display!=='none'){
         var nm=document.getElementById('acct_name').value.trim();
-        if(!nm){ alert('Please enter your name.'); return; }
+        if(!nm){ showToast('Please enter your name.'); return; }
         updates.name=nm; cu.name=nm;
       }
       if(phoneRow && phoneRow.style.display!=='none'){
         var ph=document.getElementById('acct_phone').value.trim();
-        if(!ph){ alert('Please enter your phone number.'); return; }
+        if(!ph){ showToast('Please enter your phone number.'); return; }
         updates.phone=ph; cu.phone=ph;
       }
       if(pwRow && pwRow.style.display!=='none'){
         var pw=document.getElementById('acct_password').value;
-        if(!pw){ alert('Please enter a new password.'); return; }
+        if(!pw){ showToast('Please enter a new password.'); return; }
         updates.password=pw; cu.password=pw;
       }
-      if(Object.keys(updates).length===0){ alert('Nothing to save.'); return; }
+      if(Object.keys(updates).length===0){ showToast('Nothing to save.'); return; }
       try {
         await updateDoc(doc(db,'users',cu.docId),updates);
         sessionStorage.setItem("cu",JSON.stringify(cu));
         window.updateProfile();
-        alert('Account updated successfully!');
+        showToast('Account updated successfully!');
         window.hideAcctField();
-      } catch(e){ alert('Error saving: '+e.message); }
+      } catch(e){ showToast('Error saving: '+e.message); }
     };
 
     window.requestApproval=async function(){
-      if(!cu){alert("User not found");return;}
+      if(!cu){showToast("User not found");return;}
       await addDoc(collection(db,"paymentRequests"),{userPhone:cu.phone,timestamp:new Date(),status:"pending",userId:cu.docId});
-      alert("Payment approval request sent! Please wait for admin confirmation.");
+      showToast("Payment approval request sent! Please wait for admin confirmation.");
     };
 
     window.isPremium=async function(){
@@ -793,8 +797,8 @@
 
     window.adminLogin = function(){
       const pw = document.getElementById("adminPasswordInput").value;
-      if(!pw){ alert("Please enter the admin password."); return; }
-      if(pw !== ADMIN_PASSWORD){ alert("Incorrect admin password."); document.getElementById("adminPasswordInput").value=""; return; }
+      if(!pw){ showToast("Please enter the admin password."); return; }
+      if(pw !== ADMIN_PASSWORD){ showToast("Incorrect admin password."); document.getElementById("adminPasswordInput").value=""; return; }
       document.getElementById("authBox").style.display="none";
       document.getElementById("adminBox").style.display="block";
       document.body.style.backgroundImage="url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format')";
@@ -907,10 +911,10 @@
         var allSnap = await getDocs(collection(db,'adminExams'));
         var examData = null;
         allSnap.forEach(function(d){ if(d.id===examId) examData=d.data(); });
-        if(!examData){ alert('Question not found.'); return; }
+        if(!examData){ showToast('Question not found.'); return; }
         populateExamForm(examData);
         adminGoTo('adminExamFormDash');
-      } catch(e){ alert('Error loading question: '+e.message); }
+      } catch(e){ showToast('Error loading question: '+e.message); }
     };
 
     function resetExamForm(){
@@ -1007,7 +1011,7 @@
         renderExamImgPreview(field);
         if(uploadBtn) uploadBtn.textContent = (field==='question'||field==='explanation') ? '📷 Change Image' : '📷';
       };
-      reader.onerror = function(){ alert('Could not read image file.'); if(uploadBtn) uploadBtn.textContent='📷 Add Image'; };
+      reader.onerror = function(){ showToast('Could not read image file.'); if(uploadBtn) uploadBtn.textContent='📷 Add Image'; };
       reader.readAsDataURL(file);
     };
 
@@ -1062,7 +1066,7 @@
       var explanation = document.getElementById('ef_explanation').value.trim();
 
       if(!course||!chapter||!difficulty||!type||!question||!answerKey){
-        alert('Please fill all required fields (Course, Chapter, Difficulty, Type, Question, Answer).'); return;
+        showToast('Please fill all required fields (Course, Chapter, Difficulty, Type, Question, Answer).'); return;
       }
 
       var options=[], answer='';
@@ -1071,7 +1075,7 @@
         var B=document.getElementById('ef_optB').value.trim();
         var C=document.getElementById('ef_optC').value.trim();
         var D=document.getElementById('ef_optD').value.trim();
-        if(!A||!B||!C||!D){ alert('Please fill all four answer options.'); return; }
+        if(!A||!B||!C||!D){ showToast('Please fill all four answer options.'); return; }
         options=[A,B,C,D];
         var map={'A':A,'B':B,'C':C,'D':D};
         answer=map[answerKey]||answerKey;
@@ -1105,24 +1109,43 @@
       try {
         if(editingExamId){
           await updateDoc(doc(db,'adminExams',editingExamId), data);
-          alert('Question updated successfully!');
+          showToast('Question updated successfully!');
         } else {
           data.createdAt = new Date();
           await addDoc(collection(db,'adminExams'), data);
-          alert('Question added successfully!');
+          showToast('Question added successfully!');
         }
         adminGoTo('adminExamsDash');
         await loadAdminExams();
-      } catch(e){ alert('Error saving: '+e.message); }
+      } catch(e){ showToast('Error saving: '+e.message); }
     };
 
     window.deleteExam = async function(examId){
       if(!confirm('Delete this question? This cannot be undone.')) return;
       try {
         await deleteDoc(doc(db,'adminExams',examId));
-        alert('Question deleted.');
+        showToast('Question deleted.');
         await loadAdminExams();
-      } catch(e){ alert('Error: '+e.message); }
+      } catch(e){ showToast('Error: '+e.message); }
+    };
+
+    window.deleteMaterial = async function(course, chapter, num){
+      if(!confirm('Delete Material '+num+' for '+course+' Chapter '+chapter+'? This cannot be undone.')) return;
+      try {
+        var snap = await getDocs(query(
+          collection(db,'adminMaterials'),
+          where('course','==',course),
+          where('chapter','==',chapter),
+          where('materialNum','==',num)
+        ));
+        if(snap.empty){ showToast('No saved material to delete.'); return; }
+        await deleteDoc(doc(db,'adminMaterials',snap.docs[0].id));
+        showToast('Material deleted successfully.');
+        var editor = document.getElementById('mat_rich_editor');
+        var titleEl = document.getElementById('mat_title');
+        if(editor) editor.innerHTML='';
+        if(titleEl) titleEl.value='';
+      } catch(e){ showToast('Error deleting: '+e.message); }
     };
 
     /* ════════════════════
@@ -1198,18 +1221,18 @@
         /* close any pending requests for this user */
         var reqSnap = await getDocs(query(collection(db,'paymentRequests'),where('userPhone','==',userPhone),where('status','==','pending')));
         for(var d of reqSnap.docs){ await updateDoc(doc(db,'paymentRequests',d.id),{status:'approved', approvedAt:new Date()}); }
-        alert('User approved! Premium access granted.');
+        showToast('User approved! Premium access granted.');
         await loadAdminUsers(usersTab);
-      } catch(e){ alert('Error: '+e.message); }
+      } catch(e){ showToast('Error: '+e.message); }
     };
 
     window.revokeUser = async function(userId){
       if(!confirm('Revoke premium access for this user?')) return;
       try {
         await updateDoc(doc(db,'users',userId),{paymentApproved:false, premiumStatus:false});
-        alert('Premium access revoked.');
+        showToast('Premium access revoked.');
         await loadAdminUsers(usersTab);
-      } catch(e){ alert('Error: '+e.message); }
+      } catch(e){ showToast('Error: '+e.message); }
     };
 
     /* ════════════════════
@@ -1225,7 +1248,7 @@
     window.loadMaterialEditor = async function(){
       var course  = document.getElementById('mat_course').value;
       var chapter = document.getElementById('mat_chapter').value;
-      if(!course||!chapter){ alert('Please select a course and chapter.'); return; }
+      if(!course||!chapter){ showToast('Please select a course and chapter.'); return; }
       currentMatCourse  = course;
       currentMatChapter = parseInt(chapter);
       currentMatNum = 1;
@@ -1272,7 +1295,7 @@
       var title   = document.getElementById('mat_title').value.trim();
       var editor  = document.getElementById('mat_rich_editor');
       var content = editor ? editor.innerHTML.trim() : '';
-      if(!title||!content||content==='<br>'){ alert('Please enter both a title and content.'); return; }
+      if(!title||!content||content==='<br>'){ showToast('Please enter both a title and content.'); return; }
       try {
         var snap = await getDocs(query(
           collection(db,'adminMaterials'),
@@ -1287,8 +1310,8 @@
           data.createdAt=new Date();
           await addDoc(collection(db,'adminMaterials'), data);
         }
-        alert('Material saved successfully!');
-      } catch(e){ alert('Error saving: '+e.message); }
+        showToast('Material saved successfully!');
+      } catch(e){ showToast('Error saving: '+e.message); }
     };
 
     /* ── EXPOSE FIRESTORE MATERIAL FETCH TO REGULAR SCRIPTS ── */
@@ -1313,33 +1336,73 @@
       } catch(e){ return null; }
     };
 
+    /* ── TOAST NOTIFICATION ── */
+    window.showToast = function(msg, dur){
+      var t = document.getElementById('toastNotif');
+      if(!t) return;
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(function(){ t.classList.remove('show'); }, dur||2800);
+    };
+
     /* ── RICH TEXT EDITOR HELPERS ── */
+    var _matSavedRange = null;
+
+    window.saveMatRange = function(){
+      var sel = window.getSelection();
+      if(sel && sel.rangeCount > 0) _matSavedRange = sel.getRangeAt(0).cloneRange();
+    };
+
+    function restoreMatRange(){
+      if(!_matSavedRange) return false;
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(_matSavedRange);
+      return !_matSavedRange.collapsed;
+    }
+
     window.matApplyFontSize = function(){
       var sz = parseInt(document.getElementById('mat_font_size').value)||15;
       if(sz<6) sz=6; if(sz>30) sz=30;
+      if(!restoreMatRange()){ showToast('Select text first, then apply size.'); return; }
       var sel = window.getSelection();
-      if(!sel||sel.rangeCount===0||sel.isCollapsed){ alert('Select text first, then choose size.'); return; }
       var range = sel.getRangeAt(0);
       var span = document.createElement('span');
       span.style.fontSize = sz+'px';
-      try{ range.surroundContents(span); } catch(e){ alert('Select text that is within one block.'); }
-      document.getElementById('mat_rich_editor').focus();
+      try {
+        var frag = range.extractContents();
+        span.appendChild(frag);
+        range.insertNode(span);
+        range.setStartAfter(span);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      } catch(e){ showToast('Could not apply size. Try selecting within one line.'); }
+      _matSavedRange = null;
     };
 
     window.matApplyColor = function(){
       var col = document.getElementById('mat_font_color').value;
+      if(!restoreMatRange()){ showToast('Select text first, then apply colour.'); return; }
       var sel = window.getSelection();
-      if(!sel||sel.rangeCount===0||sel.isCollapsed){ alert('Select text first, then choose colour.'); return; }
       var range = sel.getRangeAt(0);
       var span = document.createElement('span');
       span.style.color = col;
-      try{ range.surroundContents(span); } catch(e){ alert('Select text that is within one block.'); }
-      document.getElementById('mat_rich_editor').focus();
+      try {
+        var frag = range.extractContents();
+        span.appendChild(frag);
+        range.insertNode(span);
+        range.setStartAfter(span);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      } catch(e){ showToast('Could not apply colour. Try selecting within one line.'); }
+      _matSavedRange = null;
     };
 
     window.matApplyBold = function(){
-      document.getElementById('mat_rich_editor').focus();
+      if(!restoreMatRange()){ document.getElementById('mat_rich_editor').focus(); }
       document.execCommand('bold', false, null);
+      _matSavedRange = null;
     };
 
     window.matInsertImage = function(){
@@ -1422,6 +1485,7 @@
   </script>
 </head>
 <body>
+<div id="toastNotif" class="toast-notif"></div>
 <div class="container">
   <div id="topSection" style="display:none">
     <h1>🎓 Online Exam System</h1>
@@ -1487,105 +1551,52 @@
         <div class="user-info">
           <div class="user-profile">U</div>
           <div class="user-details">
-            <p>Welcome back! 👋</p>
-            <p class="phone">Your Phone</p>
-            <p class="status">Free</p>
+            <p id="userDisplayName" style="font-weight:800;color:#1e3c72;font-size:1em;"></p>
+            <p class="status" id="userStatusBadge">Free</p>
           </div>
-        </div>
-      </div>
-
-      <div class="hero-banner">
-        <div class="hero-text">
-          <h2>📚 Your Learning Dashboard</h2>
-          <p>Explore courses, study materials, and test yourself with chapter quizzes. Unlock premium to access all chapters!</p>
-        </div>
-        <div class="hero-stats">
-          <div class="hero-stat"><span class="stat-num">8</span><span class="stat-lbl">Courses</span></div>
-          <div class="hero-stat"><span class="stat-num">5</span><span class="stat-lbl">Chapters</span></div>
-          <div class="hero-stat"><span class="stat-num">3</span><span class="stat-lbl">Levels</span></div>
         </div>
       </div>
 
       <div class="courses-grid">
-        <div class="course-card cc-anthro" onclick="openCourse('Anthropology','🧬','Study of human cultures')">
-          <div class="card-body">
-            <div class="card-top">
-              <div class="card-emoji">🧬</div>
-              <div><div class="card-title">Anthropology</div><div class="card-desc">Study of human cultures &amp; societies</div></div>
-            </div>
-            <div class="card-fact"><div class="fact-lbl">📊 Did You Know?</div><div class="fact-text">Over 7,000 distinct cultures exist worldwide today</div></div>
-          </div>
-          <div class="card-footer-bar"><span class="chap-info">5 Chapters · Materials &amp; Exams</span><span class="card-arrow">→</span></div>
+        <div class="course-card" onclick="openCourse('Anthropology','🧬','Study of human cultures')">
+          <div class="cc-img" style="background-image:url('https://images.unsplash.com/photo-1530026186672-2cd00ffc50fe?w=600&q=80')"></div>
+          <div class="cc-overlay"></div>
+          <div class="cc-namestrip">🧬 Anthropology</div>
         </div>
-        <div class="course-card cc-tech" onclick="openCourse('Emerging Technology','💻','AI, IoT, Blockchain')">
-          <div class="card-body">
-            <div class="card-top">
-              <div class="card-emoji">💻</div>
-              <div><div class="card-title">Emerging Technology</div><div class="card-desc">AI, IoT, Blockchain &amp; the future</div></div>
-            </div>
-            <div class="card-fact"><div class="fact-lbl">⚡ Market Insight</div><div class="fact-text">AI market projected to hit $1.5 trillion by 2030</div></div>
-          </div>
-          <div class="card-footer-bar"><span class="chap-info">5 Chapters · Materials &amp; Exams</span><span class="card-arrow">→</span></div>
+        <div class="course-card" onclick="openCourse('Emerging Technology','💻','AI, IoT, Blockchain')">
+          <div class="cc-img" style="background-image:url('https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80')"></div>
+          <div class="cc-overlay"></div>
+          <div class="cc-namestrip">💻 Emerging Technology</div>
         </div>
-        <div class="course-card cc-entre" onclick="openCourse('Entrepreneurship','🚀','Business creation')">
-          <div class="card-body">
-            <div class="card-top">
-              <div class="card-emoji">🚀</div>
-              <div><div class="card-title">Entrepreneurship</div><div class="card-desc">Business creation &amp; innovation</div></div>
-            </div>
-            <div class="card-fact"><div class="fact-lbl">📈 Success Rate</div><div class="fact-text">90% of unicorn companies solve real-world problems</div></div>
-          </div>
-          <div class="card-footer-bar"><span class="chap-info">5 Chapters · Materials &amp; Exams</span><span class="card-arrow">→</span></div>
+        <div class="course-card" onclick="openCourse('Entrepreneurship','🚀','Business creation')">
+          <div class="cc-img" style="background-image:url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&q=80')"></div>
+          <div class="cc-overlay"></div>
+          <div class="cc-namestrip">🚀 Entrepreneurship</div>
         </div>
-        <div class="course-card cc-math" onclick="openCourse('Applied Mathematics','📐','Linear algebra and more')">
-          <div class="card-body">
-            <div class="card-top">
-              <div class="card-emoji">📐</div>
-              <div><div class="card-title">Applied Mathematics</div><div class="card-desc">Linear algebra, calculus &amp; more</div></div>
-            </div>
-            <div class="card-fact"><div class="fact-lbl">🧮 Real-World Use</div><div class="fact-text">Used in cryptography, AI, and climate modeling</div></div>
-          </div>
-          <div class="card-footer-bar"><span class="chap-info">5 Chapters · Materials &amp; Exams</span><span class="card-arrow">→</span></div>
+        <div class="course-card" onclick="openCourse('Applied Mathematics','📐','Linear algebra and more')">
+          <div class="cc-img" style="background-image:url('https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&q=80')"></div>
+          <div class="cc-overlay"></div>
+          <div class="cc-namestrip">📐 Applied Mathematics</div>
         </div>
-        <div class="course-card cc-prog" onclick="openCourse('Computer Programming','⌨️','Coding and software')">
-          <div class="card-body">
-            <div class="card-top">
-              <div class="card-emoji">⌨️</div>
-              <div><div class="card-title">Computer Programming</div><div class="card-desc">Coding, algorithms &amp; software</div></div>
-            </div>
-            <div class="card-fact"><div class="fact-lbl">🐍 Fun Fact</div><div class="fact-text">Over 700 programming languages have been created</div></div>
-          </div>
-          <div class="card-footer-bar"><span class="chap-info">5 Chapters · Materials &amp; Exams</span><span class="card-arrow">→</span></div>
+        <div class="course-card" onclick="openCourse('Computer Programming','⌨️','Coding and software')">
+          <div class="cc-img" style="background-image:url('https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&q=80')"></div>
+          <div class="cc-overlay"></div>
+          <div class="cc-namestrip">⌨️ Computer Programming</div>
         </div>
-        <div class="course-card cc-eng" onclick="openCourse('English','📝','Language skills')">
-          <div class="card-body">
-            <div class="card-top">
-              <div class="card-emoji">📝</div>
-              <div><div class="card-title">English</div><div class="card-desc">Grammar, writing &amp; language skills</div></div>
-            </div>
-            <div class="card-fact"><div class="fact-lbl">🗣️ Global Reach</div><div class="fact-text">1.5 billion speakers make English the #1 global language</div></div>
-          </div>
-          <div class="card-footer-bar"><span class="chap-info">5 Chapters · Materials &amp; Exams</span><span class="card-arrow">→</span></div>
+        <div class="course-card" onclick="openCourse('English','📝','Language skills')">
+          <div class="cc-img" style="background-image:url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&q=80')"></div>
+          <div class="cc-overlay"></div>
+          <div class="cc-namestrip">📝 English</div>
         </div>
-        <div class="course-card cc-hist" onclick="openCourse('History of Ethiopia','🏛️','Regional history')">
-          <div class="card-body">
-            <div class="card-top">
-              <div class="card-emoji">🏛️</div>
-              <div><div class="card-title">History of Ethiopia</div><div class="card-desc">Ancient kingdoms &amp; regional history</div></div>
-            </div>
-            <div class="card-fact"><div class="fact-lbl">👑 Ancient Legacy</div><div class="fact-text">Home of the Aksumite Empire — one of the ancient world's great powers</div></div>
-          </div>
-          <div class="card-footer-bar"><span class="chap-info">5 Chapters · Materials &amp; Exams</span><span class="card-arrow">→</span></div>
+        <div class="course-card" onclick="openCourse('History of Ethiopia','🏛️','Regional history')">
+          <div class="cc-img" style="background-image:url('https://images.unsplash.com/photo-1489392191049-fc10c97e64b6?w=600&q=80')"></div>
+          <div class="cc-overlay"></div>
+          <div class="cc-namestrip">🏛️ History of Ethiopia</div>
         </div>
-        <div class="course-card cc-civic" onclick="openCourse('Moral and Civic Education','⚖️','Ethics and citizenship')">
-          <div class="card-body">
-            <div class="card-top">
-              <div class="card-emoji">⚖️</div>
-              <div><div class="card-title">Moral &amp; Civic Education</div><div class="card-desc">Ethics, values &amp; citizenship</div></div>
-            </div>
-            <div class="card-fact"><div class="fact-lbl">🤝 Core Value</div><div class="fact-text">Foundation of every democratic and just society</div></div>
-          </div>
-          <div class="card-footer-bar"><span class="chap-info">5 Chapters · Materials &amp; Exams</span><span class="card-arrow">→</span></div>
+        <div class="course-card" onclick="openCourse('Moral and Civic Education','⚖️','Ethics and citizenship')">
+          <div class="cc-img" style="background-image:url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80')"></div>
+          <div class="cc-overlay"></div>
+          <div class="cc-namestrip">⚖️ Moral &amp; Civic Education</div>
         </div>
       </div>
     </div>
@@ -1621,7 +1632,6 @@
           <h2 id="courseTitle">Course</h2>
           <button class="back-btn" onclick="goBack()">← Back</button>
         </div>
-        <p id="courseDesc" style="color:#666;margin-bottom:24px;font-size:1em;"></p>
         <div class="course-actions">
           <button class="action-btn material-action-btn" onclick="openChapters('material')">
             <span class="action-icon">📖</span>Materials
@@ -2097,23 +2107,26 @@
               <label style="font-weight:700;color:#6a1b9a;font-size:0.92em;margin-bottom:6px;display:block;">Content — Select text to change size/colour, or click to position cursor then insert image</label>
               <!-- Rich Text Toolbar -->
               <div class="mat-rich-toolbar">
-                <button class="mat-tool-btn" onclick="matApplyBold()" title="Bold selected text"><strong>B</strong></button>
+                <button class="mat-tool-btn" onmousedown="event.preventDefault()" onclick="matApplyBold()" title="Bold selected text"><strong>B</strong></button>
                 <div class="mat-tool-sep"></div>
                 <span class="mat-size-label">Size (6–30):</span>
                 <input class="mat-size-input" type="number" id="mat_font_size" min="6" max="30" value="15" placeholder="15">
-                <button class="mat-tool-btn" onclick="matApplyFontSize()">Apply Size</button>
+                <button class="mat-tool-btn" onmousedown="event.preventDefault()" onclick="matApplyFontSize()">Apply Size</button>
                 <div class="mat-tool-sep"></div>
                 <span class="mat-size-label">Colour:</span>
                 <input class="mat-color-input" type="color" id="mat_font_color" value="#000000" title="Text colour">
-                <button class="mat-tool-btn" onclick="matApplyColor()">Apply Colour</button>
+                <button class="mat-tool-btn" onmousedown="event.preventDefault()" onclick="matApplyColor()">Apply Colour</button>
                 <div class="mat-tool-sep"></div>
                 <button class="mat-img-insert-btn" onclick="matInsertImage()">📷 Insert Image</button>
                 <input type="file" id="mat_img_input" accept="image/*" style="display:none" onchange="matHandleImage(this)">
               </div>
               <!-- Contenteditable editor -->
-              <div id="mat_rich_editor" class="mat-rich-editor" contenteditable="true" spellcheck="true" placeholder="Click here and start typing your material content..."></div>
+              <div id="mat_rich_editor" class="mat-rich-editor" contenteditable="true" spellcheck="true" placeholder="Click here and start typing your material content..." onmouseup="saveMatRange()" onkeyup="saveMatRange()"></div>
             </div>
-            <button class="material-save-btn" onclick="saveMaterialContent()">💾 Save Material</button>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:6px;">
+              <button class="material-save-btn" onclick="saveMaterialContent()">💾 Save Material</button>
+              <button style="padding:12px 22px;background:linear-gradient(135deg,#e74c3c,#c0392b);color:white;border:none;border-radius:12px;cursor:pointer;font-weight:700;font-size:0.95em;" onclick="deleteMaterial(currentMatCourse,currentMatChapter,currentMatNum)">🗑️ Delete Material</button>
+            </div>
           </div>
         </div>
       </div>
@@ -2175,7 +2188,6 @@
   window.openCourse = function(name, icon, desc){
     currentCourse = name;
     document.getElementById('courseTitle').textContent = icon + ' ' + name;
-    document.getElementById('courseDesc').textContent  = desc;
     window.goTo('courseDash');
   };
 
@@ -2259,8 +2271,8 @@
 
   window.copyText = function(id){
     navigator.clipboard.writeText(document.getElementById(id).textContent)
-      .then(function(){ alert('Copied to clipboard!'); })
-      .catch(function(){ alert('Could not copy. Please copy manually.'); });
+      .then(function(){ showToast('Copied to clipboard!'); })
+      .catch(function(){ showToast('Could not copy. Please copy manually.'); });
   };
 
   /* ════════════════════════════════════════

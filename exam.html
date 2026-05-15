@@ -83,6 +83,21 @@
       padding:0 16px 14px; margin:0;
     }
     .options-list { display:flex; flex-direction:column; }
+    .hint-btn {
+      display:inline-flex; align-items:center; gap:5px;
+      background:linear-gradient(135deg,#f39c12,#e67e22);
+      color:white; border:none; border-radius:18px;
+      padding:4px 13px; font-size:0.78em; font-weight:700;
+      cursor:pointer; margin:8px 16px 4px; transition:all 0.2s;
+      box-shadow:0 2px 7px rgba(243,156,18,0.4);
+    }
+    .hint-btn:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(243,156,18,0.5); }
+    .hint-box {
+      background:#fff8e1; border:1.5px solid #f39c12; border-radius:8px;
+      padding:10px 16px; font-size:0.88em; color:#7d4e00;
+      font-weight:600; margin:0 16px 8px; line-height:1.5;
+      display:none;
+    }
     .option {
       padding:13px 16px; border:none; border-top:1px solid #f0f0f0;
       background:#fff; font-size:0.97em; cursor:pointer;
@@ -284,10 +299,10 @@
   document.getElementById('courseTitle').textContent =
     course + ' — Chapter ' + chapter + ' (' + level.charAt(0).toUpperCase() + level.slice(1) + ' Level)';
 
-  document.getElementById('backLink').href = '#';
+  document.getElementById('backLink').href = 'index.html';
   document.getElementById('backLink').addEventListener('click', function(e){
     e.preventDefault();
-    history.back();
+    window.location.href = 'index.html';
   });
 
   let mode      = '';
@@ -517,6 +532,25 @@
       wrap.appendChild(qImg);
     }
 
+    /* Hint button — only for low-level questions in live (non-review) mode */
+    if (level === 'low' && !lockAndColor) {
+      var hintBtn = document.createElement('button');
+      hintBtn.className = 'hint-btn';
+      hintBtn.id = 'hintBtn_' + index;
+      hintBtn.innerHTML = '💡 Show Hint';
+      var hintBox = document.createElement('div');
+      hintBox.className = 'hint-box';
+      hintBox.id = 'hintBox_' + index;
+      var hintText = q.hint || ('Hint: the correct answer starts with "' + (q.answer ? q.answer.charAt(0) : '?') + '"');
+      hintBox.textContent = hintText;
+      hintBtn.onclick = function(){
+        hintBox.style.display = (hintBox.style.display === 'block') ? 'none' : 'block';
+        hintBtn.innerHTML = (hintBox.style.display === 'block') ? '💡 Hide Hint' : '💡 Show Hint';
+      };
+      wrap.appendChild(hintBtn);
+      wrap.appendChild(hintBox);
+    }
+
     /* Options */
     var optList = document.createElement('div');
     optList.className = 'options-list';
@@ -658,6 +692,12 @@
       });
     }
 
+    /* Hide hint button and box after answer is selected */
+    var hintBtnEl = wrap.querySelector('.hint-btn');
+    if (hintBtnEl) hintBtnEl.style.display = 'none';
+    var hintBoxEl = wrap.querySelector('.hint-box');
+    if (hintBoxEl) hintBoxEl.style.display = 'none';
+
     /* reveal explanation toggle button (instant mode only — finish mode shows after Review) */
     if (mode === 'instant') {
       var expBtn = wrap.querySelector('.exp-toggle-btn');
@@ -687,7 +727,8 @@
       '<p style="font-size:1.3em;color:#ff9800;font-weight:bold;margin-bottom:16px;">' + percentage + '%</p>' +
       '<button class="result-btn" onclick="location.reload()">🔁 Try Again</button>' +
       reviewBtnHtml +
-      '<br><button class="result-btn" style="background:linear-gradient(135deg,#636e72,#4a4f52);margin-top:16px;" onclick="history.back()">← Go Back</button>';
+      '<br><button class="result-btn" style="background:linear-gradient(135deg,#636e72,#4a4f52);margin-top:16px;" onclick="window.location.href=\'index.html\'">← Go Back</button>' +
+      '<br><a href="download.html" style="display:inline-block;margin-top:14px;color:#7c4dff;font-size:0.9em;font-weight:600;text-decoration:none;">⬇️ Download App Files</a>';
   };
 
   /* ── SHOW REVIEW ── */
