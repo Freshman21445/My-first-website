@@ -1484,29 +1484,29 @@
     function initAppSession(){
       var saved = sessionStorage.getItem("cu");
       if(saved){
-        try{
-          cu = JSON.parse(saved);
-          document.getElementById("authBox").style.display="none";
-          document.getElementById("appBox").style.display="block";
-          document.body.style.backgroundImage="url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format')";
-          var ts=document.getElementById('topSection'); if(ts) ts.style.display='none';
-          window.updateProfile();
+        cu = JSON.parse(saved);
+        document.getElementById("authBox").style.display="none";
+        document.getElementById("appBox").style.display="block";
+        document.body.style.backgroundImage="url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format')";
+        var ts=document.getElementById('topSection'); if(ts) ts.style.display='none';
+        try{ window.updateProfile(); }catch(e){}
 
-          /* ── Return from exam: go back to difficulty selection ── */
-          var examReturn = sessionStorage.getItem('_examReturn');
-          if(examReturn){
+        /* ── Return from exam: go back to difficulty selection ── */
+        var examReturn = sessionStorage.getItem('_examReturn');
+        if(examReturn){
+          try{
             sessionStorage.removeItem('_examReturn');
             var ret = JSON.parse(examReturn);
-            currentCourse  = ret.course;
-            currentChapter = ret.chapter;
-            currentMode    = 'exam';
+            window.currentCourse  = ret.course;
+            window.currentChapter = ret.chapter;
+            window.currentMode    = 'exam';
             document.getElementById('difficultyTitle').textContent =
               '✏️ Chapter ' + ret.chapter + ' Exam — ' + ret.course;
             window.goTo('difficultyDash');
-          } else {
-            window.goTo("mainDash");
-          }
-        } catch(e){ window.goTo('mainDash'); }
+          }catch(e){ window.goTo('mainDash'); }
+        } else {
+          window.goTo("mainDash");
+        }
       }
     }
     if(document.readyState === 'loading'){
@@ -1539,28 +1539,24 @@
 
     <!-- Login -->
     <div id="loginBox" class="auth-box" style="display:none">
-      <div style="width:100%;text-align:left;margin-bottom:6px;">
-        <button class="back-btn" onclick="showLanding()">← Go Back</button>
-      </div>
       <h2>🔐 Login</h2>
       <input id="loginPhone" placeholder="Phone Number" type="text">
       <input id="loginPassword" placeholder="Password" type="password">
       <p id="loginErr" style="color:#ff6b6b;font-size:0.88em;text-align:center;min-height:18px;margin:-6px 0 4px;"></p>
       <button onclick="login()">Login</button>
       <button class="forgot-link" onclick="showForgotPassword()">Forgot Password?</button>
+      <button class="back-btn" style="width:100%;margin-top:8px;" onclick="showLanding()">← Go Back</button>
     </div>
 
     <!-- Register -->
     <div id="registerBox" class="auth-box" style="display:none">
-      <div style="width:100%;text-align:left;margin-bottom:6px;">
-        <button class="back-btn" onclick="showLanding()">← Go Back</button>
-      </div>
       <h2>📝 Sign Up</h2>
       <input id="regName" placeholder="Full Name" type="text">
       <input id="regPhone" placeholder="Phone Number" type="text">
       <input id="regPassword" placeholder="Password" type="password">
       <p id="regErr" style="color:#ff6b6b;font-size:0.88em;text-align:center;min-height:18px;margin:-6px 0 4px;"></p>
       <button onclick="register()">Create Account</button>
+      <button class="back-btn" style="width:100%;margin-top:8px;" onclick="showLanding()">← Go Back</button>
     </div>
 
     <!-- Forgot Password -->
