@@ -166,7 +166,7 @@
     @keyframes slideIn { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
 
     .panel-card {
-      background:#f5f2ee;
+      background:rgba(255,255,255,0.97); backdrop-filter:blur(10px);
       border-radius:20px; padding:32px;
       box-shadow:0 10px 30px rgba(0,0,0,0.18); margin-bottom:30px;
       width:100%; max-width:none;
@@ -2199,8 +2199,9 @@
   };
 
   window.goBack = function(){
-    if(navHistory.length === 0) return;
+    if(navHistory.length === 0){ window.goTo('mainDash'); return; }
     var prev = navHistory.pop();
+    if(PANELS.indexOf(prev) === -1){ window.goTo('mainDash'); return; }
     for(var i=0;i<PANELS.length;i++){
       document.getElementById(PANELS[i]).classList.remove('active');
     }
