@@ -303,8 +303,19 @@
   document.getElementById('courseTitle').textContent =
     course + ' — Chapter ' + chapter + ' (' + level.charAt(0).toUpperCase() + level.slice(1) + ' Level)';
 
+  let examScreen = 'mode';
+
   window.safeBack = function() {
-    window.location.href = 'index.html?course=' + encodeURIComponent(course) + '&chapter=' + chapter;
+    if (examScreen === 'results') {
+      document.getElementById('result').innerHTML = '';
+      document.getElementById('reviewSection').style.display = 'none';
+      document.getElementById('modeSelection').style.display = 'block';
+      examScreen = 'mode';
+      mode    = '';
+      answers = [];
+    } else {
+      window.location.href = 'index.html?course=' + encodeURIComponent(course) + '&chapter=' + chapter;
+    }
   };
 
 
@@ -706,6 +717,7 @@
 
   /* ── FINISH EXAM ── */
   window.finishExam = function() {
+    examScreen = 'results';
     document.getElementById('finishBtn').style.display  = 'none';
     document.getElementById('progressWrap').style.display = 'none';
     document.getElementById('questionsDiv').innerHTML   = '';
