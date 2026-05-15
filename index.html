@@ -278,8 +278,29 @@
     .mat-img-insert-btn { padding:5px 14px; background:linear-gradient(135deg,#3949ab,#1a237e); color:white; border:none; border-radius:8px; cursor:pointer; font-size:0.85em; font-weight:700; transition:all 0.2s; }
     .mat-img-insert-btn:hover { transform:translateY(-1px); box-shadow:0 4px 10px rgba(57,73,171,0.3); }
     /* Student material page */
-    .mat-content-page { background:white; border-radius:12px; padding:28px 32px; min-height:200px; font-family:'Segoe UI',Arial,sans-serif; font-size:15px; line-height:1.85; color:#222; box-shadow:inset 0 0 0 1px #e8e8e8; }
+    .mat-content-page { background:white; border-radius:12px; padding:28px 32px; min-height:200px; font-family:'Segoe UI',Arial,sans-serif; font-size:15.5px; line-height:1.8; color:#1a1a1a; box-shadow:inset 0 0 0 1px #e8e8e8; }
     .mat-content-page img { max-width:100%; border-radius:8px; display:block; margin:14px auto; box-shadow:0 2px 12px rgba(0,0,0,0.12); }
+    .mat-content-page h1 { font-size:1.55em; font-weight:800; color:#111; margin:28px 0 10px; line-height:1.3; }
+    .mat-content-page h2 { font-size:1.3em; font-weight:800; color:#111; margin:26px 0 10px; line-height:1.3; }
+    .mat-content-page h3 { font-size:1.12em; font-weight:700; color:#111; margin:20px 0 8px; line-height:1.35; }
+    .mat-content-page h4 { font-size:1em; font-weight:700; color:#111; margin:16px 0 6px; }
+    .mat-content-page h1:first-child, .mat-content-page h2:first-child, .mat-content-page h3:first-child { margin-top:0; }
+    .mat-content-page p { margin:0 0 12px; }
+    .mat-content-page ul { list-style:disc; margin:8px 0 12px 22px; padding:0; }
+    .mat-content-page ol { list-style:decimal; margin:8px 0 12px 22px; padding:0; }
+    .mat-content-page li { margin:5px 0; line-height:1.75; }
+    .mat-content-page ul ul { list-style:circle; margin-top:4px; margin-bottom:4px; margin-left:20px; }
+    .mat-content-page ol ol, .mat-content-page ul ol, .mat-content-page ol ul { margin-top:4px; margin-bottom:4px; margin-left:20px; }
+    .mat-content-page ul ul ul { list-style:square; margin-left:20px; }
+    .mat-content-page strong, .mat-content-page b { font-weight:700; }
+    .mat-content-page em, .mat-content-page i { font-style:italic; }
+    .mat-content-page sub { font-size:0.72em; vertical-align:sub; line-height:0; }
+    .mat-content-page sup { font-size:0.72em; vertical-align:super; line-height:0; }
+    .mat-content-page hr { border:none; border-top:1.5px solid #e0e0e0; margin:22px 0; }
+    .mat-content-page blockquote { border-left:4px solid #bbb; margin:14px 0 14px 8px; padding:6px 16px; color:#555; font-style:italic; }
+    .mat-content-page table { border-collapse:collapse; width:100%; margin:14px 0; }
+    .mat-content-page th, .mat-content-page td { border:1px solid #ccc; padding:8px 12px; text-align:left; font-size:0.95em; }
+    .mat-content-page th { background:#f5f5f5; font-weight:700; }
     /* MATERIAL ITEMS */
     .items-list { display:flex; flex-direction:column; gap:14px; margin-top:10px; }
     .item-btn { display:flex; align-items:center; gap:18px; padding:20px 26px; background:linear-gradient(135deg,#e3f2fd,#bbdefb); border:2px solid #90caf9; border-radius:16px; cursor:pointer; font-size:1.08em; font-weight:700; color:#0d47a1; transition:all 0.3s; text-align:left; width:100%; }
@@ -2239,7 +2260,7 @@
     var box = document.getElementById('materialContentBox');
     document.getElementById('materialContentTitle').textContent =
       'Chapter ' + currentChapter + ' — Material ' + num + ' | ' + currentCourse;
-    box.className = 'content-box mat';
+    box.className = 'mat-content-page';
     box.innerHTML = '<em style="color:#888">Loading...</em>';
     window.goTo('materialContentDash');
 
