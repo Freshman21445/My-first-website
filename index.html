@@ -1481,7 +1481,7 @@
 
 
     /* ── SESSION RESTORE ── */
-    window.addEventListener("DOMContentLoaded", function(){
+    function initAppSession(){
       var saved = sessionStorage.getItem("cu");
       if(saved){
         try{
@@ -1508,7 +1508,12 @@
           }
         } catch(e){ window.goTo('mainDash'); }
       }
-    });
+    }
+    if(document.readyState === 'loading'){
+      window.addEventListener('DOMContentLoaded', initAppSession);
+    } else {
+      initAppSession();
+    }
   </script>
 </head>
 <body>
