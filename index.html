@@ -1036,6 +1036,7 @@
       document.getElementById('ef_question').value='';
       document.getElementById('ef_answer').value='';
       document.getElementById('ef_explanation').value='';
+      document.getElementById('ef_hint').value='';
       var ts=document.getElementById('ef_textsize'); if(ts){ts.value=16; document.getElementById('ef_textsize_val').textContent='16px';}
       ['ef_optA','ef_optB','ef_optC','ef_optD'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
       ['ef_cexp_A','ef_cexp_B','ef_cexp_C','ef_cexp_D','ef_cexp_True','ef_cexp_False'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
@@ -1074,6 +1075,7 @@
       document.getElementById('ef_type').value=d.type||'multiple_choice';
       document.getElementById('ef_question').value=d.question||'';
       document.getElementById('ef_explanation').value=d.explanation||'';
+      document.getElementById('ef_hint').value=d.hint||'';
       var ts=document.getElementById('ef_textsize'); var tsv=d.textSize||16;
       if(ts){ts.value=tsv; document.getElementById('ef_textsize_val').textContent=tsv+'px';}
       /* reset matching pairs before populating */
@@ -1230,6 +1232,7 @@
       var question    = document.getElementById('ef_question').value.trim();
       var expMode     = document.querySelector('input[name="ef_expmode"]:checked') ? document.querySelector('input[name="ef_expmode"]:checked').value : 'single';
       var explanation = document.getElementById('ef_explanation').value.trim();
+      var hint = document.getElementById('ef_hint').value.trim();
 
       if(!course||!chapter||!difficulty||!type||!question){
         showToast('Please fill all required fields (Course, Chapter, Difficulty, Type, Question).'); return;
@@ -1286,7 +1289,7 @@
         }
       }
 
-      var data = { course, chapter, difficulty, type, question, options, answer, pairs, alternateAnswers, explanation, explanationMode: expMode, choiceExplanations, textSize, imgs, updatedAt:new Date() };
+      var data = { course, chapter, difficulty, type, question, options, answer, pairs, alternateAnswers, explanation, explanationMode: expMode, choiceExplanations, textSize, imgs, hint, updatedAt:new Date() };
 
       try {
         if(editingExamId){
@@ -2905,6 +2908,11 @@
                 <div style="margin-bottom:10px;"><label style="font-size:0.88em;color:#555;font-weight:700;">False explanation:</label><textarea id="ef_cexp_False" placeholder="Explanation shown when student picks False..." style="min-height:56px;"></textarea></div>
               </div>
             </div>
+          </div>
+          <!-- Hint -->
+          <div class="field">
+            <label style="display:block;font-weight:600;color:#444;margin-bottom:8px;">Hint (shown to students)</label>
+            <textarea id="ef_hint" placeholder="Provide a helpful hint for students (e.g., 'Think about the first letter of the correct answer')" style="min-height:60px;"></textarea>
           </div>
           <!-- Buttons -->
           <div class="admin-form-btns">

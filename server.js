@@ -133,14 +133,14 @@ app.post('/api/exams', async (req, res) => {
   if (!data) return res.json({ success: false, error: 'Missing data' });
   try {
     const result = await pool.query(
-      `INSERT INTO admin_exams (course, chapter, difficulty, type, question, options, answer, pairs, alternate_answers, explanation, explanation_mode, choice_explanations, text_size, imgs)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING id`,
+      `INSERT INTO admin_exams (course, chapter, difficulty, type, question, options, answer, pairs, alternate_answers, explanation, explanation_mode, choice_explanations, text_size, imgs, hint)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING id`,
       [data.course, data.chapter, data.difficulty, data.type || 'multiple_choice',
        data.question, JSON.stringify(data.options || []), data.answer,
        JSON.stringify(data.pairs || []), JSON.stringify(data.alternateAnswers || []),
        data.explanation || '', data.explanationMode || 'single',
        JSON.stringify(data.choiceExplanations || {}), data.textSize || 16,
-       JSON.stringify(data.imgs || {})]
+       JSON.stringify(data.imgs || {}), data.hint || '']
     );
     res.json({ success: true, id: String(result.rows[0].id) });
   } catch (e) {
@@ -152,13 +152,13 @@ app.put('/api/exams/:id', async (req, res) => {
   const { data } = req.body;
   try {
     await pool.query(
-      `UPDATE admin_exams SET course=$1,chapter=$2,difficulty=$3,type=$4,question=$5,options=$6,answer=$7,pairs=$8,alternate_answers=$9,explanation=$10,explanation_mode=$11,choice_explanations=$12,text_size=$13,imgs=$14,updated_at=NOW() WHERE id=$15`,
+      `UPDATE admin_exams SET course=$1,chapter=$2,difficulty=$3,type=$4,question=$5,options=$6,answer=$7,pairs=$8,alternate_answers=$9,explanation=$10,explanation_mode=$11,choice_explanations=$12,text_size=$13,imgs=$14,hint=$15,updated_at=NOW() WHERE id=$16`,
       [data.course, data.chapter, data.difficulty, data.type || 'multiple_choice',
        data.question, JSON.stringify(data.options || []), data.answer,
        JSON.stringify(data.pairs || []), JSON.stringify(data.alternateAnswers || []),
        data.explanation || '', data.explanationMode || 'single',
        JSON.stringify(data.choiceExplanations || {}), data.textSize || 16,
-       JSON.stringify(data.imgs || {}), parseInt(req.params.id)]
+       JSON.stringify(data.imgs || {}), data.hint || '', parseInt(req.params.id)]
     );
     res.json({ success: true });
   } catch (e) {
@@ -290,6 +290,7 @@ function rowToExam(r) {
     choiceExplanations: r.choice_explanations || {},
     textSize: r.text_size,
     imgs: r.imgs || {},
+    hint: r.hint || '',
     createdAt: r.created_at,
     updatedAt: r.updated_at
   };

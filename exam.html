@@ -488,7 +488,7 @@
         questions = snap.docs.map(function(doc) {
           var d = doc.data();
           var opts = d.type === 'true_false' ? ['True','False'] : (d.options || []);
-          return { q: d.question, options: opts, answer: d.answer, type: d.type || 'multiple_choice', explanation: d.explanation || '', explanationMode: d.explanationMode || 'single', choiceExplanations: d.choiceExplanations || {}, imgs: d.imgs || {} };
+          return { q: d.question, options: opts, answer: d.answer, type: d.type || 'multiple_choice', explanation: d.explanation || '', explanationMode: d.explanationMode || 'single', choiceExplanations: d.choiceExplanations || {}, imgs: d.imgs || {}, hint: d.hint || '' };
         });
       } else {
         questions = getFallback(course, level);
@@ -587,8 +587,9 @@
     });
     wrap.appendChild(optList);
 
-    /* Hint button — only for low-level questions in live (non-review) mode */
-    if (level === 'low' && !lockAndColor) {
+    /* Hint button — show if admin provided hint, or only for low-level questions in live mode */
+    var hasAdminHint = q.hint && q.hint.trim().length > 0;
+    if ((hasAdminHint || level === 'low') && !lockAndColor) {
       var hintBtn = document.createElement('button');
       hintBtn.className = 'hint-btn visible';
       hintBtn.id = 'hintBtn_' + index;
@@ -596,7 +597,7 @@
       var hintBox = document.createElement('div');
       hintBox.className = 'hint-box';
       hintBox.id = 'hintBox_' + index;
-      var hintText = q.hint || ('Hint: the correct answer starts with "' + (q.answer ? q.answer.charAt(0) : '?') + '"');
+      var hintText = q.hint && q.hint.trim() ? q.hint : ('Hint: the correct answer starts with "' + (q.answer ? q.answer.charAt(0) : '?') + '"');
       hintBox.textContent = hintText;
       hintBtn.onclick = function(){
         hintBox.style.display = (hintBox.style.display === 'block') ? 'none' : 'block';
