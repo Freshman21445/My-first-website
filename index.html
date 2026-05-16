@@ -2014,7 +2014,40 @@
         var ts=document.getElementById('topSection'); if(ts) ts.style.display='none';
         try{ window.updateProfile(); }catch(e){}
 
-        window.goTo("mainDash");
+        /* ── Restore last visited panel on refresh ── */
+        var restored = false;
+        try {
+          var ns = JSON.parse(sessionStorage.getItem('_navState') || 'null');
+          if (ns && ns.panel) {
+            window.currentCourse      = ns.currentCourse      || '';
+            window.currentChapter     = ns.currentChapter     || 1;
+            window.currentMode        = ns.currentMode        || '';
+            window.currentMaterialNum = ns.currentMaterialNum || 0;
+            window.navHistory         = ns.navHistory         || [];
+
+            var panel = ns.panel;
+            if (panel === 'examPanel') panel = 'difficultyDash';
+
+            if (ns.courseTitle)
+              document.getElementById('courseTitle').textContent = ns.courseTitle;
+            if (ns.difficultyTitle)
+              document.getElementById('difficultyTitle').textContent = ns.difficultyTitle;
+            if (ns.materialItemsTitle)
+              document.getElementById('materialItemsTitle').textContent = ns.materialItemsTitle;
+            if (ns.materialContentTitle)
+              document.getElementById('materialContentTitle').textContent = ns.materialContentTitle;
+
+            if (panel === 'chaptersDash' && typeof window.openChapters === 'function') {
+              window.openChapters(window.currentMode || 'exam');
+            } else if (panel === 'materialContentDash' && typeof window.openMaterialContent === 'function') {
+              window.openMaterialContent(window.currentMaterialNum || 1);
+            } else {
+              window.goTo(panel);
+            }
+            restored = true;
+          }
+        } catch(e) {}
+        if (!restored) window.goTo("mainDash");
       }
     }
     if(document.readyState === 'loading'){
@@ -2718,10 +2751,11 @@
 
 <script>
   /* ── USER APP STATE & NAVIGATION ── */
-  var currentCourse   = '';
-  var currentMode     = '';
-  var currentChapter  = 1;
-  var navHistory      = [];
+  var currentCourse      = '';
+  var currentMode        = '';
+  var currentChapter     = 1;
+  var currentMaterialNum = 0;
+  var navHistory         = [];
 
   var PANELS = ['mainDash','menuDash','courseDash','chaptersDash',
     'materialItemsDash','materialContentDash',
@@ -2751,6 +2785,21 @@
       window.goTo('mainDash');
       return;
     }
+    /* persist navigation state so refresh restores the same panel */
+    try {
+      sessionStorage.setItem('_navState', JSON.stringify({
+        panel           : id,
+        navHistory      : navHistory.slice(),
+        currentCourse   : currentCourse,
+        currentChapter  : currentChapter,
+        currentMode     : currentMode,
+        currentMaterialNum: currentMaterialNum,
+        courseTitle        : (document.getElementById('courseTitle')        || {}).textContent || '',
+        difficultyTitle    : (document.getElementById('difficultyTitle')    || {}).textContent || '',
+        materialItemsTitle : (document.getElementById('materialItemsTitle') || {}).textContent || '',
+        materialContentTitle:(document.getElementById('materialContentTitle')|| {}).textContent || ''
+      }));
+    } catch(e) {}
   };
 
   window.goBack = function(){
@@ -2817,6 +2866,7 @@
 
   /* ── MATERIAL CONTENT — loads from Firestore first ── */
   window.openMaterialContent = async function(num){
+    currentMaterialNum = num;
     var box = document.getElementById('materialContentBox');
     document.getElementById('materialContentTitle').textContent =
       'Chapter ' + currentChapter + ' — Material ' + num + ' | ' + currentCourse;
