@@ -527,16 +527,16 @@
     @keyframes spin { to { transform:rotate(360deg); } }
     .question { background:#faf8f5; margin-bottom:22px; border-radius:0; overflow:hidden; box-shadow:none; border:none; width:100%; }
     .q-num-row { display:flex; justify-content:space-between; align-items:center; padding:12px 8px 6px; gap:8px; }
-    .q-num { font-size:1.25em; font-weight:800; color:#222; flex:1; }
+    .q-num { font-size:1.05em; font-weight:800; color:#222; flex:1; }
     .q-num-actions { display:flex; align-items:center; gap:6px; flex-shrink:0; }
     .q-divider { height:1px; background:#333; margin:0; }
-    .question-text { font-size:1em; color:#222; line-height:1.5; padding:8px 8px 12px; margin:0; }
+    .question-text { font-size:0.9em; color:#222; line-height:1.5; padding:8px 8px 8px; margin:0; }
     .options-list { display:flex; flex-direction:column; }
     .hint-btn { display:none; padding:10px 16px; background:none; border:none; border-top:1px solid #eee; color:#7c4dff; font-size:0.9em; font-weight:600; cursor:pointer; width:100%; text-align:left; }
     .hint-btn:hover { background:#f5f0ff; }
     .hint-btn.visible { display:block; }
     .hint-box { margin:0; padding:10px 12px; background:#f5f2ee; color:#333; font-size:0.92em; line-height:1.6; display:none; }
-    .option { padding:12px 0; border:none; border-top:1px solid #ede9e3; background:#faf8f5; font-size:0.97em; cursor:pointer; text-align:left; transition:background 0.15s; font-weight:400; color:#333; display:flex; align-items:center; gap:2px; width:100%; border-radius:0; }
+    .option { padding:7px 0; border:none; border-top:1px solid #ede9e3; background:#faf8f5; font-size:0.88em; cursor:pointer; text-align:left; transition:background 0.15s; font-weight:400; color:#333; display:flex; align-items:center; gap:2px; width:100%; border-radius:0; }
     .option .radio-circle { width:20px; height:20px; border-radius:50%; border:2px solid #bbb; flex-shrink:0; display:inline-block; box-sizing:border-box; background:white; transition:all 0.15s; }
     .option:hover { background:#ede9e3; }
     .option:hover .radio-circle { border-color:#888; }
@@ -569,23 +569,31 @@
     .q-type-badge.tf      { background:#f3e5f5; color:#6a1b9a; }
     .q-type-badge.match   { background:#fff3e0; color:#e65100; }
     .q-type-badge.fitb    { background:#e8f5e9; color:#1b5e20; }
-    /* MATCHING question */
-    .matching-wrap { width:100%; border-collapse:collapse; display:table; }
-    .matching-row { display:table-row; }
-    .matching-cell { display:table-cell; padding:10px 8px; border-bottom:1px solid #ede9e3; vertical-align:middle; }
-    .matching-left { font-weight:600; color:#1e3c72; width:42%; }
-    .matching-arrow { color:#aaa; font-size:1em; padding:0 6px; width:6%; text-align:center; }
-    .match-select { width:100%; padding:9px 10px; border:2px solid #ddd; border-radius:8px; font-size:0.93em; background:#fff; cursor:pointer; transition:border-color 0.2s, background 0.2s; }
-    .match-select.correct { border-color:#4caf50; background:#e8f5e9; }
-    .match-select.wrong   { border-color:#e53935; background:#ffebee; }
-    .match-select:disabled { cursor:not-allowed; opacity:0.85; }
+    /* MATCHING question — two-column letter layout */
+    .matching-section { padding:6px 8px 8px; }
+    .matching-columns { display:flex; gap:10px; align-items:flex-start; }
+    .matching-col-a { flex:1; min-width:0; }
+    .matching-col-b { flex:1; min-width:0; }
+    .matching-col-header { font-weight:800; font-size:0.95em; color:#1e3c72; text-align:center; padding:3px 0 5px; border-bottom:2px solid #1e3c72; margin-bottom:4px; }
+    .matching-item-row { display:flex; align-items:center; gap:5px; padding:4px 0; border-bottom:1px solid #ede9e3; min-height:32px; }
+    .matching-left-text { flex:1; font-size:0.83em; color:#1e3c72; font-weight:600; line-height:1.3; word-break:break-word; }
+    .match-letter-input { width:30px; height:26px; border:2px solid #bbb; border-radius:6px; font-size:0.88em; text-align:center; text-transform:uppercase; padding:0; flex-shrink:0; outline:none; transition:border-color 0.15s,background 0.15s; font-weight:700; }
+    .match-letter-input:focus { border-color:#1e3c72; }
+    .match-letter-input.correct { border-color:#4caf50; background:#e8f5e9; color:#2e7d32; }
+    .match-letter-input.wrong   { border-color:#e53935; background:#ffebee; color:#c62828; }
+    .match-letter-input:disabled { cursor:not-allowed; opacity:0.85; }
+    .matching-right-row { display:flex; align-items:flex-start; gap:5px; padding:4px 0; border-bottom:1px solid #ede9e3; min-height:32px; }
+    .matching-right-label { font-weight:800; font-size:0.85em; color:#e65100; flex-shrink:0; min-width:16px; padding-top:1px; }
+    .matching-right-text { font-size:0.83em; color:#333; line-height:1.3; word-break:break-word; }
     /* FILL-IN-THE-BLANK question */
-    .fitb-wrap { padding:12px 8px; }
-    .fitb-input { width:100%; padding:11px 14px; border:2px solid #ddd; border-radius:10px; font-size:1em; box-sizing:border-box; margin-top:6px; transition:border-color 0.2s, background 0.2s; }
+    .fitb-wrap { padding:10px 8px 8px; }
+    .fitb-input { width:100%; padding:9px 12px; border:2px solid #ddd; border-radius:10px; font-size:0.92em; box-sizing:border-box; margin-top:4px; transition:border-color 0.2s,background 0.2s; }
     .fitb-input.correct { border-color:#4caf50; background:#e8f5e9; }
     .fitb-input.wrong   { border-color:#e53935; background:#ffebee; }
     .fitb-input:disabled { cursor:not-allowed; opacity:0.85; }
-    .fitb-result-msg { font-size:0.9em; margin-top:6px; font-weight:700; }
+    .fitb-save-btn { margin-top:7px; padding:7px 20px; background:#1e3c72; color:#fff; border:none; border-radius:8px; font-size:0.85em; font-weight:700; cursor:pointer; transition:background 0.2s; display:block; }
+    .fitb-save-btn:hover { background:#2980b9; }
+    .fitb-result-msg { font-size:0.87em; margin-top:5px; font-weight:700; }
     .fitb-result-msg.correct { color:#2e7d32; }
     .fitb-result-msg.wrong   { color:#c62828; }
     /* Admin matching pair builder */
@@ -1848,68 +1856,106 @@
       /* ── MATCHING type ── */
       if (q.type === 'matching') {
         var pairs = q.pairs || [];
-        var rightItems = pairs.map(function(p){ return p.right; });
-        /* shuffle for student view */
-        var shuffled = rightItems.slice().sort(function(){ return Math.random()-0.5; });
+        var LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        /* Keep same shuffle across re-renders by storing on question object */
+        if (!q._shuffledRights) {
+          q._shuffledRights = pairs.map(function(p){ return p.right; }).slice().sort(function(){ return Math.random()-0.5; });
+        }
+        var shuffled = q._shuffledRights;
 
-        var matchWrap = document.createElement('div');
-        matchWrap.className = 'matching-wrap';
-        matchWrap.style.padding = '0 8px';
+        var matchSec = document.createElement('div');
+        matchSec.className = 'matching-section';
+
+        var cols = document.createElement('div');
+        cols.className = 'matching-columns';
+
+        var colA = document.createElement('div');
+        colA.className = 'matching-col-a';
+        var hdrA = document.createElement('div');
+        hdrA.className = 'matching-col-header';
+        hdrA.textContent = 'A';
+        colA.appendChild(hdrA);
+
+        var colB = document.createElement('div');
+        colB.className = 'matching-col-b';
+        var hdrB = document.createElement('div');
+        hdrB.className = 'matching-col-header';
+        hdrB.textContent = 'B';
+        colB.appendChild(hdrB);
 
         pairs.forEach(function(pair, pi) {
-          var row = document.createElement('div');
-          row.className = 'matching-row';
+          /* — Column A row — */
+          var itemRow = document.createElement('div');
+          itemRow.className = 'matching-item-row';
 
-          var leftCell = document.createElement('div');
-          leftCell.className = 'matching-cell matching-left';
-          leftCell.textContent = pair.left;
+          var leftTxt = document.createElement('span');
+          leftTxt.className = 'matching-left-text';
+          leftTxt.textContent = pair.left;
 
-          var arrowCell = document.createElement('div');
-          arrowCell.className = 'matching-cell matching-arrow';
-          arrowCell.textContent = '→';
-
-          var rightCell = document.createElement('div');
-          rightCell.className = 'matching-cell';
-          rightCell.style.width = '52%';
-
-          var sel = document.createElement('select');
-          sel.className = 'match-select';
-          sel.id = 'match_' + index + '_' + pi;
-          var placeholder = document.createElement('option');
-          placeholder.value = ''; placeholder.textContent = '-- Select --';
-          sel.appendChild(placeholder);
-          shuffled.forEach(function(item) {
-            var opt = document.createElement('option');
-            opt.value = item; opt.textContent = item;
-            sel.appendChild(opt);
-          });
+          var letterInp = document.createElement('input');
+          letterInp.type = 'text';
+          letterInp.className = 'match-letter-input';
+          letterInp.maxLength = 2;
+          letterInp.placeholder = '?';
+          letterInp.id = 'match_' + index + '_' + pi;
 
           if (lockAndColor) {
-            sel.disabled = true;
-            var userSel = (_examAnswers[index] || [])[pi];
-            if (userSel) sel.value = userSel;
-            if (userSel === pair.right) sel.classList.add('correct');
-            else sel.classList.add('wrong');
+            letterInp.disabled = true;
+            var storedVal = (Array.isArray(_examAnswers[index]) ? _examAnswers[index][pi] : '') || '';
+            var storedLetter = '';
+            shuffled.forEach(function(item, si){ if(item===storedVal) storedLetter=LETTERS[si]; });
+            letterInp.value = storedLetter;
+            if (storedVal === pair.right) letterInp.classList.add('correct');
+            else if (storedVal) letterInp.classList.add('wrong');
           } else {
             var curAns = _examAnswers[index];
-            if (Array.isArray(curAns) && curAns[pi]) sel.value = curAns[pi];
-            sel.onchange = function() {
-              var cur = Array.isArray(_examAnswers[index]) ? _examAnswers[index] : new Array(pairs.length).fill('');
-              cur[pi] = sel.value;
-              _examAnswers[index] = cur;
-              _updateExamProgress();
-              if (_examMode === 'instant') {
-                sel.classList.remove('correct','wrong');
-                if (sel.value === pair.right) sel.classList.add('correct');
-                else if (sel.value) sel.classList.add('wrong');
-              }
-            };
+            if (Array.isArray(curAns) && curAns[pi]) {
+              var restoredLetter = '';
+              shuffled.forEach(function(item,si){ if(item===curAns[pi]) restoredLetter=LETTERS[si]; });
+              letterInp.value = restoredLetter;
+            }
+            (function(pairRef, piRef, inpRef){
+              inpRef.oninput = function() {
+                var typed = inpRef.value.trim().toUpperCase();
+                var cur = Array.isArray(_examAnswers[index]) ? _examAnswers[index].slice() : new Array(pairs.length).fill('');
+                var li = LETTERS.indexOf(typed);
+                cur[piRef] = (li >= 0 && li < shuffled.length) ? shuffled[li] : '';
+                _examAnswers[index] = cur;
+                _updateExamProgress();
+                if (_examMode === 'instant') {
+                  inpRef.classList.remove('correct','wrong');
+                  if (cur[piRef] && cur[piRef] === pairRef.right) inpRef.classList.add('correct');
+                  else if (cur[piRef]) inpRef.classList.add('wrong');
+                }
+              };
+            })(pair, pi, letterInp);
           }
-          rightCell.appendChild(sel);
-          row.appendChild(leftCell); row.appendChild(arrowCell); row.appendChild(rightCell);
-          matchWrap.appendChild(row);
+
+          itemRow.appendChild(leftTxt);
+          itemRow.appendChild(letterInp);
+          colA.appendChild(itemRow);
+
+          /* — Column B row — */
+          var rightRow = document.createElement('div');
+          rightRow.className = 'matching-right-row';
+
+          var rightLabel = document.createElement('span');
+          rightLabel.className = 'matching-right-label';
+          rightLabel.textContent = LETTERS[pi] + '.';
+
+          var rightTxt = document.createElement('span');
+          rightTxt.className = 'matching-right-text';
+          rightTxt.textContent = shuffled[pi];
+
+          rightRow.appendChild(rightLabel);
+          rightRow.appendChild(rightTxt);
+          colB.appendChild(rightRow);
         });
-        wrap.appendChild(matchWrap);
+
+        cols.appendChild(colA);
+        cols.appendChild(colB);
+        matchSec.appendChild(cols);
+        wrap.appendChild(matchSec);
 
       /* ── FILL IN THE BLANK type ── */
       } else if (q.type === 'fill_in_blank') {
@@ -1931,25 +1977,40 @@
           inp.value = storedAns;
           if (_isAnswerCorrect(index)) { inp.classList.add('correct'); msg.className += ' correct'; msg.textContent = '✓ Correct!'; }
           else { inp.classList.add('wrong'); msg.className += ' wrong'; msg.textContent = '✗ Correct answer: ' + q.answer; }
+          fitbWrap.appendChild(inp);
+          fitbWrap.appendChild(msg);
         } else {
           inp.value = _examAnswers[index] || '';
-          var applyFitb = function() {
-            var val = inp.value.trim();
-            _examAnswers[index] = val;
-            _updateExamProgress();
-            if (_examMode === 'instant' && val) {
-              inp.classList.remove('correct','wrong');
-              msg.textContent = '';
-              if (_isAnswerCorrect(index)) { inp.classList.add('correct'); msg.className = 'fitb-result-msg correct'; msg.textContent = '✓ Correct!'; }
-              else { inp.classList.add('wrong'); msg.className = 'fitb-result-msg wrong'; msg.textContent = '✗ Correct answer: ' + q.answer; }
-            }
-          };
           inp.oninput = function() { _examAnswers[index] = inp.value; _updateExamProgress(); };
-          inp.onblur  = applyFitb;
-          inp.onkeydown = function(e){ if(e.key==='Enter') applyFitb(); };
+
+          var saveBtn = document.createElement('button');
+          saveBtn.className = 'fitb-save-btn';
+          saveBtn.textContent = 'Save';
+          (function(inpRef, msgRef, idxRef){
+            saveBtn.onclick = function() {
+              var val = inpRef.value.trim();
+              _examAnswers[idxRef] = val;
+              _updateExamProgress();
+              inpRef.classList.remove('correct','wrong');
+              msgRef.textContent = '';
+              if (val) {
+                if (_isAnswerCorrect(idxRef)) {
+                  inpRef.classList.add('correct');
+                  msgRef.className = 'fitb-result-msg correct';
+                  msgRef.textContent = '✓ Correct!';
+                } else {
+                  inpRef.classList.add('wrong');
+                  msgRef.className = 'fitb-result-msg wrong';
+                  msgRef.textContent = '✗ Wrong!';
+                }
+              }
+            };
+          })(inp, msg, index);
+
+          fitbWrap.appendChild(inp);
+          fitbWrap.appendChild(saveBtn);
+          fitbWrap.appendChild(msg);
         }
-        fitbWrap.appendChild(inp);
-        fitbWrap.appendChild(msg);
         wrap.appendChild(fitbWrap);
 
       /* ── MULTIPLE CHOICE / TRUE-FALSE types ── */
@@ -2115,9 +2176,21 @@
       document.getElementById('examProgressWrap').style.display = 'none';
       document.getElementById('examQuestionsDiv').innerHTML     = '';
 
-      var correct    = 0;
-      _examAnswers.forEach(function(a, i) { if (_isAnswerCorrect(i)) correct++; });
-      var total      = _examQuestions.length;
+      var correct = 0;
+      var total   = 0;
+      _examQuestions.forEach(function(q, i) {
+        if (q.type === 'matching') {
+          var pairs = q.pairs || [];
+          total += pairs.length;
+          pairs.forEach(function(pair, pi) {
+            var a = _examAnswers[i];
+            if (Array.isArray(a) && (a[pi] || '') === pair.right) correct++;
+          });
+        } else {
+          total += 1;
+          if (_isAnswerCorrect(i)) correct++;
+        }
+      });
       var percentage = Math.round((correct / total) * 100);
       var emoji      = percentage >= 80 ? '🌟' : percentage >= 50 ? '👍' : '📖';
 
