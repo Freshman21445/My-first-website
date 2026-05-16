@@ -196,6 +196,31 @@
     }
     .q-type-badge.mc  { background:#e3f2fd; color:#1565c0; }
     .q-type-badge.tf  { background:#f3e5f5; color:#6a1b9a; }
+    .question-text.text-size-6, .explanation-box.text-size-6, .hint-box.text-size-6 { font-size: 6px !important; }
+    .question-text.text-size-7, .explanation-box.text-size-7, .hint-box.text-size-7 { font-size: 7px !important; }
+    .question-text.text-size-8, .explanation-box.text-size-8, .hint-box.text-size-8 { font-size: 8px !important; }
+    .question-text.text-size-9, .explanation-box.text-size-9, .hint-box.text-size-9 { font-size: 9px !important; }
+    .question-text.text-size-10, .explanation-box.text-size-10, .hint-box.text-size-10 { font-size: 10px !important; }
+    .question-text.text-size-11, .explanation-box.text-size-11, .hint-box.text-size-11 { font-size: 11px !important; }
+    .question-text.text-size-12, .explanation-box.text-size-12, .hint-box.text-size-12 { font-size: 12px !important; }
+    .question-text.text-size-13, .explanation-box.text-size-13, .hint-box.text-size-13 { font-size: 13px !important; }
+    .question-text.text-size-14, .explanation-box.text-size-14, .hint-box.text-size-14 { font-size: 14px !important; }
+    .question-text.text-size-15, .explanation-box.text-size-15, .hint-box.text-size-15 { font-size: 15px !important; }
+    .question-text.text-size-16, .explanation-box.text-size-16, .hint-box.text-size-16 { font-size: 16px !important; }
+    .question-text.text-size-17, .explanation-box.text-size-17, .hint-box.text-size-17 { font-size: 17px !important; }
+    .question-text.text-size-18, .explanation-box.text-size-18, .hint-box.text-size-18 { font-size: 18px !important; }
+    .question-text.text-size-19, .explanation-box.text-size-19, .hint-box.text-size-19 { font-size: 19px !important; }
+    .question-text.text-size-20, .explanation-box.text-size-20, .hint-box.text-size-20 { font-size: 20px !important; }
+    .question-text.text-size-21, .explanation-box.text-size-21, .hint-box.text-size-21 { font-size: 21px !important; }
+    .question-text.text-size-22, .explanation-box.text-size-22, .hint-box.text-size-22 { font-size: 22px !important; }
+    .question-text.text-size-23, .explanation-box.text-size-23, .hint-box.text-size-23 { font-size: 23px !important; }
+    .question-text.text-size-24, .explanation-box.text-size-24, .hint-box.text-size-24 { font-size: 24px !important; }
+    .question-text.text-size-25, .explanation-box.text-size-25, .hint-box.text-size-25 { font-size: 25px !important; }
+    .question-text.text-size-26, .explanation-box.text-size-26, .hint-box.text-size-26 { font-size: 26px !important; }
+    .question-text.text-size-27, .explanation-box.text-size-27, .hint-box.text-size-27 { font-size: 27px !important; }
+    .question-text.text-size-28, .explanation-box.text-size-28, .hint-box.text-size-28 { font-size: 28px !important; }
+    .question-text.text-size-29, .explanation-box.text-size-29, .hint-box.text-size-29 { font-size: 29px !important; }
+    .question-text.text-size-30, .explanation-box.text-size-30, .hint-box.text-size-30 { font-size: 30px !important; }
 
     @media(max-width:600px){
       .container { padding:4px 0; }
@@ -466,6 +491,12 @@
           var opts = d.type === 'true_false' ? ['True','False'] : (d.options || []);
           return { q: d.question, options: opts, answer: d.answer, type: d.type || 'multiple_choice', explanation: d.explanation || '', explanationMode: d.explanationMode || 'single', choiceExplanations: d.choiceExplanations || {}, pairs: d.pairs || [], alternateAnswers: d.alternateAnswers || [], imgs: d.imgs || {} };
         });
+        questions = questions.flatMap(function(q) {
+          if (q.type !== 'matching' || !Array.isArray(q.pairs) || q.pairs.length === 0) return [q];
+          return q.pairs.map(function(pair, idx) {
+            return { q: q.q + ' - ' + pair.left, options: [pair.right], answer: pair.right, type: 'matching', explanation: q.explanation, explanationMode: q.explanationMode, choiceExplanations: q.choiceExplanations, pairs: [pair], alternateAnswers: q.alternateAnswers, imgs: q.imgs, _matchingParent: q, _matchingIndex: idx };
+          });
+        });
       } else {
         questions = getFallback(course, level);
       }
@@ -514,7 +545,7 @@
 
     /* Question text */
     var qText = document.createElement('div');
-    qText.className = 'question-text';
+    qText.className = 'question-text text-size-' + (q.textSize || 16);
     qText.textContent = q.q;
     wrap.appendChild(qText);
 
@@ -614,6 +645,7 @@
           expBox.appendChild(eImg);
         }
       }
+      expBox.className += ' text-size-' + (q.textSize || 16);
       wrap.appendChild(expBox);
     }
 
