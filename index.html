@@ -565,8 +565,34 @@
     #examReviewSection { display:none; margin-top:24px; padding:0 16px 16px; }
     #examReviewSection h3 { color:#1e3c72; margin-bottom:14px; font-size:1.1em; }
     .q-type-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.75em; font-weight:700; margin-bottom:10px; }
-    .q-type-badge.mc { background:#e3f2fd; color:#1565c0; }
-    .q-type-badge.tf { background:#f3e5f5; color:#6a1b9a; }
+    .q-type-badge.mc      { background:#e3f2fd; color:#1565c0; }
+    .q-type-badge.tf      { background:#f3e5f5; color:#6a1b9a; }
+    .q-type-badge.match   { background:#fff3e0; color:#e65100; }
+    .q-type-badge.fitb    { background:#e8f5e9; color:#1b5e20; }
+    /* MATCHING question */
+    .matching-wrap { width:100%; border-collapse:collapse; display:table; }
+    .matching-row { display:table-row; }
+    .matching-cell { display:table-cell; padding:10px 8px; border-bottom:1px solid #ede9e3; vertical-align:middle; }
+    .matching-left { font-weight:600; color:#1e3c72; width:42%; }
+    .matching-arrow { color:#aaa; font-size:1em; padding:0 6px; width:6%; text-align:center; }
+    .match-select { width:100%; padding:9px 10px; border:2px solid #ddd; border-radius:8px; font-size:0.93em; background:#fff; cursor:pointer; transition:border-color 0.2s, background 0.2s; }
+    .match-select.correct { border-color:#4caf50; background:#e8f5e9; }
+    .match-select.wrong   { border-color:#e53935; background:#ffebee; }
+    .match-select:disabled { cursor:not-allowed; opacity:0.85; }
+    /* FILL-IN-THE-BLANK question */
+    .fitb-wrap { padding:12px 8px; }
+    .fitb-input { width:100%; padding:11px 14px; border:2px solid #ddd; border-radius:10px; font-size:1em; box-sizing:border-box; margin-top:6px; transition:border-color 0.2s, background 0.2s; }
+    .fitb-input.correct { border-color:#4caf50; background:#e8f5e9; }
+    .fitb-input.wrong   { border-color:#e53935; background:#ffebee; }
+    .fitb-input:disabled { cursor:not-allowed; opacity:0.85; }
+    .fitb-result-msg { font-size:0.9em; margin-top:6px; font-weight:700; }
+    .fitb-result-msg.correct { color:#2e7d32; }
+    .fitb-result-msg.wrong   { color:#c62828; }
+    /* Admin matching pair builder */
+    .matching-pair-row { display:grid; grid-template-columns:1fr 18px 1fr 30px; gap:8px; align-items:center; margin-bottom:8px; }
+    .matching-pair-row input { padding:9px 12px; border:2px solid #e0e0e0; border-radius:8px; font-size:0.92em; width:100%; box-sizing:border-box; }
+    .matching-pair-row input:focus { border-color:#2980b9; outline:none; }
+    .matching-pair-remove { background:#e53935; color:white; border:none; border-radius:6px; padding:5px 8px; cursor:pointer; font-size:0.82em; line-height:1; }
 
     @media(max-width:768px){
       h1{font-size:1.9em;}
@@ -964,7 +990,7 @@
                 '<span class="exam-tag tag-course">'+(exam.course||'')+'</span>'+
                 '<span class="exam-tag tag-chap">Ch '+(exam.chapter||'')+'</span>'+
                 '<span class="exam-tag tag-diff">'+(exam.difficulty||'')+'</span>'+
-                '<span class="exam-tag tag-type">'+(exam.type==='true_false'?'True/False':'Multiple Choice')+'</span>'+
+                '<span class="exam-tag tag-type">'+({'multiple_choice':'Multiple Choice','true_false':'True/False','matching':'Matching','fill_in_blank':'Fill in Blank'}[exam.type]||exam.type)+'</span>'+
               '</div>'+
             '</div>'+
             '<div class="exam-list-actions">'+
@@ -1012,11 +1038,15 @@
       document.getElementById('ef_explanation').value='';
       var ts=document.getElementById('ef_textsize'); if(ts){ts.value=16; document.getElementById('ef_textsize_val').textContent='16px';}
       ['ef_optA','ef_optB','ef_optC','ef_optD'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-      /* reset per-choice explanations */
       ['ef_cexp_A','ef_cexp_B','ef_cexp_C','ef_cexp_D','ef_cexp_True','ef_cexp_False'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
       var em=document.getElementById('ef_expmode_single'); if(em) em.checked=true;
       var ems=document.getElementById('ef_exp_single_section'); if(ems) ems.style.display='block';
       var emc=document.getElementById('ef_exp_choice_section'); if(emc) emc.style.display='none';
+      /* reset matching pairs */
+      var mp = document.getElementById('ef_matching_pairs'); if(mp) mp.innerHTML='';
+      /* reset FITB fields */
+      var fa=document.getElementById('ef_fitb_answer'); if(fa) fa.value='';
+      var fal=document.getElementById('ef_fitb_alternates'); if(fal) fal.value='';
       clearAllExamImgs();
       updateExamFormType();
     }
@@ -1043,17 +1073,25 @@
       document.getElementById('ef_difficulty').value=d.difficulty||'low';
       document.getElementById('ef_type').value=d.type||'multiple_choice';
       document.getElementById('ef_question').value=d.question||'';
-      document.getElementById('ef_answer').value=d.answer||'';
       document.getElementById('ef_explanation').value=d.explanation||'';
       var ts=document.getElementById('ef_textsize'); var tsv=d.textSize||16;
       if(ts){ts.value=tsv; document.getElementById('ef_textsize_val').textContent=tsv+'px';}
+      /* reset matching pairs before populating */
+      var mpDiv = document.getElementById('ef_matching_pairs'); if(mpDiv) mpDiv.innerHTML='';
       updateExamFormType();
       if(d.type==='multiple_choice' && d.options){
-        var opts=['A','B','C','D'];
-        opts.forEach(function(o,i){
-          var el=document.getElementById('ef_opt'+o);
-          if(el) el.value=d.options[i]||'';
+        ['A','B','C','D'].forEach(function(o,i){
+          var el=document.getElementById('ef_opt'+o); if(el) el.value=d.options[i]||'';
         });
+        document.getElementById('ef_answer').value=d.answer||'';
+      } else if(d.type==='true_false'){
+        document.getElementById('ef_answer').value=d.answer||'';
+      } else if(d.type==='matching'){
+        (d.pairs||[]).forEach(function(p){ addMatchingPair(p.left, p.right); });
+      } else if(d.type==='fill_in_blank'){
+        var fa=document.getElementById('ef_fitb_answer'); if(fa) fa.value=d.answer||'';
+        var fal=document.getElementById('ef_fitb_alternates');
+        if(fal) fal.value=(d.alternateAnswers||[]).join(', ');
       }
       /* restore per-choice explanations */
       var expMode = d.explanationMode || 'single';
@@ -1124,21 +1162,65 @@
     }
 
     window.updateExamFormType = function(){
-      var type = document.getElementById('ef_type').value;
-      var mcSection = document.getElementById('ef_mc_section');
-      var tfNote    = document.getElementById('ef_tf_note');
-      var answerSel = document.getElementById('ef_answer');
-      if(type==='true_false'){
-        mcSection.style.display='none';
-        tfNote.style.display='block';
-        answerSel.innerHTML='<option value="">-- Select correct answer --</option><option value="True">True</option><option value="False">False</option>';
-      } else {
-        mcSection.style.display='block';
-        tfNote.style.display='none';
-        answerSel.innerHTML='<option value="">-- Select correct answer --</option><option value="A">Option A</option><option value="B">Option B</option><option value="C">Option C</option><option value="D">Option D</option>';
+      var type         = document.getElementById('ef_type').value;
+      var mcSection    = document.getElementById('ef_mc_section');
+      var tfNote       = document.getElementById('ef_tf_note');
+      var matchSection = document.getElementById('ef_matching_section');
+      var fitbSection  = document.getElementById('ef_fitb_section');
+      var answerGroup  = document.getElementById('ef_answer_group');
+      var answerSel    = document.getElementById('ef_answer');
+
+      mcSection.style.display    = 'none';
+      tfNote.style.display       = 'none';
+      matchSection.style.display = 'none';
+      fitbSection.style.display  = 'none';
+      answerGroup.style.display  = 'block';
+
+      if (type === 'multiple_choice') {
+        mcSection.style.display = 'block';
+        answerSel.innerHTML = '<option value="">-- Select correct answer --</option><option value="A">Option A</option><option value="B">Option B</option><option value="C">Option C</option><option value="D">Option D</option>';
+      } else if (type === 'true_false') {
+        tfNote.style.display = 'block';
+        answerSel.innerHTML = '<option value="">-- Select correct answer --</option><option value="True">True</option><option value="False">False</option>';
+      } else if (type === 'matching') {
+        matchSection.style.display = 'block';
+        answerGroup.style.display  = 'none';
+        var pairs = document.getElementById('ef_matching_pairs');
+        if (pairs && pairs.children.length === 0) {
+          addMatchingPair(); addMatchingPair(); addMatchingPair();
+        }
+      } else if (type === 'fill_in_blank') {
+        fitbSection.style.display = 'block';
+        answerGroup.style.display = 'none';
       }
       updateChoiceExpLabels();
     };
+
+    var _mpCount = 0;
+    window.addMatchingPair = function(left, right){
+      _mpCount++;
+      var id  = 'mprow_' + _mpCount;
+      var row = document.createElement('div');
+      row.className = 'matching-pair-row';
+      row.id = id;
+      row.innerHTML =
+        '<input type="text" class="mp-left" placeholder="Left (prompt)" value="' + (left ? left.replace(/"/g,'&quot;') : '') + '">' +
+        '<span style="color:#aaa;font-weight:900;text-align:center;">→</span>' +
+        '<input type="text" class="mp-right" placeholder="Right (answer)" value="' + (right ? right.replace(/"/g,'&quot;') : '') + '">' +
+        '<button type="button" class="matching-pair-remove" onclick="removeMatchingPair(\'' + id + '\')">✕</button>';
+      document.getElementById('ef_matching_pairs').appendChild(row);
+    };
+    window.removeMatchingPair = function(id){
+      var el = document.getElementById(id); if(el) el.parentNode.removeChild(el);
+    };
+    function getMatchingPairs(){
+      var pairs = [];
+      document.querySelectorAll('#ef_matching_pairs .matching-pair-row').forEach(function(row){
+        var l = row.querySelector('.mp-left'); var r = row.querySelector('.mp-right');
+        if(l && r && l.value.trim() && r.value.trim()) pairs.push({left:l.value.trim(), right:r.value.trim()});
+      });
+      return pairs;
+    }
 
     window.saveExam = async function(){
       var course      = document.getElementById('ef_course').value;
@@ -1146,27 +1228,42 @@
       var difficulty  = document.getElementById('ef_difficulty').value;
       var type        = document.getElementById('ef_type').value;
       var question    = document.getElementById('ef_question').value.trim();
-      var answerKey   = document.getElementById('ef_answer').value;
       var expMode     = document.querySelector('input[name="ef_expmode"]:checked') ? document.querySelector('input[name="ef_expmode"]:checked').value : 'single';
       var explanation = document.getElementById('ef_explanation').value.trim();
 
-      if(!course||!chapter||!difficulty||!type||!question||!answerKey){
-        showToast('Please fill all required fields (Course, Chapter, Difficulty, Type, Question, Answer).'); return;
+      if(!course||!chapter||!difficulty||!type||!question){
+        showToast('Please fill all required fields (Course, Chapter, Difficulty, Type, Question).'); return;
       }
 
-      var options=[], answer='';
+      var options=[], answer='', pairs=[], alternateAnswers=[];
+
       if(type==='multiple_choice'){
+        var answerKey = document.getElementById('ef_answer').value;
         var A=document.getElementById('ef_optA').value.trim();
         var B=document.getElementById('ef_optB').value.trim();
         var C=document.getElementById('ef_optC').value.trim();
         var D=document.getElementById('ef_optD').value.trim();
         if(!A||!B||!C||!D){ showToast('Please fill all four answer options.'); return; }
+        if(!answerKey){ showToast('Please select the correct answer.'); return; }
         options=[A,B,C,D];
-        var map={'A':A,'B':B,'C':C,'D':D};
-        answer=map[answerKey]||answerKey;
-      } else {
+        answer={'A':A,'B':B,'C':C,'D':D}[answerKey]||answerKey;
+
+      } else if(type==='true_false'){
+        var answerKey2 = document.getElementById('ef_answer').value;
+        if(!answerKey2){ showToast('Please select True or False as the correct answer.'); return; }
         options=['True','False'];
-        answer=answerKey;
+        answer=answerKey2;
+
+      } else if(type==='matching'){
+        pairs = getMatchingPairs();
+        if(pairs.length < 2){ showToast('Please add at least 2 matching pairs.'); return; }
+
+      } else if(type==='fill_in_blank'){
+        var fitbAns = document.getElementById('ef_fitb_answer').value.trim();
+        if(!fitbAns){ showToast('Please enter the correct answer for the blank.'); return; }
+        answer = fitbAns;
+        var alts = document.getElementById('ef_fitb_alternates').value.trim();
+        alternateAnswers = alts ? alts.split(',').map(function(s){ return s.trim(); }).filter(Boolean) : [];
       }
 
       var textSize = parseInt(document.getElementById('ef_textsize').value)||16;
@@ -1182,14 +1279,14 @@
           choiceExplanations[options[1]] = ce_B ? ce_B.value.trim() : '';
           choiceExplanations[options[2]] = ce_C ? ce_C.value.trim() : '';
           choiceExplanations[options[3]] = ce_D ? ce_D.value.trim() : '';
-        } else {
+        } else if(type==='true_false'){
           var ce_T=document.getElementById('ef_cexp_True'); var ce_F=document.getElementById('ef_cexp_False');
           choiceExplanations['True']  = ce_T ? ce_T.value.trim() : '';
           choiceExplanations['False'] = ce_F ? ce_F.value.trim() : '';
         }
       }
 
-      var data = { course, chapter, difficulty, type, question, options, answer, explanation, explanationMode: expMode, choiceExplanations, textSize, imgs, updatedAt:new Date() };
+      var data = { course, chapter, difficulty, type, question, options, answer, pairs, alternateAnswers, explanation, explanationMode: expMode, choiceExplanations, textSize, imgs, updatedAt:new Date() };
 
       try {
         if(editingExamId){
@@ -1712,7 +1809,7 @@
           _examQuestions = snap.docs.map(function(doc) {
             var d = doc.data();
             var opts = d.type === 'true_false' ? ['True','False'] : (d.options || []);
-            return { q: d.question, options: opts, answer: d.answer, type: d.type || 'multiple_choice', explanation: d.explanation || '', explanationMode: d.explanationMode || 'single', choiceExplanations: d.choiceExplanations || {}, imgs: d.imgs || {} };
+            return { q: d.question, options: opts, answer: d.answer, type: d.type || 'multiple_choice', explanation: d.explanation || '', explanationMode: d.explanationMode || 'single', choiceExplanations: d.choiceExplanations || {}, imgs: d.imgs || {}, pairs: d.pairs || [], alternateAnswers: d.alternateAnswers || [] };
           });
         } else {
           _examQuestions = _getFallback(_examCourse, _examLevel);
@@ -1726,9 +1823,37 @@
 
     function _updateExamProgress() {
       var total    = _examQuestions.length;
-      var answered = _examAnswers.filter(function(a){ return a !== null; }).length;
+      var answered = _examAnswers.filter(function(a){
+        if (a === null || a === undefined) return false;
+        if (Array.isArray(a)) return a.some(function(v){ return v; });
+        return a !== '';
+      }).length;
       document.getElementById('examProgressLabel').textContent = answered + ' of ' + total + ' answered';
       document.getElementById('examProgressBar').style.width = Math.round((answered / total) * 100) + '%';
+    }
+
+    function _isAnswerCorrect(i) {
+      var q = _examQuestions[i];
+      var a = _examAnswers[i];
+      if (a === null || a === undefined) return false;
+      if (q.type === 'matching') {
+        if (!Array.isArray(a) || !Array.isArray(q.pairs)) return false;
+        for (var j = 0; j < q.pairs.length; j++) {
+          if ((a[j] || '') !== q.pairs[j].right) return false;
+        }
+        return true;
+      }
+      if (q.type === 'fill_in_blank') {
+        var correct = (q.answer || '').toLowerCase().trim();
+        var student = (a || '').toLowerCase().trim();
+        if (!student) return false;
+        if (student === correct) return true;
+        if (Array.isArray(q.alternateAnswers)) {
+          return q.alternateAnswers.some(function(alt){ return (alt||'').toLowerCase().trim() === student; });
+        }
+        return false;
+      }
+      return a === q.answer;
     }
 
     function _buildQuestionEl(index, lockAndColor) {
@@ -1737,6 +1862,7 @@
       wrap.className = 'question';
       wrap.id = 'qwrap_' + index;
 
+      /* ── Header row: Q number + type badge ── */
       var numRow = document.createElement('div');
       numRow.className = 'q-num-row';
       var numEl = document.createElement('span');
@@ -1745,6 +1871,17 @@
       numRow.appendChild(numEl);
       var numActions = document.createElement('div');
       numActions.className = 'q-num-actions';
+      if (q.type === 'matching') {
+        var badge = document.createElement('span');
+        badge.className = 'q-type-badge match';
+        badge.textContent = 'Matching';
+        numActions.appendChild(badge);
+      } else if (q.type === 'fill_in_blank') {
+        var badge2 = document.createElement('span');
+        badge2.className = 'q-type-badge fitb';
+        badge2.textContent = 'Fill in Blank';
+        numActions.appendChild(badge2);
+      }
       numRow.appendChild(numActions);
       wrap.appendChild(numRow);
 
@@ -1765,92 +1902,202 @@
         wrap.appendChild(qImg);
       }
 
-      var optList = document.createElement('div');
-      optList.className = 'options-list';
-      var optKeys = ['optA','optB','optC','optD'];
+      /* ── MATCHING type ── */
+      if (q.type === 'matching') {
+        var pairs = q.pairs || [];
+        var rightItems = pairs.map(function(p){ return p.right; });
+        /* shuffle for student view */
+        var shuffled = rightItems.slice().sort(function(){ return Math.random()-0.5; });
 
-      q.options.forEach(function(opt, oi) {
-        var btn = document.createElement('button');
-        btn.className = 'option';
-        btn.setAttribute('data-value', opt);
+        var matchWrap = document.createElement('div');
+        matchWrap.className = 'matching-wrap';
+        matchWrap.style.padding = '0 8px';
 
-        var circle = document.createElement('span');
-        circle.className = 'radio-circle';
-        btn.appendChild(circle);
+        pairs.forEach(function(pair, pi) {
+          var row = document.createElement('div');
+          row.className = 'matching-row';
 
-        var txt = document.createTextNode(opt);
-        btn.appendChild(txt);
+          var leftCell = document.createElement('div');
+          leftCell.className = 'matching-cell matching-left';
+          leftCell.textContent = pair.left;
 
-        var optImgKey = optKeys[oi];
-        if (imgs[optImgKey]) {
-          var oImg = document.createElement('img');
-          oImg.src = imgs[optImgKey]; oImg.className = 'opt-img'; oImg.alt = 'option image';
-          btn.appendChild(oImg);
-        }
+          var arrowCell = document.createElement('div');
+          arrowCell.className = 'matching-cell matching-arrow';
+          arrowCell.textContent = '→';
+
+          var rightCell = document.createElement('div');
+          rightCell.className = 'matching-cell';
+          rightCell.style.width = '52%';
+
+          var sel = document.createElement('select');
+          sel.className = 'match-select';
+          sel.id = 'match_' + index + '_' + pi;
+          var placeholder = document.createElement('option');
+          placeholder.value = ''; placeholder.textContent = '-- Select --';
+          sel.appendChild(placeholder);
+          shuffled.forEach(function(item) {
+            var opt = document.createElement('option');
+            opt.value = item; opt.textContent = item;
+            sel.appendChild(opt);
+          });
+
+          if (lockAndColor) {
+            sel.disabled = true;
+            var userSel = (_examAnswers[index] || [])[pi];
+            if (userSel) sel.value = userSel;
+            if (userSel === pair.right) sel.classList.add('correct');
+            else sel.classList.add('wrong');
+          } else {
+            var curAns = _examAnswers[index];
+            if (Array.isArray(curAns) && curAns[pi]) sel.value = curAns[pi];
+            sel.onchange = function() {
+              var cur = Array.isArray(_examAnswers[index]) ? _examAnswers[index] : new Array(pairs.length).fill('');
+              cur[pi] = sel.value;
+              _examAnswers[index] = cur;
+              _updateExamProgress();
+              if (_examMode === 'instant') {
+                sel.classList.remove('correct','wrong');
+                if (sel.value === pair.right) sel.classList.add('correct');
+                else if (sel.value) sel.classList.add('wrong');
+              }
+            };
+          }
+          rightCell.appendChild(sel);
+          row.appendChild(leftCell); row.appendChild(arrowCell); row.appendChild(rightCell);
+          matchWrap.appendChild(row);
+        });
+        wrap.appendChild(matchWrap);
+
+      /* ── FILL IN THE BLANK type ── */
+      } else if (q.type === 'fill_in_blank') {
+        var fitbWrap = document.createElement('div');
+        fitbWrap.className = 'fitb-wrap';
+
+        var inp = document.createElement('input');
+        inp.type = 'text';
+        inp.className = 'fitb-input';
+        inp.placeholder = 'Type your answer here...';
+        inp.id = 'fitb_' + index;
+
+        var msg = document.createElement('div');
+        msg.className = 'fitb-result-msg';
 
         if (lockAndColor) {
-          btn.disabled = true;
-          var userAns = _examAnswers[index];
-          if (opt === q.answer) btn.classList.add('correct');
-          else if (opt === userAns && userAns !== q.answer) btn.classList.add('wrong');
+          inp.disabled = true;
+          var storedAns = _examAnswers[index] || '';
+          inp.value = storedAns;
+          if (_isAnswerCorrect(index)) { inp.classList.add('correct'); msg.className += ' correct'; msg.textContent = '✓ Correct!'; }
+          else { inp.classList.add('wrong'); msg.className += ' wrong'; msg.textContent = '✗ Correct answer: ' + q.answer; }
         } else {
-          if (_examAnswers[index] === opt) btn.classList.add('selected');
-          btn.onclick = function() { _selectAnswer(opt, index, wrap); };
+          inp.value = _examAnswers[index] || '';
+          var applyFitb = function() {
+            var val = inp.value.trim();
+            _examAnswers[index] = val;
+            _updateExamProgress();
+            if (_examMode === 'instant' && val) {
+              inp.classList.remove('correct','wrong');
+              msg.textContent = '';
+              if (_isAnswerCorrect(index)) { inp.classList.add('correct'); msg.className = 'fitb-result-msg correct'; msg.textContent = '✓ Correct!'; }
+              else { inp.classList.add('wrong'); msg.className = 'fitb-result-msg wrong'; msg.textContent = '✗ Correct answer: ' + q.answer; }
+            }
+          };
+          inp.oninput = function() { _examAnswers[index] = inp.value; _updateExamProgress(); };
+          inp.onblur  = applyFitb;
+          inp.onkeydown = function(e){ if(e.key==='Enter') applyFitb(); };
         }
-        optList.appendChild(btn);
-      });
-      wrap.appendChild(optList);
+        fitbWrap.appendChild(inp);
+        fitbWrap.appendChild(msg);
+        wrap.appendChild(fitbWrap);
 
-      if (_examLevel === 'low' && !lockAndColor) {
-        var hintBtn = document.createElement('button');
-        hintBtn.className = 'hint-btn visible';
-        hintBtn.id = 'hintBtn_' + index;
-        hintBtn.innerHTML = '&#9651; Hint';
-        var hintBox = document.createElement('div');
-        hintBox.className = 'hint-box';
-        hintBox.id = 'hintBox_' + index;
-        var hintText = q.hint || ('Hint: the correct answer starts with "' + (q.answer ? q.answer.charAt(0) : '?') + '"');
-        hintBox.textContent = hintText;
-        hintBtn.onclick = function(){
-          hintBox.style.display = (hintBox.style.display === 'block') ? 'none' : 'block';
-        };
-        wrap.appendChild(hintBtn);
-        wrap.appendChild(hintBox);
+      /* ── MULTIPLE CHOICE / TRUE-FALSE types ── */
+      } else {
+        var optList = document.createElement('div');
+        optList.className = 'options-list';
+        var optKeys = ['optA','optB','optC','optD'];
+
+        q.options.forEach(function(opt, oi) {
+          var btn = document.createElement('button');
+          btn.className = 'option';
+          btn.setAttribute('data-value', opt);
+
+          var circle = document.createElement('span');
+          circle.className = 'radio-circle';
+          btn.appendChild(circle);
+
+          btn.appendChild(document.createTextNode(opt));
+
+          var optImgKey = optKeys[oi];
+          if (imgs[optImgKey]) {
+            var oImg = document.createElement('img');
+            oImg.src = imgs[optImgKey]; oImg.className = 'opt-img'; oImg.alt = 'option image';
+            btn.appendChild(oImg);
+          }
+
+          if (lockAndColor) {
+            btn.disabled = true;
+            var userAns = _examAnswers[index];
+            if (opt === q.answer) btn.classList.add('correct');
+            else if (opt === userAns && userAns !== q.answer) btn.classList.add('wrong');
+          } else {
+            if (_examAnswers[index] === opt) btn.classList.add('selected');
+            btn.onclick = function() { _selectAnswer(opt, index, wrap); };
+          }
+          optList.appendChild(btn);
+        });
+        wrap.appendChild(optList);
+
+        /* Hint (low difficulty only, MC/TF) */
+        if (_examLevel === 'low' && !lockAndColor) {
+          var hintBtn = document.createElement('button');
+          hintBtn.className = 'hint-btn visible';
+          hintBtn.innerHTML = '&#9651; Hint';
+          var hintBox = document.createElement('div');
+          hintBox.className = 'hint-box';
+          var hintText = q.hint || ('Hint: the correct answer starts with "' + (q.answer ? q.answer.charAt(0) : '?') + '"');
+          hintBox.textContent = hintText;
+          hintBtn.onclick = function(){ hintBox.style.display = hintBox.style.display==='block'?'none':'block'; };
+          wrap.appendChild(hintBtn);
+          wrap.appendChild(hintBox);
+        }
       }
 
-      var perChoiceMode = (q.explanationMode === 'per_choice');
-      var hasExplanation = perChoiceMode
-        ? (q.choiceExplanations && Object.keys(q.choiceExplanations).some(function(k){ return q.choiceExplanations[k]; }))
-        : (q.explanation || imgs.explanation);
+      /* ── Explanation (all types) ── */
+      if (q.type !== 'matching') {
+        var perChoiceMode = (q.explanationMode === 'per_choice');
+        var hasExplanation = perChoiceMode
+          ? (q.choiceExplanations && Object.keys(q.choiceExplanations).some(function(k){ return q.choiceExplanations[k]; }))
+          : (q.explanation || imgs.explanation);
 
-      if (hasExplanation) {
-        var expBtn = document.createElement('button');
-        expBtn.className = 'exp-toggle-btn' + (lockAndColor || (_examMode === 'instant' && _examAnswers[index] !== null) ? ' visible' : '');
-        expBtn.innerHTML = '&#9651; Explanation';
-        expBtn.onclick = function() {
-          var box = wrap.querySelector('.explanation-box');
-          box.style.display = (box.style.display === 'block') ? 'none' : 'block';
-        };
-        wrap.appendChild(expBtn);
+        if (hasExplanation) {
+          var answered = _examAnswers[index] !== null && _examAnswers[index] !== undefined && _examAnswers[index] !== '';
+          var expBtn = document.createElement('button');
+          expBtn.className = 'exp-toggle-btn' + (lockAndColor || (_examMode==='instant' && answered) ? ' visible' : '');
+          expBtn.innerHTML = '&#9651; Explanation';
+          expBtn.onclick = function() {
+            var box = wrap.querySelector('.explanation-box');
+            box.style.display = box.style.display==='block'?'none':'block';
+          };
+          wrap.appendChild(expBtn);
 
-        var expBox = document.createElement('div');
-        var isCorrect = _examAnswers[index] === q.answer;
-        expBox.className = 'explanation-box' + (!isCorrect && _examAnswers[index] !== null ? ' wrong-exp' : '');
-        expBox.style.display = 'none';
+          var expBox = document.createElement('div');
+          var isCorr = _isAnswerCorrect(index);
+          expBox.className = 'explanation-box' + (!isCorr && answered ? ' wrong-exp' : '');
+          expBox.style.display = 'none';
 
-        if (perChoiceMode) {
-          var chosenAns = _examAnswers[index];
-          var choiceText = chosenAns && q.choiceExplanations ? (q.choiceExplanations[chosenAns] || '') : '';
-          expBox.innerHTML = choiceText || '<em style="color:#999">No explanation for this choice.</em>';
-        } else {
-          expBox.innerHTML = q.explanation || '';
-          if (imgs.explanation) {
-            var eImg = document.createElement('img');
-            eImg.src = imgs.explanation; eImg.className = 'exp-img'; eImg.alt = 'explanation image';
-            expBox.appendChild(eImg);
+          if (perChoiceMode) {
+            var chosenAns = _examAnswers[index];
+            var choiceText = chosenAns && q.choiceExplanations ? (q.choiceExplanations[chosenAns]||'') : '';
+            expBox.innerHTML = choiceText || '<em style="color:#999">No explanation for this choice.</em>';
+          } else {
+            expBox.innerHTML = q.explanation || '';
+            if (imgs.explanation) {
+              var eImg = document.createElement('img');
+              eImg.src = imgs.explanation; eImg.className = 'exp-img'; eImg.alt = 'explanation image';
+              expBox.appendChild(eImg);
+            }
           }
+          wrap.appendChild(expBox);
         }
-        wrap.appendChild(expBox);
       }
 
       return wrap;
@@ -1926,7 +2173,7 @@
       document.getElementById('examQuestionsDiv').innerHTML     = '';
 
       var correct    = 0;
-      _examAnswers.forEach(function(a, i) { if (a === _examQuestions[i].answer) correct++; });
+      _examAnswers.forEach(function(a, i) { if (_isAnswerCorrect(i)) correct++; });
       var total      = _examQuestions.length;
       var percentage = Math.round((correct / total) * 100);
       var emoji      = percentage >= 80 ? '🌟' : percentage >= 50 ? '👍' : '📖';
@@ -2557,6 +2804,8 @@
               <select id="ef_type" onchange="updateExamFormType()">
                 <option value="multiple_choice">Multiple Choice (A/B/C/D)</option>
                 <option value="true_false">True or False</option>
+                <option value="matching">Matching</option>
+                <option value="fill_in_blank">Fill in the Blank</option>
               </select>
             </div>
           </div>
@@ -2584,10 +2833,26 @@
           </div>
           <!-- True/False Note -->
           <div id="ef_tf_note" style="display:none; background:#f3e5f5; padding:14px; border-radius:12px; color:#6a1b9a; font-size:0.92em;">
-            ℹ️ For True/False questions, the two options (True and False) are set automatically. You can still add images to the True (A) and False (B) image slots above if needed.
+            ℹ️ For True/False questions, the two options (True and False) are set automatically.
           </div>
-          <!-- Correct Answer -->
-          <div class="admin-form-group">
+          <!-- Matching Pairs Section -->
+          <div id="ef_matching_section" style="display:none;" class="admin-form-group">
+            <label>Matching Pairs * <span style="font-weight:400;color:#888;">(Left prompt → Correct right answer)</span></label>
+            <div id="ef_matching_pairs"></div>
+            <button type="button" onclick="addMatchingPair()" style="margin-top:6px;padding:9px 18px;background:#2980b9;color:white;border:none;border-radius:8px;cursor:pointer;font-size:0.92em;font-weight:700;">+ Add Pair</button>
+          </div>
+          <!-- Fill in the Blank Section -->
+          <div id="ef_fitb_section" style="display:none;" class="admin-form-group">
+            <label>Correct Answer * <span style="font-weight:400;color:#888;">(exact word/phrase the student must type)</span></label>
+            <input type="text" id="ef_fitb_answer" placeholder="e.g. Paris">
+            <label style="margin-top:12px;">Alternate Accepted Answers <span style="font-weight:400;color:#888;">(comma-separated, optional)</span></label>
+            <input type="text" id="ef_fitb_alternates" placeholder="e.g. paris, PARIS, City of Light">
+            <div style="margin-top:10px;background:#e8f5e9;padding:12px;border-radius:10px;font-size:0.88em;color:#1b5e20;">
+              💡 Use <strong>___</strong> (three underscores) in the question text to show where the blank goes — e.g. <em>"The capital of France is ___."</em>
+            </div>
+          </div>
+          <!-- Correct Answer (MC / TF only) -->
+          <div class="admin-form-group" id="ef_answer_group">
             <label>Correct Answer *</label>
             <select id="ef_answer">
               <option value="">-- Select correct answer --</option>
