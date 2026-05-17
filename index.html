@@ -2352,45 +2352,53 @@
         }
       }
 
-      /* ── MATCHING type — each pair as its own compact row, all inside one card ── */
+      /* For matching: keep Q-header + Matching badge, show rule text, A/B header, then pairs */
       if (q.type === 'matching') {
+        /* Rule text — admin writes this in the question field */
+        var ruleText = document.createElement('div');
+        ruleText.className = 'question-text';
+        ruleText.textContent = q.q;
+        wrap.appendChild(ruleText);
+
         var pairs = q.pairs || [];
         var rightItems = pairs.map(function(p){ return p.right; });
-        /* shuffle once so all rows share same options */
         var shuffled = rightItems.slice().sort(function(){ return Math.random()-0.5; });
 
-        /* Instruction text area — space for admin's rule/instruction in question field */
-        /* (q.q already rendered above as qText — nothing extra needed here) */
+        /* A / B column header */
+        var abHeader = document.createElement('div');
+        abHeader.style.cssText = 'display:flex;justify-content:space-between;padding:6px 0 6px;border-bottom:1.5px solid #e0e0e0;margin-top:10px;margin-bottom:4px;';
+        var aLabel = document.createElement('span');
+        aLabel.style.cssText = 'font-weight:700;color:#888;font-size:0.88em;';
+        aLabel.textContent = '"A"';
+        var bLabel = document.createElement('span');
+        bLabel.style.cssText = 'font-weight:700;color:#888;font-size:0.88em;';
+        bLabel.textContent = '"B"';
+        abHeader.appendChild(aLabel);
+        abHeader.appendChild(bLabel);
+        wrap.appendChild(abHeader);
 
-        /* Container for all pair rows — tight, no gaps, no dividers */
-        var matchContainer = document.createElement('div');
-        matchContainer.style.cssText = 'margin-top:10px;';
-
+        /* All pair rows inside one card */
         pairs.forEach(function(pair, pi) {
           _globalPairNum++;
           var pairNum = _globalPairNum;
 
-          /* One flat row per pair */
           var row = document.createElement('div');
-          row.style.cssText = 'display:flex;align-items:center;gap:6px;padding:4px 0;border:none;';
+          row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 0;border:none;';
 
-          /* Number label */
           var numLabel = document.createElement('span');
-          numLabel.style.cssText = 'font-weight:700;color:#1e3c72;font-size:0.92em;min-width:22px;flex-shrink:0;';
+          numLabel.style.cssText = 'font-weight:700;color:#1e3c72;font-size:0.95em;min-width:24px;flex-shrink:0;';
           numLabel.textContent = pairNum + '.';
 
-          /* Prompt text */
           var leftText = document.createElement('span');
-          leftText.style.cssText = 'flex:1;font-size:0.95em;color:#222;line-height:1.35;word-break:break-word;';
+          leftText.style.cssText = 'flex:1;font-size:0.97em;color:#222;line-height:1.4;word-break:break-word;';
           leftText.textContent = pair.left;
 
-          /* Small dropdown pinned to right */
           var sel = document.createElement('select');
           sel.className = 'match-select';
           sel.id = 'match_' + index + '_' + pi;
-          sel.style.cssText = 'width:80px;flex-shrink:0;padding:4px 2px;font-size:0.75em;border:2px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;margin-left:auto;';
+          sel.style.cssText = 'width:120px;flex-shrink:0;padding:8px 6px;font-size:0.88em;border:2px solid #ddd;border-radius:12px;background:#fff;cursor:pointer;';
           var placeholder = document.createElement('option');
-          placeholder.value = ''; placeholder.textContent = '—';
+          placeholder.value = ''; placeholder.textContent = '— select —';
           sel.appendChild(placeholder);
           shuffled.forEach(function(item) {
             var opt = document.createElement('option');
@@ -2425,10 +2433,8 @@
           row.appendChild(numLabel);
           row.appendChild(leftText);
           row.appendChild(sel);
-          matchContainer.appendChild(row);
+          wrap.appendChild(row);
         });
-
-        wrap.appendChild(matchContainer);
 
       /* ── FILL IN THE BLANK type ── */
       } else if (q.type === 'fill_in_blank') {
