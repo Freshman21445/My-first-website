@@ -972,13 +972,15 @@
         var snap = await getDocs(query(collection(db,'appUpdates'),where('active','==',true)));
         if(snap.empty) return null;
         var update = null;
+        var seenKey = 'seenUpdate_' + (cu ? cu.phone : '');
+        var seenId = localStorage.getItem(seenKey);
         snap.forEach(function(d){
           var data = d.data();
-          /* check if update is for this user specifically or for all */
+          if(d.id === seenId) return;
           if(data.targetAll === true){
-            update = data;
+            update = {id:d.id, ...data};
           } else if(data.targetPhone && cu && data.targetPhone === cu.phone){
-            update = data;
+            update = {id:d.id, ...data};
           }
         });
         return update;
@@ -991,11 +993,12 @@
       var update = await checkUpdateAvailable();
       if(!update){
         showToast('No update available right now.');
-        if(btn){ btn.querySelector('.opt-label span').textContent = 'Tap to update the app'; }
+        if(btn){ btn.querySelector('.opt-label span').textContent = 'Tap to update the app'; btn.style.display='none'; }
         return;
       }
       if(confirm('Update available!\n\n' + (update.message||'A new version is ready.') + '\n\nUpdate now?')){
-        /* clear SW cache and reload */
+        var seenKey = 'seenUpdate_' + (cu ? cu.phone : '');
+        localStorage.setItem(seenKey, update.id);
         if('serviceWorker' in navigator && navigator.serviceWorker.controller){
           navigator.serviceWorker.controller.postMessage({type:'SKIP_WAITING'});
         }
@@ -1007,6 +1010,8 @@
         } else {
           window.location.reload(true);
         }
+      } else {
+        if(btn) btn.querySelector('.opt-label span').textContent = 'Tap to update the app';
       }
     };
 
@@ -1019,7 +1024,6 @@
         btn.style.display = update ? 'flex' : 'none';
       }
     };
-
     /* ── ADMIN: UPDATE MANAGEMENT ── */
     window.openAdminUpdates = function(){
       adminGoTo('adminUpdatesDash');
