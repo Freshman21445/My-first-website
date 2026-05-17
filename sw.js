@@ -8,8 +8,8 @@ const OFFLINE_URL = '/index.html';
 
 /* Files to cache immediately on install */
 const PRE_CACHE = [
-  '/index.html',
-  '/manifest.json'
+  '/My-first-website/index.html',
+  '/My-first-website/manifest.json'
 ];
 
 /* ── INSTALL: pre-cache core files ── */
