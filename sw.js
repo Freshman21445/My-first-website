@@ -1,10 +1,10 @@
 const CACHE_NAME = 'ethiometric-v1';
 
-// Files to cache for offline use
+// Files to cache for offline use – use the REAL filenames on GitHub
 const FILES_TO_CACHE = [
   '/',
-  '/index%20(5).html',
-  '/exam%20(4).html',
+  '/index.html',
+  '/exam.html',
   '/manifest.json'
 ];
 
@@ -15,7 +15,6 @@ self.addEventListener('install', event => {
       return cache.addAll(FILES_TO_CACHE);
     })
   );
-  // Force the waiting service worker to become active
   self.skipWaiting();
 });
 
@@ -24,14 +23,11 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Return cached response if found
         if (response) {
           return response;
         }
-        // Otherwise fetch from network
         return fetch(event.request).catch(() => {
-          // Optional: return a custom offline page
-          return caches.match('/index%20(5).html');
+          return caches.match('/index.html');
         });
       })
   );
