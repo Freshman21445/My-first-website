@@ -2312,16 +2312,17 @@
 
         /* Hint (low difficulty only, MC/TF) */
         if (_examLevel === 'low' && !lockAndColor) {
-          var hintBtn = document.createElement('button');
-          hintBtn.className = 'hint-btn visible';
-          hintBtn.innerHTML = '&#9651; Hint';
-          var hintBox = document.createElement('div');
-          hintBox.className = 'hint-box';
-          var hintText = q.hint || ('Hint: the correct answer starts with "' + (q.answer ? q.answer.charAt(0) : '?') + '"');
-          hintBox.textContent = hintText;
-          hintBtn.onclick = function(){ hintBox.style.display = hintBox.style.display==='block'?'none':'block'; };
-          wrap.appendChild(hintBtn);
-          wrap.appendChild(hintBox);
+          if(q.hint && q.hint.trim()){
+  var hintBtn = document.createElement('button');
+  hintBtn.className = 'hint-btn visible';
+  hintBtn.innerHTML = '&#9651; Hint';
+  var hintBox = document.createElement('div');
+  hintBox.className = 'hint-box';
+  hintBox.textContent = q.hint.trim();
+  hintBtn.onclick = function(){ hintBox.style.display = hintBox.style.display==='block'?'none':'block'; };
+  wrap.appendChild(hintBtn);
+  wrap.appendChild(hintBox);
+          }
         }
       }
 
