@@ -3243,5 +3243,20 @@
 
   console.log('EthioMetric Dashboard with Admin Panel Loaded! 🎓🛡️');
 </script>
-<script src="https://replit-cdn.com/replit-pill/replit-pill.global.js" data-repl-id="e49db4d8-3d7c-4627-9354-31465b740e8a"></script></body>
+<script src="https://replit-cdn.com/replit-pill/replit-pill.global.js" data-repl-id="e49db4d8-3d7c-4627-9354-31465b740e8a"></script>
+  <script>
+  // Register Service Worker for offline PWA
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js')
+        .then(function(reg) {
+          console.log('Service Worker registered successfully!', reg);
+        })
+        .catch(function(err) {
+          console.log('Service Worker registration failed:', err);
+        });
+    });
+  }
+  </script>
+</body>
 </html>
