@@ -3235,5 +3235,19 @@
 
   console.log('EthioMetric Dashboard with Admin Panel Loaded! 🎓🛡️');
 </script>
+  <script>
+  // Register Service Worker for offline PWA
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js')
+        .then(function(reg) {
+          console.log('Service Worker registered successfully!', reg);
+        })
+        .catch(function(err) {
+          console.log('Service Worker registration failed:', err);
+        });
+    });
+  }
+  </script>
 </body>
 </html>
