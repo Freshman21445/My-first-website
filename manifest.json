@@ -1,0 +1,20 @@
+{
+  "name": "EthioMetric Exam System",
+  "short_name": "EthioMetric",
+  "start_url": "/index%20(5).html",
+  "display": "standalone",
+  "theme_color": "#1E88E5",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
