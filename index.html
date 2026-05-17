@@ -1040,7 +1040,11 @@
         ? '🔄 Update' + (update.count > 1 ? 's' : '') + ' Available!\n\n' + update.message + '\n\nThe app will reload to apply the update' + (update.count > 1 ? 's' : '') + '.\n\nUpdate now?'
         : '🔄 Update' + (update.count > 1 ? 's' : '') + ' Available!\n\nThe app will reload to apply the update' + (update.count > 1 ? 's' : '') + '.\n\nUpdate now?';
       if(confirm(msg)){
-        /* Don't save seenIds here — if reload fails the update stays visible */
+        /* Save seenIds NOW so banner stays hidden after reload */
+        var seenKey = 'seenUpdate_' + (cu ? cu.phone : '');
+        var seenIds = JSON.parse(localStorage.getItem(seenKey) || '[]');
+        update.ids.forEach(function(id){ if(seenIds.indexOf(id) === -1) seenIds.push(id); });
+        localStorage.setItem(seenKey, JSON.stringify(seenIds));
         if('serviceWorker' in navigator && navigator.serviceWorker.controller){
           navigator.serviceWorker.controller.postMessage({type:'SKIP_WAITING'});
         }
@@ -1053,7 +1057,7 @@
           window.location.reload(true);
         }
       } else {
-        /* User cancelled — do NOT save seenIds, banner stays visible */
+        /* User cancelled — banner stays visible, no seenIds saved */
         if(btn) btn.querySelector('.opt-label span').textContent = 'Tap to update the app';
       }
     };
