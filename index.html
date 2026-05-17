@@ -3290,7 +3290,8 @@
         sw.js must be in the SAME folder as index.html */
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-      navigator.serviceWorker.register('sw.js')
+  
+        navigator.serviceWorker.register('/My-first-website/sw.js')
         .then(function(reg) {
           console.log('[PWA] Service Worker registered ✓', reg.scope);
         })
