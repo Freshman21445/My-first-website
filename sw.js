@@ -122,12 +122,11 @@ self.addEventListener('fetch', function(event) {
         });
         return networkResponse;
       }).catch(function() {
-        /* Network failed — serve offline fallback page */
-        if (event.request.mode === 'navigate') {
-          return caches.match(OFFLINE_URL);
-        }
-        return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
-      });
+  if (event.request.mode === 'navigate') {
+    return caches.match(OFFLINE_URL);
+  }
+  return new Response('', { status: 200 });
+});
     })
   );
 });
