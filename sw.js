@@ -4,8 +4,7 @@
    ============================================================ */
 
 const CACHE_NAME = 'ethiometric-v1';
-const OFFLINE_URL = '/index.html';
-
+const OFFLINE_URL = '/My-first-website/index.html';
 /* Files to cache immediately on install */
 const PRE_CACHE = [
   '/My-first-website/index.html',
