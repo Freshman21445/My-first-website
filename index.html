@@ -980,12 +980,9 @@
       try {
         var snap = await getDocs(query(collection(db,'appUpdates'),where('active','==',true)));
         if(snap.empty) return null;
-        var seenKey = 'seenUpdate_' + (cu ? cu.phone : '');
-        var seenIds = JSON.parse(localStorage.getItem(seenKey) || '[]');
         var updates = [];
         snap.forEach(function(d){
           var data = d.data();
-          if(seenIds.indexOf(d.id) !== -1) return;
           if(data.targetAll === true){
             updates.push({id:d.id, message:data.message||'', createdAt:data.createdAt});
           } else if(data.targetPhone && cu && data.targetPhone === cu.phone){
@@ -1056,13 +1053,8 @@
           window.location.reload(true);
         }
       } else {
-        /* User dismissed — mark all as seen so they are not nagged this session */
-        var seenKey = 'seenUpdate_' + (cu ? cu.phone : '');
-        var seenIds = JSON.parse(localStorage.getItem(seenKey) || '[]');
-        update.ids.forEach(function(id){ if(seenIds.indexOf(id) === -1) seenIds.push(id); });
-        localStorage.setItem(seenKey, JSON.stringify(seenIds));
+        /* User cancelled — do NOT save seenIds, banner stays visible */
         if(btn) btn.querySelector('.opt-label span').textContent = 'Tap to update the app';
-        _applyUpdateUI(null);
       }
     };
 
@@ -1072,6 +1064,8 @@
       var update = await checkUpdateAvailable();
       _applyUpdateUI(update);
     };
+    /* Poll every 2 minutes — banner appears without needing re-login */
+    setInterval(function(){ if(cu) window._silentUpdateCheck(); }, 120000);
 
     /* ── ADMIN: UPDATE MANAGEMENT ── */
     window.openAdminUpdates = function(){
