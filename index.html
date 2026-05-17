@@ -971,19 +971,23 @@
       try {
         var snap = await getDocs(query(collection(db,'appUpdates'),where('active','==',true)));
         if(snap.empty) return null;
-        var update = null;
         var seenKey = 'seenUpdate_' + (cu ? cu.phone : '');
-        var seenId = localStorage.getItem(seenKey);
+        var seenIds = JSON.parse(localStorage.getItem(seenKey) || '[]');
+        var updates = [];
         snap.forEach(function(d){
           var data = d.data();
-          if(d.id === seenId) return;
+          if(seenIds.indexOf(d.id) !== -1) return;
           if(data.targetAll === true){
-            update = {id:d.id, ...data};
+            updates.push({id:d.id, ...data});
           } else if(data.targetPhone && cu && data.targetPhone === cu.phone){
-            update = {id:d.id, ...data};
+            updates.push({id:d.id, ...data});
           }
         });
-        return update;
+        if(updates.length === 0) return null;
+        /* combine all pending update messages into one */
+        var allIds = updates.map(function(u){ return u.id; });
+        var allMessages = updates.map(function(u){ return u.message; }).filter(Boolean).join('\n• ');
+        return { ids: allIds, message: allMessages ? '• ' + allMessages : 'New updates are ready.' };
       } catch(e){ return null; }
     };
 
@@ -998,7 +1002,9 @@
       }
       if(confirm('Update available!\n\n' + (update.message||'A new version is ready.') + '\n\nUpdate now?')){
         var seenKey = 'seenUpdate_' + (cu ? cu.phone : '');
-        localStorage.setItem(seenKey, update.id);
+        var seenIds = JSON.parse(localStorage.getItem(seenKey) || '[]');
+        update.ids.forEach(function(id){ if(seenIds.indexOf(id) === -1) seenIds.push(id); });
+        localStorage.setItem(seenKey, JSON.stringify(seenIds));
         if('serviceWorker' in navigator && navigator.serviceWorker.controller){
           navigator.serviceWorker.controller.postMessage({type:'SKIP_WAITING'});
         }
