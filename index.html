@@ -3235,11 +3235,11 @@
 
   console.log('EthioMetric Dashboard with Admin Panel Loaded! 🎓🛡️');
 </script>
-  <script>
+<script>
   // Register Service Worker for offline PWA
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-      navigator.serviceWorker.register('/sw.js')
+      navigator.serviceWorker.register('/My-first-website/sw.js')
         .then(function(reg) {
           console.log('Service Worker registered successfully!', reg);
         })
@@ -3248,6 +3248,6 @@
         });
     });
   }
-  </script>
+</script>
 </body>
 </html>
