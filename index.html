@@ -803,7 +803,7 @@
         const snap = await getDocs(query(collection(db,"users"),where("phone","==",ph),where("password","==",pw)));
         if(!snap.empty){
           cu=snap.docs[0].data(); cu.docId=snap.docs[0].id; cu.phone=ph;
-          sessionStorage.setItem("cu", JSON.stringify(cu));
+          localStorage.setItem("cu", JSON.stringify(cu));
           document.getElementById("authBox").style.display="none";
           document.getElementById("appBox").style.display="block";
           document.body.style.backgroundImage="url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format')";
@@ -851,7 +851,7 @@
 
     window.logout=function(){
       cu=null;
-      sessionStorage.removeItem("cu");
+      localStorage.removeItem("cu");
       document.getElementById("authBox").style.display="flex";
       document.getElementById("appBox").style.display="none";
       document.body.style.backgroundImage="url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2070&auto=format')";
@@ -915,7 +915,7 @@
       if(Object.keys(updates).length===0){ showToast('Nothing to save.'); return; }
       try {
         await updateDoc(doc(db,'users',cu.docId),updates);
-        sessionStorage.setItem("cu",JSON.stringify(cu));
+        localStorage.setItem("cu",JSON.stringify(cu));
         window.updateProfile();
         showToast('Account updated successfully!');
         window.hideAcctField();
@@ -2295,7 +2295,7 @@
 
     /* ── SESSION RESTORE ── */
     function initAppSession(){
-      var saved = sessionStorage.getItem("cu");
+      var saved = localStorage.getItem("cu");
       if(saved){
         cu = JSON.parse(saved);
         document.getElementById("authBox").style.display="none";
