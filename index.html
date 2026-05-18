@@ -2273,7 +2273,9 @@
       var total = 0, answered = 0;
       _examQuestions.forEach(function(q, i) {
         var a = _examAnswers[i];
-        if (q.type === 'matching') {
+        if (q.type === 'paragraph') {
+          /* paragraphs are not questions — skip */
+        } else if (q.type === 'matching') {
           var pairs = q.pairs || [];
           total += pairs.length;
           if (Array.isArray(a)) { a.forEach(function(v){ if(v) answered++; }); }
@@ -2289,6 +2291,7 @@
     /* Returns number of correct points for question i (matching = 1 per pair) */
     function _countCorrectPoints(i) {
       var q = _examQuestions[i];
+      if (q.type === 'paragraph') return 0;
       var a = _examAnswers[i];
       if (a === null || a === undefined) return 0;
       if (q.type === 'matching') {
@@ -2747,7 +2750,7 @@
       var correct = 0, total = 0;
       _examQuestions.forEach(function(q, i) {
         correct += _countCorrectPoints(i);
-        total += (q.type === 'matching') ? (q.pairs || []).length : 1;
+        if (q.type !== 'paragraph') { total += (q.type === 'matching') ? (q.pairs || []).length : 1; }
       });
       var percentage = Math.round((correct / total) * 100);
       var emoji      = percentage >= 80 ? '🌟' : percentage >= 50 ? '👍' : '📖';
