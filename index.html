@@ -829,7 +829,7 @@
           localStorage.setItem("cu", JSON.stringify(cu));
           document.getElementById("authBox").style.display="none";
           document.getElementById("appBox").style.display="block";
-          document.body.style.backgroundImage="url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800&auto=format')";
+          document.body.style.backgroundImage="linear-gradient(135deg,#009688,#00796b)";
           var ts2=document.getElementById('topSection'); if(ts2) ts2.style.display='none';
           window.updateProfile();
           window.goTo("mainDash");
@@ -3857,13 +3857,26 @@
 
   /* ── MATERIAL CONTENT — loads from cache (offline) or Firestore/built-in (online) ── */
   window.openMaterialContent = async function(num){
-    currentMaterialNum = num;
-    var box = document.getElementById('materialContentBox');
-    document.getElementById('materialContentTitle').textContent =
-      'Chapter ' + currentChapter + ' — Material ' + num + ' | ' + currentCourse;
-    box.className = 'mat-content-page';
-    box.innerHTML = '<em style="color:#888">Loading...</em>';
     window.goTo('materialContentDash');
+    var list = document.getElementById('bonNoteList');
+    if(list) list.innerHTML = '<p style="color:#aaa;text-align:center;padding:40px 0;">Loading notes…</p>';
+    try {
+      var snap = await getDocs(query(collection(db,'boardOfNote'), orderBy('createdAt','desc')));
+      var html = '';
+      snap.forEach(function(d){
+        var n = d.data();
+        var dt = n.createdAt && n.createdAt.toDate ? n.createdAt.toDate().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+        html += '<div style="background:#e0f2f1;border-left:5px solid #009688;border-radius:14px;padding:20px;box-shadow:0 3px 12px rgba(0,150,136,0.08);">' +
+          '<div style="font-size:1.08em;font-weight:800;color:#00796b;margin-bottom:8px;">' + (n.title||'Note') + '</div>' +
+          '<div style="color:#444;font-size:0.97em;line-height:1.7;white-space:pre-wrap;">' + (n.body||'') + '</div>' +
+          '<div style="margin-top:12px;font-size:0.78em;color:#80cbc4;border-top:1px solid #b2dfdb;padding-top:8px;">📅 ' + dt + '</div>' +
+          '</div>';
+      });
+      if(list) list.innerHTML = html || '<p style="color:#aaa;text-align:center;padding:40px 0;font-weight:600;">No notes posted yet.</p>';
+    } catch(e){
+      if(list) list.innerHTML = '<p style="color:#e74c3c;text-align:center;padding:30px;">Could not load notes.</p>';
+    }
+    return;
 
     var premium = false;
     try { premium = await window.isPremium(); } catch(e){ premium = false; }
