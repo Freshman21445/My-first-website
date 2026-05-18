@@ -1,3 +1,4 @@
+AB
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -600,7 +601,7 @@
     #examResult .review-btn:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(30,60,114,0.4); }
     #examReviewSection { display:none; margin-top:24px; padding:0 16px 16px; }
     #examReviewSection h3 { color:#1e3c72; margin-bottom:14px; font-size:1.1em; }
-    .q-type-badge { display:block; padding:3px 10px; border-radius:20px; font-size:0.75em; font-weight:700; margin-bottom:10px; text-align:center; width:fit-content; margin-left:auto; margin-right:auto; }
+    .q-type-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.75em; font-weight:700; margin-bottom:10px; }
     .q-type-badge.mc      { background:#e3f2fd; color:#1565c0; }
     .q-type-badge.tf      { background:#f3e5f5; color:#6a1b9a; }
     .q-type-badge.match   { background:#fff3e0; color:#e65100; }
@@ -610,8 +611,8 @@
     .menu-option-btn.update-opt:hover { background:linear-gradient(135deg,#c8e6c9,#a5d6a7); transform:translateX(6px); }
 
     /* MATCHING — each pair as standalone question block */
-    .matching-wrap { width:100%; background:#f5f5f5; border-radius:12px; padding:8px; border:1px solid #e0e0e0; }
-    .matching-row { display:flex; align-items:center; padding:10px 8px; gap:6px; }
+    .matching-wrap { width:100%; }
+    .matching-row { display:flex; align-items:center; padding:10px 8px; border-bottom:1px solid #ede9e3; gap:6px; }
     .matching-left { flex:1; font-weight:600; color:#1e3c72; font-size:0.97em; line-height:1.45; padding-right:4px; word-break:break-word; }
     .matching-arrow { color:#aaa; font-size:1em; flex-shrink:0; width:18px; text-align:center; }
     .match-select { width:90px; flex-shrink:0; padding:6px 4px; border:2px solid #ddd; border-radius:8px; font-size:0.78em; background:#fff; cursor:pointer; transition:border-color 0.2s, background 0.2s; }
@@ -816,8 +817,8 @@
       if(ph === ADMIN_PHONE && pw === ADMIN_PASS){
         document.getElementById("authBox").style.display="none";
         document.getElementById("adminBox").style.display="block";
-        document.body.style.backgroundImage="linear-gradient(135deg,#009688,#00796b)";
-        var ts=document.getElementById('topSection');
+        document.body.style.backgroundImage="url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800&auto=format')";
+        var ts=document.getElementById('topSection'); if(ts) ts.style.display='none';
         adminGoTo("adminMainDash");
         return;
       }
@@ -1043,10 +1044,9 @@
         return;
       }
       if(confirm('🔄 Update Available!\n\nThe app will reload to apply the latest version.\n\nUpdate now?')){
+        /* Save dismissed timestamp so update button won't reappear for already-seen releases */
         var dismissedKey = 'lastDismissedUpdate_' + (cu && cu.phone ? cu.phone : '');
         localStorage.setItem(dismissedKey, Date.now().toString());
-        /* Save exam update timestamp — exams published before this time will load */
-        localStorage.setItem('examUpdatedAt_' + (cu && cu.phone ? cu.phone : ''), Date.now().toString());
 
         if('serviceWorker' in navigator){
           /* Send SKIP_WAITING to the WAITING SW (not the active controller) */
@@ -1218,7 +1218,7 @@
       if(pw !== ADMIN_PASSWORD){ showToast("Incorrect admin password."); document.getElementById("adminPasswordInput").value=""; return; }
       document.getElementById("authBox").style.display="none";
       document.getElementById("adminBox").style.display="block";
-      document.body.style.backgroundImage="linear-gradient(135deg,#009688,#00796b)";
+      document.body.style.backgroundImage="url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800&auto=format')";
       var ts=document.getElementById('topSection'); if(ts) ts.style.display='none';
       document.getElementById("adminPasswordInput").value="";
       adminGoTo("adminMainDash");
@@ -1227,7 +1227,7 @@
     window.adminLogout = function(){
       document.getElementById("adminBox").style.display="none";
       document.getElementById("authBox").style.display="flex";
-      document.body.style.backgroundImage="linear-gradient(135deg,#009688,#00796b)";
+      document.body.style.backgroundImage="url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=800&auto=format')";
       var ts=document.getElementById('topSection'); if(ts) ts.style.display='block';
       window.showLanding();
     };
@@ -1286,14 +1286,13 @@
           return;
         }
         container.innerHTML='';
-        exams.sort(function(a,b){ return (a.order||9999)-(b.order||9999); });
-        exams.forEach(function(exam, idx){
+        exams.forEach(function(exam){
           var isPublished = exam.published === true;
           var div = document.createElement('div');
           div.className='exam-list-item';
           div.innerHTML =
             '<div class="exam-list-info">'+
-              '<div class="exam-q"><span style="font-weight:900;color:#1e3c72;margin-right:8px;">'+(exam.order ? 'Q'+exam.order+'.' : '#'+(idx+1))+'</span>'+(exam.type==='paragraph'?'📄 ':'' )+(exam.question||'')+'</div>'+
+              '<div class="exam-q">'+(exam.question||'')+'</div>'+
               '<div class="exam-meta">'+
                 '<span class="exam-tag tag-course">'+(exam.course||'')+'</span>'+
                 '<span class="exam-tag tag-chap">Ch '+(exam.chapter||'')+'</span>'+
@@ -1506,10 +1505,8 @@
         if (pairs && pairs.children.length === 0) {
           addMatchingPair(); addMatchingPair(); addMatchingPair();
         }
-} else if (type === 'fill_in_blank') {
+      } else if (type === 'fill_in_blank') {
         fitbSection.style.display = 'block';
-        answerGroup.style.display = 'none';
-      } else if (type === 'paragraph') {
         answerGroup.style.display = 'none';
       }
       updateChoiceExpLabels();
@@ -1551,11 +1548,9 @@
       var explanation = document.getElementById('ef_explanation').value.trim();
       var hint = document.getElementById('ef_hint').value.trim();
 
-      var orderNum = parseInt(document.getElementById('ef_order').value)||0;
       if(!course||!chapter||!difficulty||!type||!question){
         showToast('Please fill all required fields (Course, Chapter, Difficulty, Type, Question).'); return;
       }
-      if(type !== 'paragraph' && !orderNum){ showToast('Please enter an order number.'); return; }
 
       var options=[], answer='', pairs=[], alternateAnswers=[];
 
@@ -1608,7 +1603,7 @@
         }
       }
 
-      var data = { course, chapter, difficulty, type, question, options, answer, pairs, alternateAnswers, explanation, explanationMode: expMode, choiceExplanations, textSize, imgs, hint, order: orderNum, updatedAt:new Date() };
+      var data = { course, chapter, difficulty, type, question, options, answer, pairs, alternateAnswers, explanation, explanationMode: expMode, choiceExplanations, textSize, imgs, hint, updatedAt:new Date() };
 
       try {
         if(editingExamId){
@@ -2178,7 +2173,6 @@
 
     /* ── EXPOSE FIRESTORE EXAM FETCHER FOR DOWNLOAD FUNCTION ── */
     window._firestoreGetExamQuestions = async function(course, chapter, difficulty){
-      var examUpdatedAt = parseInt(localStorage.getItem('examUpdatedAt_' + (cu && cu.phone ? cu.phone : '')) || '0');
       var snap = await getDocs(query(
         collection(db, 'adminExams'),
         where('course', '==', course),
@@ -2186,10 +2180,6 @@
         where('difficulty', '==', difficulty),
         where('published', '==', true)
       ));
-      if(examUpdatedAt === 0){
-        /* Student never clicked update — show no exams */
-        return [];
-      }
       if(!snap.empty){
         return snap.docs.map(function(doc){
           var d = doc.data();
@@ -2334,7 +2324,7 @@
       numRow.className = 'q-num-row';
       var numEl = document.createElement('span');
       numEl.className = 'q-num';
-      numEl.textContent = 'Q' + _globalQNum;
+      numEl.textContent = 'Q' + (index + 1);
       numRow.appendChild(numEl);
       var numActions = document.createElement('div');
       numActions.className = 'q-num-actions';
@@ -2356,23 +2346,130 @@
       divider.className = 'q-divider';
       wrap.appendChild(divider);
 
-      /* For matching: this function is no longer called for matching — handled by _buildMatchingPairEls */
-
       var imgs = q.imgs || {};
 
-      var qText = document.createElement('div');
-      qText.className = 'question-text';
-      qText.textContent = q.q;
-      qText.style.fontSize = (q.textSize || 16) + 'px';
-      wrap.appendChild(qText);
-      if (imgs.question) {
-        var qImg = document.createElement('img');
-        qImg.src = imgs.question; qImg.className = 'q-img'; qImg.alt = 'question image';
-        wrap.appendChild(qImg);
+      /* For matching: remove the auto Q-number row (pairs get their own numbers) */
+      if (q.type === 'matching') {
+        wrap.removeChild(numRow);
+        wrap.removeChild(divider);
+      } else {
+        var qText = document.createElement('div');
+        qText.className = 'question-text';
+        qText.textContent = q.q;
+        wrap.appendChild(qText);
+        if (imgs.question) {
+          var qImg = document.createElement('img');
+          qImg.src = imgs.question; qImg.className = 'q-img'; qImg.alt = 'question image';
+          wrap.appendChild(qImg);
+        }
       }
 
+      /* For matching: one card — italic rule, question text, bold A/B header, all pairs, no lines between rows */
+      if (q.type === 'matching') {
+        /* Admin's instruction text — shown once only */
+        if (q.q) {
+          var qHeader = document.createElement('div');
+          qHeader.className = 'question-text';
+          qHeader.textContent = q.q;
+          wrap.appendChild(qHeader);
+        }
+
+        var pairs = q.pairs || [];
+        var rightItems = pairs.map(function(p){ return p.right; });
+        /* shuffle the right-side options */
+        var shuffled = rightItems.slice().sort(function(){ return Math.random()-0.5; });
+
+        /* Bold A / B column header */
+        var abHeader = document.createElement('div');
+        abHeader.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:6px 0;margin-top:8px;margin-bottom:4px;';
+        var aLabel = document.createElement('span');
+        aLabel.style.cssText = 'font-weight:900;color:#222;font-size:1.6em;letter-spacing:1px;text-shadow:1px 1px 0 #aaa;margin-left:30px;';
+        aLabel.textContent = '"A"';
+        var bLabel = document.createElement('span');
+        bLabel.style.cssText = 'font-weight:900;color:#222;font-size:1.6em;letter-spacing:1px;text-shadow:1px 1px 0 #aaa;margin-right:30px;';
+        bLabel.textContent = '"B"';
+        abHeader.appendChild(aLabel);
+        abHeader.appendChild(bLabel);
+        wrap.appendChild(abHeader);
+
+        /* Collect selects so we can do instant feedback after ALL are filled */
+        var selects = [];
+
+        pairs.forEach(function(pair, pi) {
+          _globalPairNum++;
+          var pairNum = _globalPairNum;
+
+          var row = document.createElement('div');
+          /* no border, no line — just padding */
+          row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 0;';
+
+          var numLabel = document.createElement('span');
+          numLabel.style.cssText = 'font-weight:700;color:#1e3c72;font-size:0.95em;min-width:22px;flex-shrink:0;';
+          numLabel.textContent = pairNum + '.';
+
+          var leftText = document.createElement('span');
+          leftText.style.cssText = 'flex:1;font-size:0.97em;color:#222;line-height:1.4;word-break:break-word;';
+          leftText.textContent = pair.left;
+
+          var sel = document.createElement('select');
+          sel.className = 'match-select';
+          sel.id = 'match_' + index + '_' + pi;
+          sel.style.cssText = 'width:160px;flex-shrink:0;padding:10px 8px;font-size:0.9em;border:2px solid #ddd;border-radius:12px;background:#fff;cursor:pointer;';
+          var placeholder = document.createElement('option');
+          placeholder.value = ''; placeholder.textContent = '— select —';
+          sel.appendChild(placeholder);
+          shuffled.forEach(function(item) {
+            var opt = document.createElement('option');
+            opt.value = item; opt.textContent = item;
+            sel.appendChild(opt);
+          });
+
+          if (lockAndColor) {
+            sel.disabled = true;
+            var userSel = (_examAnswers[index] || [])[pi];
+            if (userSel) sel.value = userSel;
+            if (userSel === pair.right) sel.classList.add('correct');
+            else sel.classList.add('wrong');
+          } else {
+            var curAns = _examAnswers[index];
+            if (Array.isArray(curAns) && curAns[pi]) sel.value = curAns[pi];
+          }
+
+          selects.push({ sel: sel, right: pair.right });
+          row.appendChild(numLabel);
+          row.appendChild(leftText);
+          row.appendChild(sel);
+          wrap.appendChild(row);
+        });
+
+        /* Wire up onchange AFTER all selects exist — instant feedback only when ALL pairs filled */
+        if (!lockAndColor) {
+          selects.forEach(function(item, pi) {
+            item.sel.onchange = function() {
+              var cur = Array.isArray(_examAnswers[index]) ? _examAnswers[index] : new Array(pairs.length).fill('');
+              cur[pi] = item.sel.value;
+              _examAnswers[index] = cur;
+              _updateExamProgress();
+              if (_examMode === 'instant') {
+                /* only colour when every pair has a selection */
+                var allFilled = cur.every(function(v){ return v && v !== ''; });
+                if (allFilled) {
+                  selects.forEach(function(s, j) {
+                    s.sel.classList.remove('correct','wrong');
+                    if (cur[j] === s.right) s.sel.classList.add('correct');
+                    else s.sel.classList.add('wrong');
+                  });
+                } else {
+                  /* clear any previous colours while still filling */
+                  selects.forEach(function(s) { s.sel.classList.remove('correct','wrong'); });
+                }
+              }
+            };
+          });
+        }
+
       /* ── FILL IN THE BLANK type ── */
-      if (q.type === 'fill_in_blank') {
+      } else if (q.type === 'fill_in_blank') {
         var fitbWrap = document.createElement('div');
         fitbWrap.className = 'fitb-wrap';
 
@@ -2506,151 +2603,15 @@
       return wrap;
     }
 
-    /* Renders each pair of a matching question as its own Q# block.
-       The instruction header (q.q) + A/B column labels appear only on the FIRST pair row,
-       so the context is visible. Every row gets its own Q number continuing the global sequence. */
-    function _buildMatchingPairEls(index, lockAndColor, startQNum) {
-      var q = _examQuestions[index];
-      var pairs = q.pairs || [];
-      var rightItems = pairs.map(function(p){ return p.right; });
-      var shuffled = rightItems.slice().sort(function(){ return Math.random()-0.5; });
-      if (lockAndColor) { shuffled = rightItems.slice(); }
-
-      var selects = [];
-      var els = [];
-
-      /* ── One big package wrapper ── */
-      var pkg = document.createElement('div');
-      pkg.style.cssText = 'background:#fff;border:1.5px solid #d0d7e3;border-radius:14px;padding:14px 12px;margin-bottom:18px;box-shadow:0 2px 8px rgba(0,0,0,0.07);';
-
-      /* ── Matching badge ── */
-      var badge = document.createElement('span');
-      badge.className = 'q-type-badge match';
-      badge.textContent = 'Matching';
-      badge.style.cssText = 'display:block;margin-bottom:8px;margin-left:auto;margin-right:auto;';
-      pkg.appendChild(badge);
-
-      /* ── Rule/instruction text ── */
-      if (q.q) {
-        var ruleEl = document.createElement('div');
-        ruleEl.style.cssText = 'font-size:0.97em;color:#333;margin-bottom:10px;line-height:1.5;';
-        ruleEl.textContent = q.q;
-        pkg.appendChild(ruleEl);
-      }
-
-      /* ── A / B header ── */
-      var abHeader = document.createElement('div');
-      abHeader.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:4px 8px;margin-bottom:6px;';
-      var aLabel = document.createElement('span');
-      aLabel.textContent = '"A"';
-      aLabel.style.cssText = 'font-weight:900;font-size:1.1em;color:#1e3c72;margin-left:30px;';
-      var bLabel = document.createElement('span');
-      bLabel.textContent = '"B"';
-      bLabel.style.cssText = 'font-weight:900;font-size:1.1em;color:#1e3c72;margin-right:30px;';
-      abHeader.appendChild(aLabel);
-      abHeader.appendChild(bLabel);
-      pkg.appendChild(abHeader);
-
-      pairs.forEach(function(pair, pi) {
-        /* ── Each pair row ── */
-        var row = document.createElement('div');
-        row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 8px;';
-        row.id = 'qwrap_' + index + '_' + pi;
-
-        /* Q number */
-        var qNum = document.createElement('span');
-        qNum.style.cssText = 'font-weight:700;color:#1e3c72;font-size:0.95em;min-width:32px;flex-shrink:0;';
-        qNum.textContent = 'Q' + (startQNum + pi) + '.';
-        row.appendChild(qNum);
-
-        var leftText = document.createElement('span');
-        leftText.style.cssText = 'flex:1;font-size:0.97em;color:#222;line-height:1.4;word-break:break-word;font-weight:600;';
-        leftText.textContent = pair.left;
-        row.appendChild(leftText);
-
-        var sel = document.createElement('select');
-        sel.className = 'match-select';
-        sel.id = 'match_' + index + '_' + pi;
-        sel.style.cssText = 'width:110px;flex-shrink:0;padding:6px 4px;font-size:0.82em;border:2px solid #ddd;border-radius:12px;background:#fff;cursor:pointer;margin-right:4px;';
-
-        var placeholder = document.createElement('option');
-        placeholder.value = ''; placeholder.textContent = '— select —';
-        sel.appendChild(placeholder);
-        shuffled.forEach(function(item) {
-          var opt = document.createElement('option');
-          opt.value = item; opt.textContent = item;
-          sel.appendChild(opt);
-        });
-
-        if (lockAndColor) {
-          sel.disabled = true;
-          var userSel = (_examAnswers[index] || [])[pi];
-          if (userSel) sel.value = userSel;
-          if (userSel === pair.right) sel.classList.add('correct');
-          else sel.classList.add('wrong');
-        } else {
-          var curAns = _examAnswers[index];
-          if (Array.isArray(curAns) && curAns[pi]) sel.value = curAns[pi];
-        }
-
-        selects.push({ sel: sel, right: pair.right, pi: pi });
-        row.appendChild(sel);
-        pkg.appendChild(row);
-      });
-
-      els.push(pkg);
-
-
-      /* Wire up onchange — instant feedback after ALL pairs in this question are filled */
-      if (!lockAndColor) {
-        selects.forEach(function(item) {
-          item.sel.onchange = function() {
-            var cur = Array.isArray(_examAnswers[index]) ? _examAnswers[index].slice() : new Array(pairs.length).fill('');
-            cur[item.pi] = item.sel.value;
-            _examAnswers[index] = cur;
-            _updateExamProgress();
-            if (_examMode === 'instant') {
-              var allFilled = cur.every(function(v){ return v && v !== ''; });
-              if (allFilled) {
-                selects.forEach(function(s) {
-                  s.sel.classList.remove('correct','wrong');
-                  if (cur[s.pi] === s.right) s.sel.classList.add('correct');
-                  else s.sel.classList.add('wrong');
-                });
-              } else {
-                selects.forEach(function(s) { s.sel.classList.remove('correct','wrong'); });
-              }
-            }
-          };
-        });
-      }
-
-      return els;
-    }
-
     var _globalPairNum = 0; /* resets each time exam is shown */
-    var _globalQNum = 0;   /* global running question number across all types */
-
-    /* ── Single shared renderer: used by both exam mode and review mode ── */
-    function _renderQuestions(container, lockAndColor) {
-      container.innerHTML = '';
-      _globalPairNum = 0;
-      _globalQNum = 0;
-      _examQuestions.forEach(function(q, i) {
-        if (q.type === 'matching') {
-          /* matching expands into multiple rows — one increment per pair */
-          var startQNum = _globalQNum + 1;  /* capture before incrementing */
-          (q.pairs || []).forEach(function() { _globalQNum++; });  /* ── THE one and only increment for all question types ── */
-          _buildMatchingPairEls(i, lockAndColor, startQNum).forEach(function(el) { container.appendChild(el); });
-        } else {
-          _globalQNum++;   /* ── THE one and only increment for all question types ── */
-          container.appendChild(_buildQuestionEl(i, lockAndColor));
-        }
-      });
-    }
 
     function _showAllExamQuestions() {
-      _renderQuestions(document.getElementById('examQuestionsDiv'), false);
+      var qDiv = document.getElementById('examQuestionsDiv');
+      qDiv.innerHTML = '';
+      _globalPairNum = 0;
+      _examQuestions.forEach(function(_, i) {
+        qDiv.appendChild(_buildQuestionEl(i, false));
+      });
     }
 
     window.startExam = function(selectedMode) {
@@ -2748,7 +2709,12 @@
 
     window.showExamReview = function() {
       var reviewSection = document.getElementById('examReviewSection');
-      _renderQuestions(document.getElementById('examReviewList'), true);
+      var reviewList    = document.getElementById('examReviewList');
+      reviewList.innerHTML = '';
+      _globalPairNum = 0;
+      _examQuestions.forEach(function(q, i) {
+        reviewList.appendChild(_buildQuestionEl(i, true));
+      });
       reviewSection.style.display = 'block';
       reviewSection.scrollIntoView({ behavior: 'smooth' });
     };
@@ -3072,16 +3038,14 @@
       </div>
     </div>
 
-<!-- DASHBOARD 6: Material Content -->
-    <div class="dash-panel" id="materialContentDash" style="position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;background:#fff;z-index:9999;overflow-y:auto;margin:0;padding:0;">
-      <div style="padding:20px 16px;box-sizing:border-box;min-height:100%;">
-        <div style="display:flex;align-items:center;gap:14px;padding-bottom:18px;border-bottom:2px solid #b2dfdb;margin-bottom:22px;">
+    <!-- DASHBOARD 6: Material Content -->
+    <div class="dash-panel" id="materialContentDash">
+      <div class="panel-card" style="border-top:3px solid #3498db">
+        <div class="panel-header">
+          <h2 id="materialContentTitle">Material</h2>
           <button class="back-btn" onclick="goBack()">← Go Back</button>
-          <h2 style="flex:1;color:#00796b;font-size:1.4em;font-weight:800;margin:0;">📋 Board of Note</h2>
         </div>
-        <div id="bonNoteList" style="display:flex;flex-direction:column;gap:14px;">
-          <p style="color:#aaa;text-align:center;padding:40px 0;">Loading notes…</p>
-        </div>
+        <div id="materialContentBox" class="mat-content-page"></div>
       </div>
     </div>
 
@@ -3382,12 +3346,7 @@
                 <option value="true_false">True or False</option>
                 <option value="matching">Matching</option>
                 <option value="fill_in_blank">Fill in the Blank</option>
-                <option value="paragraph">📄 Paragraph (Reading Passage)</option>
               </select>
-            </div>
-            <div class="admin-form-group">
-              <label>Order Number * <span style="font-weight:400;color:#888;">(position in exam e.g. 1, 2, 3...)</span></label>
-              <input type="number" id="ef_order" placeholder="e.g. 1" min="1" style="width:120px;">
             </div>
           </div>
           <!-- Question Text -->
