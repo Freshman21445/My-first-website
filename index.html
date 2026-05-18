@@ -3636,7 +3636,7 @@
     }
     document.getElementById(id).classList.add('active');
     var topSec = document.getElementById('topSection');
-    if(topSec) topSec.style.display = (id === 'mainDash') ? 'none' : 'block';
+    if(topSec) topSec.style.display = (prev === 'mainDash' || prev === 'examPanel' || prev === 'materialContentDash') ? 'none' : 'block';
     window.scrollTo({top:0,behavior:'smooth'});
     if(id === 'myAccountDash' && window._loadMyAccountFields) window._loadMyAccountFields();
     if(id === 'menuDash' && window._silentUpdateCheck) window._silentUpdateCheck();
