@@ -1043,9 +1043,10 @@
         return;
       }
       if(confirm('🔄 Update Available!\n\nThe app will reload to apply the latest version.\n\nUpdate now?')){
-        /* Save dismissed timestamp so update button won't reappear for already-seen releases */
         var dismissedKey = 'lastDismissedUpdate_' + (cu && cu.phone ? cu.phone : '');
         localStorage.setItem(dismissedKey, Date.now().toString());
+        /* Save exam update timestamp — exams published before this time will load */
+        localStorage.setItem('examUpdatedAt_' + (cu && cu.phone ? cu.phone : ''), Date.now().toString());
 
         if('serviceWorker' in navigator){
           /* Send SKIP_WAITING to the WAITING SW (not the active controller) */
@@ -2177,6 +2178,7 @@
 
     /* ── EXPOSE FIRESTORE EXAM FETCHER FOR DOWNLOAD FUNCTION ── */
     window._firestoreGetExamQuestions = async function(course, chapter, difficulty){
+      var examUpdatedAt = parseInt(localStorage.getItem('examUpdatedAt_' + (cu && cu.phone ? cu.phone : '')) || '0');
       var snap = await getDocs(query(
         collection(db, 'adminExams'),
         where('course', '==', course),
@@ -2184,6 +2186,10 @@
         where('difficulty', '==', difficulty),
         where('published', '==', true)
       ));
+      if(examUpdatedAt === 0){
+        /* Student never clicked update — show no exams */
+        return [];
+      }
       if(!snap.empty){
         return snap.docs.map(function(doc){
           var d = doc.data();
