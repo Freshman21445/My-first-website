@@ -3671,7 +3671,7 @@
     }
     document.getElementById(prev).classList.add('active');
     var topSec = document.getElementById('topSection');
-    if(topSec) topSec.style.display = (prev === 'mainDash') ? 'none' : 'block';
+    if(topSec) topSec.style.display = (prev === 'mainDash' || prev === 'examPanel' || prev === 'materialContentDash') ? 'none' : 'block';
     window.scrollTo({top:0,behavior:'smooth'});
   };
 
