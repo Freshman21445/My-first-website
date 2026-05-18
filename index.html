@@ -2501,58 +2501,60 @@
       var q = _examQuestions[index];
       var pairs = q.pairs || [];
       var rightItems = pairs.map(function(p){ return p.right; });
-      /* Shuffle right-side options once for this whole matching question */
       var shuffled = rightItems.slice().sort(function(){ return Math.random()-0.5; });
-
-      /* In lock/review mode use a stable order (no re-shuffle) */
       if (lockAndColor) { shuffled = rightItems.slice(); }
 
       var selects = [];
       var els = [];
 
+      /* ── One big package wrapper ── */
+      var pkg = document.createElement('div');
+      pkg.style.cssText = 'background:#fff;border:1.5px solid #d0d7e3;border-radius:14px;padding:14px 12px;margin-bottom:18px;box-shadow:0 2px 8px rgba(0,0,0,0.07);';
+
+      /* ── Matching badge ── */
+      var badge = document.createElement('span');
+      badge.className = 'q-type-badge match';
+      badge.textContent = 'Matching';
+      badge.style.cssText = 'display:inline-block;margin-bottom:8px;';
+      pkg.appendChild(badge);
+
+      /* ── Rule/instruction text ── */
+      if (q.q) {
+        var ruleEl = document.createElement('div');
+        ruleEl.style.cssText = 'font-size:0.97em;color:#333;margin-bottom:10px;line-height:1.5;';
+        ruleEl.textContent = q.q;
+        pkg.appendChild(ruleEl);
+      }
+
+      /* ── A / B header ── */
+      var abHeader = document.createElement('div');
+      abHeader.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:4px 8px;margin-bottom:6px;';
+      var aLabel = document.createElement('span');
+      aLabel.textContent = '"A"';
+      aLabel.style.cssText = 'font-weight:900;font-size:1.1em;color:#1e3c72;margin-left:30px;';
+      var bLabel = document.createElement('span');
+      bLabel.textContent = '"B"';
+      bLabel.style.cssText = 'font-weight:900;font-size:1.1em;color:#1e3c72;margin-right:30px;';
+      abHeader.appendChild(aLabel);
+      abHeader.appendChild(bLabel);
+      pkg.appendChild(abHeader);
+
       pairs.forEach(function(pair, pi) {
-        var wrap = document.createElement('div');
-        wrap.className = 'question';
-        wrap.id = 'qwrap_' + index + '_' + pi;
-
-        /* ── Q# header row — each pair gets its own correct Q number ── */
-        var numRow = document.createElement('div');
-        numRow.className = 'q-num-row';
-        var numEl = document.createElement('span');
-        numEl.className = 'q-num';
-        numEl.textContent = 'Q' + (startQNum + pi);   /* Q4, Q5, Q6 ... */
-        numRow.appendChild(numEl);
-        var numActions = document.createElement('div');
-        numActions.className = 'q-num-actions';
-        /* Show "Matching" badge only on first pair */
-        if (pi === 0) {
-          var badge = document.createElement('span');
-          badge.className = 'q-type-badge match';
-          badge.textContent = 'Matching';
-          numActions.appendChild(badge);
-        }
-        numRow.appendChild(numActions);
-        wrap.appendChild(numRow);
-
-        var divider = document.createElement('div');
-        divider.className = 'q-divider';
-        wrap.appendChild(divider);
-
-        /* ── On first pair: show question text styled like normal questions ── */
-        if (pi === 0 && q.q) {
-          var qHeader = document.createElement('div');
-          qHeader.className = 'question-text';
-          qHeader.textContent = q.q;
-          wrap.appendChild(qHeader);
-        }
-
-        /* ── Pair row: left text + dropdown ── */
+        /* ── Each pair row ── */
         var row = document.createElement('div');
-        row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 8px;';
+        row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 8px;';
+        row.id = 'qwrap_' + index + '_' + pi;
+
+        /* Q number */
+        var qNum = document.createElement('span');
+        qNum.style.cssText = 'font-weight:700;color:#1e3c72;font-size:0.95em;min-width:32px;flex-shrink:0;';
+        qNum.textContent = 'Q' + (startQNum + pi) + '.';
+        row.appendChild(qNum);
 
         var leftText = document.createElement('span');
         leftText.style.cssText = 'flex:1;font-size:0.97em;color:#222;line-height:1.4;word-break:break-word;font-weight:600;';
         leftText.textContent = pair.left;
+        row.appendChild(leftText);
 
         var sel = document.createElement('select');
         sel.className = 'match-select';
@@ -2580,12 +2582,12 @@
         }
 
         selects.push({ sel: sel, right: pair.right, pi: pi });
-        row.appendChild(leftText);
         row.appendChild(sel);
-        wrap.appendChild(row);
-
-        els.push(wrap);
+        pkg.appendChild(row);
       });
+
+      els.push(pkg);
+
 
       /* Wire up onchange — instant feedback after ALL pairs in this question are filled */
       if (!lockAndColor) {
