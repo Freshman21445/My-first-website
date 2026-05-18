@@ -3856,7 +3856,7 @@
   };
 
   /* ── MATERIAL CONTENT — loads from cache (offline) or Firestore/built-in (online) ── */
-  window.openMaterialContent = async function(num){
+window.openMaterialContent = async function(num){
     window.goTo('materialContentDash');
     var list = document.getElementById('bonNoteList');
     if(list) list.innerHTML = '<p style="color:#aaa;text-align:center;padding:40px 0;">Loading notes…</p>';
@@ -3875,52 +3875,6 @@
       if(list) list.innerHTML = html || '<p style="color:#aaa;text-align:center;padding:40px 0;font-weight:600;">No notes posted yet.</p>';
     } catch(e){
       if(list) list.innerHTML = '<p style="color:#e74c3c;text-align:center;padding:30px;">Could not load notes.</p>';
-    }
-    return;
-
-    var premium = false;
-    try { premium = await window.isPremium(); } catch(e){ premium = false; }
-
-    /* Check offline cache first */
-    var dlKey = 'dl_' + currentCourse + '_ch' + currentChapter + '_material';
-    var cached = null;
-    try {
-      var raw = localStorage.getItem(dlKey);
-      if(raw){ var obj = JSON.parse(raw); cached = obj['mat_' + num] || null; }
-    } catch(e){}
-
-    if(!navigator.onLine){
-      /* Offline — must use cache */
-      if(cached){
-        box.innerHTML = cached;
-      } else {
-        box.innerHTML =
-          '<div style="text-align:center;padding:40px 20px;color:#c0392b;">' +
-          '<p style="font-size:2em;margin-bottom:12px;">📵</p>' +
-          '<p style="font-weight:700;font-size:1.1em;">You are offline</p>' +
-          '<p style="color:#888;margin-top:8px;font-size:0.95em;">This chapter has not been downloaded yet.<br>Go back and press <strong>📥 Download</strong> while online.</p>' +
-          '</div>';
-      }
-      return;
-    }
-
-    /* Online — fetch fresh, but use cache as fallback */
-    try {
-      var firestoreHtml = null;
-      if(typeof window.fetchMaterialFromFirestore === 'function'){
-        firestoreHtml = await window.fetchMaterialFromFirestore(currentCourse, currentChapter, num);
-      }
-      if(firestoreHtml){
-        box.innerHTML = firestoreHtml;
-      } else {
-        box.innerHTML = getMaterialContent(currentCourse, currentChapter, num, premium);
-      }
-    } catch(e){
-      if(cached){
-        box.innerHTML = cached;
-      } else {
-        box.innerHTML = getMaterialContent(currentCourse, currentChapter, num, premium);
-      }
     }
   };
 
