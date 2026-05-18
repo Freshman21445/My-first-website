@@ -206,14 +206,7 @@
       border-radius:16px; padding:18px 12px;
       box-shadow:0 10px 30px rgba(0,0,0,0.18); margin-bottom:20px;
       width:100%; max-width:none;
-    }
-    #examPanel .panel-card,
-    #materialContentDash .panel-card {
-      margin-top:0;
-      margin-bottom:0;
-      border-radius:0;
-      box-shadow:none;
-    }
+}
     .panel-header {
       display:flex; justify-content:flex-start; gap:16px; align-items:center;
       margin-bottom:26px; padding-bottom:16px; border-bottom:2px solid #f0f0f0;
@@ -3636,7 +3629,7 @@
     }
     document.getElementById(id).classList.add('active');
     var topSec = document.getElementById('topSection');
-    if(topSec) topSec.style.display = (prev === 'mainDash' || prev === 'examPanel' || prev === 'materialContentDash') ? 'none' : 'block';
+    if(topSec) topSec.style.display = (id === 'mainDash') ? 'none' : 'block';
     window.scrollTo({top:0,behavior:'smooth'});
     if(id === 'myAccountDash' && window._loadMyAccountFields) window._loadMyAccountFields();
     if(id === 'menuDash' && window._silentUpdateCheck) window._silentUpdateCheck();
@@ -3671,7 +3664,7 @@
     }
     document.getElementById(prev).classList.add('active');
     var topSec = document.getElementById('topSection');
-    if(topSec) topSec.style.display = (prev === 'mainDash' || prev === 'examPanel' || prev === 'materialContentDash') ? 'none' : 'block';
+    if(topSec) topSec.style.display = (prev === 'mainDash') ? 'none' : 'block';
     window.scrollTo({top:0,behavior:'smooth'});
   };
 
