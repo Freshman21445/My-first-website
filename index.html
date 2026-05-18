@@ -600,7 +600,7 @@
     #examResult .review-btn:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(30,60,114,0.4); }
     #examReviewSection { display:none; margin-top:24px; padding:0 16px 16px; }
     #examReviewSection h3 { color:#1e3c72; margin-bottom:14px; font-size:1.1em; }
-    .q-type-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.75em; font-weight:700; margin-bottom:10px; }
+    .q-type-badge { display:block; padding:3px 10px; border-radius:20px; font-size:0.75em; font-weight:700; margin-bottom:10px; text-align:center; width:fit-content; margin-left:auto; margin-right:auto; }
     .q-type-badge.mc      { background:#e3f2fd; color:#1565c0; }
     .q-type-badge.tf      { background:#f3e5f5; color:#6a1b9a; }
     .q-type-badge.match   { background:#fff3e0; color:#e65100; }
@@ -2520,7 +2520,7 @@
       var badge = document.createElement('span');
       badge.className = 'q-type-badge match';
       badge.textContent = 'Matching';
-      badge.style.cssText = 'display:inline-block;margin-bottom:8px;';
+      badge.style.cssText = 'display:block;margin-bottom:8px;margin-left:auto;margin-right:auto;';
       pkg.appendChild(badge);
 
       /* ── Rule/instruction text ── */
