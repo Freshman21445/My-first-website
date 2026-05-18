@@ -1285,13 +1285,14 @@
           return;
         }
         container.innerHTML='';
-        exams.forEach(function(exam){
+        exams.sort(function(a,b){ return (a.order||9999)-(b.order||9999); });
+        exams.forEach(function(exam, idx){
           var isPublished = exam.published === true;
           var div = document.createElement('div');
           div.className='exam-list-item';
           div.innerHTML =
             '<div class="exam-list-info">'+
-              '<div class="exam-q">'+(exam.question||'')+'</div>'+
+              '<div class="exam-q"><span style="font-weight:900;color:#1e3c72;margin-right:8px;">'+(exam.order ? 'Q'+exam.order+'.' : '#'+(idx+1))+'</span>'+(exam.type==='paragraph'?'📄 ':'' )+(exam.question||'')+'</div>'+
               '<div class="exam-meta">'+
                 '<span class="exam-tag tag-course">'+(exam.course||'')+'</span>'+
                 '<span class="exam-tag tag-chap">Ch '+(exam.chapter||'')+'</span>'+
@@ -1504,8 +1505,10 @@
         if (pairs && pairs.children.length === 0) {
           addMatchingPair(); addMatchingPair(); addMatchingPair();
         }
-      } else if (type === 'fill_in_blank') {
+} else if (type === 'fill_in_blank') {
         fitbSection.style.display = 'block';
+        answerGroup.style.display = 'none';
+      } else if (type === 'paragraph') {
         answerGroup.style.display = 'none';
       }
       updateChoiceExpLabels();
@@ -1547,9 +1550,11 @@
       var explanation = document.getElementById('ef_explanation').value.trim();
       var hint = document.getElementById('ef_hint').value.trim();
 
+      var orderNum = parseInt(document.getElementById('ef_order').value)||0;
       if(!course||!chapter||!difficulty||!type||!question){
         showToast('Please fill all required fields (Course, Chapter, Difficulty, Type, Question).'); return;
       }
+      if(type !== 'paragraph' && !orderNum){ showToast('Please enter an order number.'); return; }
 
       var options=[], answer='', pairs=[], alternateAnswers=[];
 
@@ -1602,7 +1607,7 @@
         }
       }
 
-      var data = { course, chapter, difficulty, type, question, options, answer, pairs, alternateAnswers, explanation, explanationMode: expMode, choiceExplanations, textSize, imgs, hint, updatedAt:new Date() };
+      var data = { course, chapter, difficulty, type, question, options, answer, pairs, alternateAnswers, explanation, explanationMode: expMode, choiceExplanations, textSize, imgs, hint, order: orderNum, updatedAt:new Date() };
 
       try {
         if(editingExamId){
@@ -3368,7 +3373,12 @@
                 <option value="true_false">True or False</option>
                 <option value="matching">Matching</option>
                 <option value="fill_in_blank">Fill in the Blank</option>
+                <option value="paragraph">📄 Paragraph (Reading Passage)</option>
               </select>
+            </div>
+            <div class="admin-form-group">
+              <label>Order Number * <span style="font-weight:400;color:#888;">(position in exam e.g. 1, 2, 3...)</span></label>
+              <input type="number" id="ef_order" placeholder="e.g. 1" min="1" style="width:120px;">
             </div>
           </div>
           <!-- Question Text -->
