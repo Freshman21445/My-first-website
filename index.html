@@ -2357,6 +2357,7 @@
       var qText = document.createElement('div');
       qText.className = 'question-text';
       qText.textContent = q.q;
+      qText.style.fontSize = (q.textSize || 16) + 'px';
       wrap.appendChild(qText);
       if (imgs.question) {
         var qImg = document.createElement('img');
