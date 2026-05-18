@@ -2513,9 +2513,9 @@
       var selects = [];
       var els = [];
 
-      _globalQNum++;
-      var qNum = _globalQNum;
       pairs.forEach(function(pair, pi) {
+        _globalQNum++;
+        var qNum = _globalQNum;
 
         var wrap = document.createElement('div');
         wrap.className = 'question';
