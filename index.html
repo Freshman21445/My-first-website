@@ -201,11 +201,18 @@
     .dash-panel.active { display:block; }
     @keyframes slideIn { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
 
-    .panel-card {
+.panel-card {
       background:rgba(255,255,255,0.97); backdrop-filter:blur(10px);
       border-radius:16px; padding:18px 12px;
       box-shadow:0 10px 30px rgba(0,0,0,0.18); margin-bottom:20px;
       width:100%; max-width:none;
+    }
+    #examPanel .panel-card,
+    #materialContentDash .panel-card {
+      margin-top:0;
+      margin-bottom:0;
+      border-radius:0;
+      box-shadow:none;
     }
     .panel-header {
       display:flex; justify-content:flex-start; gap:16px; align-items:center;
