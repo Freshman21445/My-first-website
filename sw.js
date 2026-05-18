@@ -8,7 +8,7 @@
    - SKIP_WAITING supported so checkAndUpdate() works from the app
    ============================================================ */
 
-const CACHE_NAME = 'ethiometric-v5';
+const CACHE_NAME = 'ethiometric-v4';
 const OFFLINE_URL = '/My-first-website/index.html';
 
 const PRE_CACHE = [
