@@ -816,8 +816,8 @@
       if(ph === ADMIN_PHONE && pw === ADMIN_PASS){
         document.getElementById("authBox").style.display="none";
         document.getElementById("adminBox").style.display="block";
-        document.body.style.backgroundImage="url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800&auto=format')";
-        var ts=document.getElementById('topSection'); if(ts) ts.style.display='none';
+        document.body.style.backgroundImage="linear-gradient(135deg,#009688,#00796b)";
+        var ts=document.getElementById('topSection');
         adminGoTo("adminMainDash");
         return;
       }
@@ -1218,7 +1218,7 @@
       if(pw !== ADMIN_PASSWORD){ showToast("Incorrect admin password."); document.getElementById("adminPasswordInput").value=""; return; }
       document.getElementById("authBox").style.display="none";
       document.getElementById("adminBox").style.display="block";
-      document.body.style.backgroundImage="url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800&auto=format')";
+      document.body.style.backgroundImage="linear-gradient(135deg,#009688,#00796b)";
       var ts=document.getElementById('topSection'); if(ts) ts.style.display='none';
       document.getElementById("adminPasswordInput").value="";
       adminGoTo("adminMainDash");
@@ -1227,7 +1227,7 @@
     window.adminLogout = function(){
       document.getElementById("adminBox").style.display="none";
       document.getElementById("authBox").style.display="flex";
-      document.body.style.backgroundImage="url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=800&auto=format')";
+      document.body.style.backgroundImage="linear-gradient(135deg,#009688,#00796b)";
       var ts=document.getElementById('topSection'); if(ts) ts.style.display='block';
       window.showLanding();
     };
