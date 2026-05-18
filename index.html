@@ -3072,14 +3072,16 @@
       </div>
     </div>
 
-    <!-- DASHBOARD 6: Material Content -->
-    <div class="dash-panel" id="materialContentDash">
-      <div class="panel-card" style="border-top:3px solid #3498db">
-        <div class="panel-header">
-          <h2 id="materialContentTitle">Material</h2>
+<!-- DASHBOARD 6: Material Content -->
+    <div class="dash-panel" id="materialContentDash" style="position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;background:#fff;z-index:9999;overflow-y:auto;margin:0;padding:0;">
+      <div style="padding:20px 16px;box-sizing:border-box;min-height:100%;">
+        <div style="display:flex;align-items:center;gap:14px;padding-bottom:18px;border-bottom:2px solid #b2dfdb;margin-bottom:22px;">
           <button class="back-btn" onclick="goBack()">← Go Back</button>
+          <h2 style="flex:1;color:#00796b;font-size:1.4em;font-weight:800;margin:0;">📋 Board of Note</h2>
         </div>
-        <div id="materialContentBox" class="mat-content-page"></div>
+        <div id="bonNoteList" style="display:flex;flex-direction:column;gap:14px;">
+          <p style="color:#aaa;text-align:center;padding:40px 0;">Loading notes…</p>
+        </div>
       </div>
     </div>
 
