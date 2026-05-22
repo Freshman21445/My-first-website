@@ -80,10 +80,7 @@ self.addEventListener('fetch', function(event) {
   ) {
     event.respondWith(
       fetch(event.request).catch(function() {
-        return new Response(
-          JSON.stringify({ error: 'offline', message: 'No internet connection' }),
-          { headers: { 'Content-Type': 'application/json' } }
-        );
+        return new Response(null, { status: 200 });
       })
     );
     return;
@@ -158,7 +155,7 @@ self.addEventListener('fetch', function(event) {
         if (event.request.mode === 'navigate') {
           return caches.match(OFFLINE_URL);
         }
-        return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
+        return new Response(null, { status: 200 });
       });
     })
   );
