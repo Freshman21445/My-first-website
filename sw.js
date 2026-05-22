@@ -68,7 +68,7 @@ self.addEventListener('fetch', function(event) {
   /* Skip non-GET */
   if (event.request.method !== 'GET') return;
 
-  /* ── Firebase / Google APIs — always network, never cache ── */
+  /* ── Firebase / Google APIs — silent offline (no error messages) ── */
   if (
     url.includes('firebaseio.com') ||
     url.includes('firestore.googleapis.com') ||
@@ -80,24 +80,32 @@ self.addEventListener('fetch', function(event) {
   ) {
     event.respondWith(
       fetch(event.request).catch(function() {
-        return new Response(
-          JSON.stringify({ error: 'offline', message: 'No internet connection' }),
-          { headers: { 'Content-Type': 'application/json' } }
-        );
+        // Return empty 200 response instead of JSON error
+        return new Response(null, { status: 200, statusText: 'Offline' });
       })
     );
     return;
   }
 
-  /* ── index.html — NETWORK-FIRST ──
-     Always fetch the latest version from the server.
-     Only fall back to cache when offline.
-     This is what makes the update banner reach PWA users.        */
-  if (url.includes('/My-first-website/index.html') || event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request).then(function(networkResponse) {
+  /* ── Everything else — CACHE-FIRST (instant offline, no delays) ── */
+  event.respondWith(
+    caches.match(event.request).then(function(cachedResponse) {
+      if (cachedResponse) {
+        // Serve from cache instantly — offline works without any error message
+        // Background update (silent)
+        fetch(event.request).then(function(networkResponse) {
+          if (networkResponse && networkResponse.status === 200 && networkResponse.type !== 'opaque') {
+            caches.open(CACHE_NAME).then(function(cache) {
+              cache.put(event.request, networkResponse.clone());
+            });
+          }
+        }).catch(function() { /* silent fail */ });
+        return cachedResponse;
+      }
+
+      // Not in cache — try network
+      return fetch(event.request).then(function(networkResponse) {
         if (networkResponse && networkResponse.status === 200) {
-          /* Update the cache with the fresh copy */
           var clone = networkResponse.clone();
           caches.open(CACHE_NAME).then(function(cache) {
             cache.put(event.request, clone);
@@ -105,60 +113,12 @@ self.addEventListener('fetch', function(event) {
         }
         return networkResponse;
       }).catch(function() {
-        /* Offline — serve cached version */
-        console.log('[SW] Offline — serving cached index.html');
-        return caches.match(OFFLINE_URL);
-      })
-    );
-    return;
-  }
-
-  /* ── Unsplash images — Cache-First ── */
-  if (url.includes('unsplash.com') || url.includes('images.unsplash')) {
-    event.respondWith(
-      caches.match(event.request).then(function(cached) {
-        if (cached) return cached;
-        return fetch(event.request).then(function(response) {
-          if (response && response.status === 200) {
-            var clone = response.clone();
-            caches.open(CACHE_NAME).then(function(cache) {
-              cache.put(event.request, clone);
-            });
-          }
-          return response;
-        }).catch(function() {
-          return new Response('', { status: 200 });
-        });
-      })
-    );
-    return;
-  }
-
-  /* ── Everything else — Cache-First with background update ── */
-  event.respondWith(
-    caches.match(event.request).then(function(cachedResponse) {
-      /* Background update — refresh cache silently */
-      var networkFetch = fetch(event.request).then(function(networkResponse) {
-        if (networkResponse && networkResponse.status === 200 && networkResponse.type !== 'opaque') {
-          caches.open(CACHE_NAME).then(function(cache) {
-            cache.put(event.request, networkResponse.clone());
-          });
-        }
-        return networkResponse;
-      }).catch(function() { return null; });
-
-      if (cachedResponse) {
-        return cachedResponse; /* serve from cache while updating in background */
-      }
-
-      /* Not cached — wait for network */
-      return networkFetch.then(function(response) {
-        if (response) return response;
-        /* Total failure — offline fallback */
+        // Ultimate offline fallback for navigation requests
         if (event.request.mode === 'navigate') {
           return caches.match(OFFLINE_URL);
         }
-        return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
+        // Silent empty response for other assets
+        return new Response(null, { status: 200 });
       });
     })
   );
