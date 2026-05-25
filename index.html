@@ -5059,7 +5059,7 @@
   function _buildShortnoteChapters(){
     var list = document.getElementById('shortnoteChaptersList');
     list.innerHTML = '<p style="color:#aaa;text-align:center;padding:16px;font-size:0.9em;">Loading…</p>';
-    window.loadChaptersForCourse(currentCourse).then(function(chapters){
+    window.loadChaptersForCourse(currentCourse, 'shortnote').then(function(chapters){
       list.innerHTML = '';
       chapters.forEach(function(ch, idx){
         var n = idx + 1;
