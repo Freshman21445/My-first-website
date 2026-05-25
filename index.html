@@ -52,6 +52,7 @@
     .admin-back-link { display:block; text-align:center; color:rgba(255,255,255,0.45); cursor:pointer; font-size:0.88em; text-decoration:underline; transition:color 0.2s; }
     .admin-back-link:hover { color:rgba(255,255,255,0.8); }
     #appBox { display:none; width:100%; }
+    #adminBox { display:none; width:100%; }
     .dashboard-header { display:flex; align-items:center; gap:14px; margin-bottom:4px; background:#009688; padding:10px 14px; border-radius:0 0 16px 16px; box-shadow:0 8px 28px rgba(0,0,0,0.18); }
     .menu-btn { background:linear-gradient(135deg,#1e3c72,#2a5298); color:white; border:none; padding:11px 20px; border-radius:30px; cursor:pointer; font-size:0.97em; font-weight:800; transition:0.3s; box-shadow:0 4px 14px rgba(30,60,114,0.45); white-space:nowrap; flex-shrink:0; }
     .menu-btn:hover { background:linear-gradient(135deg,#162d5e,#1e3c72); transform:translateY(-2px); }
@@ -206,8 +207,7 @@
 </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-    import { getFirestore, enableIndexedDbPersistence,
-             collection, query, where, getDocs, getDocsFromCache, addDoc, updateDoc, deleteDoc, doc, orderBy }
+    import { getFirestore, collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, orderBy, enableIndexedDbPersistence }
       from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
     const cfg = {
       apiKey:"AIzaSyAavkqPwNgzo3UASsz-feaQvTjobxwkj-s",
@@ -219,19 +219,10 @@
     };
     const app = initializeApp(cfg);
     const db  = getFirestore(app);
-    /* Enable offline cache — errors are silently ignored */
-    enableIndexedDbPersistence(db).catch(function(){});
-    /* ── Cache-first getDocs: instant from cache, network only if cache empty ── */
-    async function getDocsCacheFirst(q) {
-      try {
-        const cached = await getDocsFromCache(q);
-        if (!cached.empty) return cached;
-      } catch(e) { /* cache miss — fall through to network */ }
-      return getDocs(q);
-    }
-    /* expose to global scope */
+    try { enableIndexedDbPersistence(db).catch(function(){}); } catch(e){}
+    /* expose db + fns for Chapter Manager and other non-module scripts */
     window._firestoreDb = db;
-    window._firestoreFns = { collection, query, where, getDocs: getDocsCacheFirst, addDoc, updateDoc, deleteDoc, doc, orderBy };
+    window._firestoreFns = { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, orderBy };
     let _storageModule = null;
     async function _getStorageModule(){
       if(_storageModule) return _storageModule;
@@ -391,60 +382,197 @@
       } catch(e){}
       return false;
     };
-    /* ── Manual Update Check — only fires when student taps the button ── */
+    window.checkUpdateAvailable = async function(){
+      try {
+        if(!cu || !cu.phone) return null;
+        var dismissedKey = 'lastDismissedUpdate_' + cu.phone;
+        var lastDismissed = null;
+        try { lastDismissed = parseInt(localStorage.getItem(dismissedKey) || '0'); } catch(e){ lastDismissed = 0; }
+        var userCreatedAt = 0;
+        if(cu.createdAt){
+          var d = cu.createdAt.seconds
+            ? new Date(cu.createdAt.seconds * 1000)
+            : new Date(cu.createdAt);
+          userCreatedAt = d.getTime();
+        }
+        var snap = await getDocs(query(collection(db,'appUpdates'), where('active','==',true)));
+        if(snap.empty) return null;
+        var found = false;
+        snap.forEach(function(d){
+          var data = d.data();
+          var releasedAt = 0;
+          if(data.createdAt){
+            var rd = data.createdAt.seconds
+              ? new Date(data.createdAt.seconds * 1000)
+              : new Date(data.createdAt);
+            releasedAt = rd.getTime();
+          }
+          if(releasedAt <= userCreatedAt) return;
+          if(lastDismissed && releasedAt <= lastDismissed) return;
+          if(data.targetAll === true){
+            found = true;
+          } else if(data.targetPhone && data.targetPhone === cu.phone){
+            found = true;
+          }
+        });
+        return found ? { count: 1 } : null;
+      } catch(e){ return null; }
+    };
+    function _applyUpdateUI(update){
+      var btn = document.getElementById('updateMenuBtn');
+      if(btn) btn.style.display = update ? 'flex' : 'none';
+    }
     window.checkAndUpdate = async function(){
       var btn = document.getElementById('updateMenuBtn');
-      if(btn){ btn.querySelector('.opt-label span').textContent = 'Checking…'; }
-      try {
-        /* Force network fetch for update check — this is the ONE intentional network call */
-        var snap = await getDocs(query(collection(db,'appUpdates'), where('active','==',true)));
-        if(snap.empty){
-          showToast('✅ You are already up to date.');
-          if(btn) btn.querySelector('.opt-label span').textContent = 'Tap to check for updates';
-          return;
-        }
-        if(cu && cu.phone){
-          var dismissedKey = 'lastDismissedUpdate_' + cu.phone;
-          var lastDismissed = parseInt(localStorage.getItem(dismissedKey)||'0');
-          var hasNew = false;
-          snap.forEach(function(d){
-            var data = d.data();
-            var releasedAt = data.createdAt ? (data.createdAt.seconds ? data.createdAt.seconds*1000 : new Date(data.createdAt).getTime()) : 0;
-            if(lastDismissed && releasedAt <= lastDismissed) return;
-            if(data.targetAll === true || (data.targetPhone && data.targetPhone === cu.phone)) hasNew = true;
-          });
-          if(!hasNew){
-            showToast('✅ You are already up to date.');
-            if(btn) btn.querySelector('.opt-label span').textContent = 'Tap to check for updates';
-            return;
+      if(btn) btn.querySelector('.opt-label span').textContent = 'Checking...';
+      var update = await checkUpdateAvailable();
+      if(!update){
+        showToast('You are already up to date.');
+        if(btn){ btn.querySelector('.opt-label span').textContent = 'Tap to update the app'; btn.style.display='none'; }
+        return;
+      }
+      if(confirm('🔄 Update Available!\n\nThe app will reload to apply the latest version.\n\nUpdate now?')){
+        var dismissedKey = 'lastDismissedUpdate_' + (cu && cu.phone ? cu.phone : '');
+        localStorage.setItem(dismissedKey, Date.now().toString());
+        localStorage.setItem('examUpdatedAt_' + (cu && cu.phone ? cu.phone : ''), Date.now().toString());
+        if('serviceWorker' in navigator){
+          var reloadDone = false;
+          function doReload(){
+            if(reloadDone) return;
+            reloadDone = true;
+            window.location.reload(true);
           }
-        }
-        if(confirm('🔄 Update Available!\n\nThe app will reload with the latest content.\n\nUpdate now?')){
-          if(cu && cu.phone) localStorage.setItem('lastDismissedUpdate_'+cu.phone, Date.now().toString());
-          if('serviceWorker' in navigator){
-            var reloadDone = false;
-            function doReload(){ if(reloadDone) return; reloadDone=true; window.location.reload(true); }
-            navigator.serviceWorker.addEventListener('controllerchange', doReload);
-            navigator.serviceWorker.getRegistration().then(function(reg){
-              if(!reg){ doReload(); return; }
-              if(reg.waiting){ reg.waiting.postMessage({type:'SKIP_WAITING'}); }
-              else { doReload(); }
-            }).catch(doReload);
-            setTimeout(doReload, 3000);
-          } else { window.location.reload(true); }
+          navigator.serviceWorker.addEventListener('controllerchange', doReload);
+          navigator.serviceWorker.getRegistration().then(function(reg){
+            if(!reg){ doReload(); return; }
+            if(reg.waiting){
+              reg.waiting.postMessage({type:'SKIP_WAITING'});
+            } else if(reg.installing){
+              reg.installing.addEventListener('statechange', function(e){
+                if(e.target.state === 'installed' && reg.waiting){
+                  reg.waiting.postMessage({type:'SKIP_WAITING'});
+                }
+              });
+            } else {
+              doReload();
+            }
+          }).catch(function(){ doReload(); });
+          setTimeout(doReload, 3000);
         } else {
-          if(cu && cu.phone) localStorage.setItem('lastDismissedUpdate_'+cu.phone, Date.now().toString());
-          if(btn) btn.querySelector('.opt-label span').textContent = 'Tap to check for updates';
+          window.location.reload(true);
         }
-      } catch(e){
-        showToast('📶 No internet connection. Try again when online.');
-        if(btn) btn.querySelector('.opt-label span').textContent = 'Tap to check for updates';
+      } else {
+        var dismissedKey = 'lastDismissedUpdate_' + (cu && cu.phone ? cu.phone : '');
+        localStorage.setItem(dismissedKey, Date.now().toString());
+        if(btn){ btn.querySelector('.opt-label span').textContent = 'Tap to update the app'; btn.style.display='none'; }
       }
     };
+    window._silentUpdateCheck = async function(){
+      if(!cu) return;
+      var update = await checkUpdateAvailable();
+      _applyUpdateUI(update);
+    };
+    async function loadUpdatesList(){
+      var container = document.getElementById('adminUpdatesList');
+      container.innerHTML = '<div class="admin-loading">Loading...</div>';
+      try {
+        var snap = await getDocs(query(collection(db,'appUpdates'), orderBy('createdAt','desc')));
+        if(snap.empty){
+          container.innerHTML = '<div class="admin-empty"><span class="empty-icon">🔄</span>No updates released yet.</div>';
+          return;
+        }
+        container.innerHTML = '';
+        var latest = snap.docs[0];
+        var data = latest.data(); var id = latest.id;
+        var ts = data.createdAt ? (data.createdAt.seconds ? new Date(data.createdAt.seconds*1000).toLocaleString() : new Date(data.createdAt).toLocaleString()) : '';
+        var div = document.createElement('div');
+        div.className = 'exam-list-item';
+        div.innerHTML =
+          '<div class="exam-list-info">'+
+            '<div class="exam-q" style="font-weight:800;color:#1e3c72;">'+(data.message ? data.message : '<em style="color:#999;">No message</em>')+'</div>'+
+            '<div class="exam-meta" style="margin-top:6px;">'+
+              '<span class="exam-tag tag-course">'+(data.targetAll ? '👥 All Users' : '📱 '+data.targetPhone)+'</span>'+
+              '<span class="exam-tag '+(data.active?'tag-chap':'tag-diff')+'">'+(data.active?'✅ Active':'⛔ Inactive')+'</span>'+
+              (ts ? '<span class="exam-tag" style="background:#f5f5f5;color:#666;">🕐 '+ts+'</span>' : '')+
+            '</div>'+
+          '</div>'+
+          '<div class="exam-list-actions">'+
+            '<button class="edit-exam-btn" onclick="toggleUpdate(\''+id+'\','+(data.active?'false':'true')+')">'+(data.active?'Deactivate':'Activate')+'</button>'+
+            '<button class="delete-exam-btn" onclick="deleteUpdate(\''+id+'\')">🗑️</button>'+
+          '</div>';
+        container.appendChild(div);
+        if(snap.docs.length > 1){
+          var older = document.createElement('p');
+          older.style.cssText = 'text-align:center;color:#999;font-size:0.88em;margin-top:10px;';
+          older.textContent = '+ '+(snap.docs.length-1)+' older update'+(snap.docs.length-1>1?'s':'')+' (only latest shown)';
+          container.appendChild(older);
+        }
+      } catch(e){
+        container.innerHTML = '<div class="admin-empty"><span class="empty-icon">⚠️</span>Error: '+e.message+'</div>';
+      }
+    }
+    window.releaseUpdate = async function(){
+      var target = document.querySelector('input[name="updateTarget"]:checked').value;
+      var phone  = document.getElementById('updateTargetPhone').value.trim();
+      if(target === 'one' && !phone){ showToast('Please enter the user phone number.'); return; }
+      try {
+        showToast('Releasing...');
+        var examSnap = await getDocs(query(collection(db,'adminExams'), where('published','==',false)));
+        var examBatch = examSnap.docs.map(function(d){
+          return updateDoc(doc(db,'adminExams',d.id), {published:true});
+        });
+        var matSnap = await getDocs(query(collection(db,'adminMaterials'), where('published','==',false)));
+        var matBatch = matSnap.docs.map(function(d){
+          return updateDoc(doc(db,'adminMaterials',d.id), {published:true});
+        });
+        var uniSnap = await getDocs(query(collection(db,'adminUniversityExams'), where('published','==',false)));
+        var uniBatch = uniSnap.docs.map(function(d){
+          return updateDoc(doc(db,'adminUniversityExams',d.id), {published:true});
+        });
+        var pdfSnap = await getDocs(query(collection(db,'adminPdfMaterials'), where('published','==',false)));
+        var pdfBatch = pdfSnap.docs.map(function(d){
+          return updateDoc(doc(db,'adminPdfMaterials',d.id), {published:true});
+        });
+        await Promise.all([...examBatch, ...matBatch, ...uniBatch, ...pdfBatch]);
+        var data = {
+          active: true,
+          targetAll: target === 'all',
+          targetPhone: target === 'one' ? phone : null,
+          createdAt: new Date()
+        };
+        await addDoc(collection(db,'appUpdates'), data);
+        showToast('Released! ' + examSnap.docs.length + ' question(s), ' + uniSnap.docs.length + ' exam(s), ' + matSnap.docs.length + ' note(s), ' + pdfSnap.docs.length + ' PDF(s) published.');
+        document.getElementById('updateTargetPhone').value='';
+        document.querySelector('input[name="updateTarget"][value="all"]').checked=true;
+        document.getElementById('updatePhoneRow').style.display='none';
+        await loadUpdatesList();
+      } catch(e){ showToast('Error: '+e.message); }
+    };
+    window.toggleUpdate = async function(id, activeVal){
+      try {
+        await updateDoc(doc(db,'appUpdates',id),{active: activeVal==='true'||activeVal===true});
+        await loadUpdatesList();
+      } catch(e){ showToast('Error: '+e.message); }
+    };
+    window.deleteUpdate = async function(id){
+      if(!confirm('Delete this update?')) return;
+      try {
+        await deleteDoc(doc(db,'appUpdates',id));
+        await loadUpdatesList();
+      } catch(e){ showToast('Error: '+e.message); }
+    };
+    window.toggleUpdateTargetInput = function(){
+      var val = document.querySelector('input[name="updateTarget"]:checked').value;
+      var row = document.getElementById('updatePhoneRow');
+      if(row) row.style.display = (val==='one') ? 'block' : 'none';
+    };
     function setMsg(t){var m=document.getElementById("msg");if(m)m.textContent=t;}
+    const ADMIN_PASSWORD = "EthioMetric@Admin2024";
+    // ── End University & Year Management ─────────────────────────────
+
     // Expose Firebase to global scope for non-module scripts
     window._db = db;
-    window._getDocs = getDocsCacheFirst;
+    window._getDocs = getDocs;
     window._collection = collection;
     window._query = query;
     window._where = where;
@@ -588,9 +716,9 @@
             <div class="opt-icon">👤</div>
             <div class="opt-label">My Account<span>View and edit your profile</span></div>
           </button>
-          <button class="menu-option-btn update-opt" id="updateMenuBtn" onclick="checkAndUpdate()">
+          <button class="menu-option-btn update-opt" id="updateMenuBtn" onclick="checkAndUpdate()" style="display:none;">
             <div class="opt-icon">🔄</div>
-            <div class="opt-label">Check for Updates<span>Tap to check for updates</span></div>
+            <div class="opt-label">Update Available<span>Tap to update the app</span></div>
           </button>
           <button class="menu-option-btn contact-opt" onclick="goTo('contactDash')">
             <div class="opt-icon">📞</div>
@@ -1843,7 +1971,16 @@
 
   var _sectionLabels = {questions:'❓ Questions',shortnote:'📋 Short Notes',materials:'📁 Materials'};
 
-  window.openAdminChapterManager = function(section){ /* admin-only — use admin.html */ };
+  window.openAdminChapterManager = function(section){
+    _cmSelectedSection = section || _cmSelectedSection || 'questions';
+    document.getElementById('cmEditorSection').style.display='none';
+    document.getElementById('cmEmptyState').style.display='block';
+    _cmSelectedCourse = '';
+    var sel = document.getElementById('cmCourseSelect');
+    if(sel) sel.value='';
+    var lbl = document.getElementById('cmSectionLabel');
+    if(lbl) lbl.textContent = 'Section: ' + (_sectionLabels[_cmSelectedSection]||_cmSelectedSection);
+  };
 
   window.cmSelectCourse = async function(course){
     if(!course){ showToast('Please select a course first.'); return; }
@@ -1957,64 +2094,6 @@
 
   /* expose firestore refs so Chapter Manager can use them after module init */
   var _origModuleScript = document.querySelector('script[type="module"]');
-})();
-</script>
-
-<script>
-/* ── App Session Init — restore user state, hide splash ── */
-(function(){
-  function initAppSession(){
-    var saved = localStorage.getItem("cu");
-    if(saved){
-      try{ window.cu = JSON.parse(saved); } catch(e){}
-      var authEl = document.getElementById("authBox");
-      var appEl  = document.getElementById("appBox");
-      var ts     = document.getElementById('topSection');
-      if(authEl) authEl.style.display="none";
-      if(appEl)  appEl.style.display="block";
-      document.body.style.backgroundImage="linear-gradient(135deg,#009688,#00796b)";
-      if(ts) ts.style.display='none';
-      try{ window.updateProfile(); }catch(e){}
-      /* Restore last navigation state */
-      var restored = false;
-      try {
-        var ns = JSON.parse(sessionStorage.getItem('_navState') || 'null');
-        if(ns && ns.panel){
-          window.currentCourse      = ns.currentCourse      || '';
-          window.currentChapter     = ns.currentChapter     || 1;
-          window.currentMode        = ns.currentMode        || '';
-          window.currentMaterialNum = ns.currentMaterialNum || 0;
-          window.navHistory         = ns.navHistory         || [];
-          var panel = ns.panel;
-          if(panel === 'examPanel' || panel === 'difficultyDash') panel = 'chaptersDash';
-          if(ns.difficultyTitle){ var de=document.getElementById('difficultyTitle'); if(de) de.textContent=ns.difficultyTitle; }
-          if(ns.materialItemsTitle){ var mi=document.getElementById('materialItemsTitle'); if(mi) mi.textContent=ns.materialItemsTitle; }
-          if(ns.materialContentTitle){ var mc=document.getElementById('materialContentTitle'); if(mc) mc.textContent=ns.materialContentTitle; }
-          if(panel === 'chaptersDash' && typeof window.openChapters === 'function'){
-            window.openChapters(window.currentMode || 'exam');
-          } else if(panel === 'materialContentDash' && typeof window.openMaterialContent === 'function'){
-            window.openMaterialContent(window.currentMaterialNum || 1);
-          } else {
-            if(typeof window.goTo === 'function') window.goTo(panel);
-          }
-          restored = true;
-        }
-      } catch(e){}
-      if(!restored && typeof window.goTo === 'function') window.goTo("mainDash");
-    } else {
-      var authEl2 = document.getElementById("authBox");
-      if(authEl2) authEl2.style.display="flex";
-      if(typeof window.showLanding === 'function') window.showLanding();
-    }
-    /* Hide splash screen */
-    var splash = document.getElementById('splashScreen');
-    if(splash){ splash.style.opacity='0'; setTimeout(function(){ splash.style.display='none'; }, 460); }
-  }
-  if(document.readyState === 'loading'){
-    window.addEventListener('DOMContentLoaded', initAppSession);
-  } else {
-    initAppSession();
-  }
 })();
 </script>
 
