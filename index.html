@@ -611,20 +611,7 @@
           window.updateProfile();
           window.goTo("mainDash");
           setTimeout(window._silentUpdateCheck, 1500);
-          // Kill all admin functions — they will never run for regular users
-          var _noop = function(){};
-          ['adminLogin','adminLogout','adminGoTo','adminGoBack','showAdminLogin',
-           'openAdminUpdates','releaseUpdate','toggleUpdate','deleteUpdate','toggleUpdateTargetInput',
-           'openAdminExams','openAdminQuestions','saveExam','deleteExam',
-           'openAdminUsers','approveUser','revokeUser',
-           'openAdminMaterials','openAdminUniversityExams','loadAdminUniExams','saveUniExam','deleteUniExam',
-           'openAdminPdfMaterials','openAdminManageUniversities','addUniversity','renameUniversity','deleteUniversity',
-           'addYear','loadUniSelectForForm','loadYearsForUniFormSelect','loadAdminUniFilterYears',
-           'openAdminChapterManager'
-          ].forEach(function(fn){ window[fn] = _noop; });
-          // Remove admin DOM from memory entirely
-          var adminBox = document.getElementById('adminBox');
-          if(adminBox) adminBox.remove();
+          
         } else { setAuthErr('loginErr','Wrong phone number or password'); }
       } catch(e){ setAuthErr('loginErr','Connection error. Please try again.'); }
     };
@@ -3074,19 +3061,7 @@
         } catch(e) {}
         if (!restored) window.goTo("mainDash");
         setTimeout(window._silentUpdateCheck, 1500);
-        // Kill all admin functions for regular users
-        var _noop2 = function(){};
-        ['adminLogin','adminLogout','adminGoTo','adminGoBack','showAdminLogin',
-         'openAdminUpdates','releaseUpdate','toggleUpdate','deleteUpdate','toggleUpdateTargetInput',
-         'openAdminExams','openAdminQuestions','saveExam','deleteExam',
-         'openAdminUsers','approveUser','revokeUser',
-         'openAdminMaterials','openAdminUniversityExams','loadAdminUniExams','saveUniExam','deleteUniExam',
-         'openAdminPdfMaterials','openAdminManageUniversities','addUniversity','renameUniversity','deleteUniversity',
-         'addYear','loadUniSelectForForm','loadYearsForUniFormSelect','loadAdminUniFilterYears',
-         'openAdminChapterManager'
-        ].forEach(function(fn){ window[fn] = _noop2; });
-        var adminBoxEl = document.getElementById('adminBox');
-        if(adminBoxEl) adminBoxEl.remove();
+        
       } else {
         document.getElementById("authBox").style.display="flex";
         window.showLanding && window.showLanding();
@@ -3328,25 +3303,32 @@
 <body>
 <script>
 (function(){
-  // If on mobile/app, kill all admin immediately before anything runs
-  if(/Mobi|Android/i.test(navigator.userAgent)){
-    document.addEventListener('DOMContentLoaded', function(){
-      var adminBox = document.getElementById('adminBox');
-      if(adminBox) adminBox.remove();
-      var adminLoginBox = document.getElementById('adminLoginBox');
-      if(adminLoginBox) adminLoginBox.remove();
-      var adminBtn = document.querySelector('.admin-access-btn');
-      if(adminBtn) adminBtn.remove();
-    });
+<script>
+(function(){
+  // Detect if running as installed PWA (app) – NOT a browser tab
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                       (window.navigator.standalone === true);
+  // Only kill admin when inside the installed app
+  if(isStandalone){
+    // Remove admin UI elements
+    var adminBox = document.getElementById('adminBox');
+    if(adminBox) adminBox.remove();
+    var adminLoginBox = document.getElementById('adminLoginBox');
+    if(adminLoginBox) adminLoginBox.remove();
+    var adminBtn = document.querySelector('.admin-access-btn');
+    if(adminBtn) adminBtn.remove();
+
+    // Overwrite all admin functions with no-ops
     var _noop = function(){};
-    ['adminLogin','adminLogout','adminGoTo','adminGoBack','showAdminLogin',
-     'openAdminUpdates','releaseUpdate','toggleUpdate','deleteUpdate','toggleUpdateTargetInput',
-     'openAdminExams','openAdminQuestions','saveExam','deleteExam',
-     'openAdminUsers','approveUser','revokeUser',
-     'openAdminMaterials','openAdminUniversityExams','loadAdminUniExams','saveUniExam','deleteUniExam',
-     'openAdminPdfMaterials','openAdminManageUniversities','addUniversity','renameUniversity','deleteUniversity',
-     'addYear','loadUniSelectForForm','loadYearsForUniFormSelect','loadAdminUniFilterYears',
-     'openAdminChapterManager'
+    [
+      'adminLogin','adminLogout','adminGoTo','adminGoBack','showAdminLogin',
+      'openAdminUpdates','releaseUpdate','toggleUpdate','deleteUpdate','toggleUpdateTargetInput',
+      'openAdminExams','openAdminQuestions','saveExam','deleteExam',
+      'openAdminUsers','approveUser','revokeUser',
+      'openAdminMaterials','openAdminUniversityExams','loadAdminUniExams','saveUniExam','deleteUniExam',
+      'openAdminPdfMaterials','openAdminManageUniversities','addUniversity','renameUniversity','deleteUniversity',
+      'addYear','loadUniSelectForForm','loadYearsForUniFormSelect','loadAdminUniFilterYears',
+      'openAdminChapterManager'
     ].forEach(function(fn){ window[fn] = _noop; });
   }
 })();
