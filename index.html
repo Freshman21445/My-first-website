@@ -584,21 +584,23 @@
       document.getElementById("forgotBox").style.display="block";
     };
     function setAuthErr(id, msg){ var el=document.getElementById(id); if(el) el.textContent=msg; }
-    const ADMIN_PHONE = "0985686008";
-    const ADMIN_PASS  = "abrahamtariku1997@gmail.com";
     window.login = async function(){
       setAuthErr('loginErr','');
       const ph = document.getElementById("loginPhone").value.trim();
       const pw = document.getElementById("loginPassword").value;
       if(!ph||!pw){ setAuthErr('loginErr','Please fill all fields'); return; }
-      if(ph === ADMIN_PHONE && pw === ADMIN_PASS){
-        document.getElementById("authBox").style.display="none";
-        document.getElementById("adminBox").style.display="block";
-        document.body.style.backgroundImage="linear-gradient(135deg,#009688,#00796b)";
-        var ts=document.getElementById('topSection');
-        adminGoTo("adminMainDash");
-        return;
-      }
+      const adminSnap = await getDocs(query(
+  collection(db,"admins"),
+  where("phone","==",ph),
+  where("password","==",pw)
+));
+if(!adminSnap.empty){
+  document.getElementById("authBox").style.display="none";
+  document.getElementById("adminBox").style.display="block";
+  document.body.style.backgroundImage="linear-gradient(135deg,#009688,#00796b)";
+  adminGoTo("adminMainDash");
+  return;
+}
       try {
         const snap = await getDocs(query(collection(db,"users"),where("phone","==",ph),where("password","==",pw)));
         if(!snap.empty){
