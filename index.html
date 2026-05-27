@@ -5008,7 +5008,7 @@
         chapters.forEach(function(ch, idx){
           var n = idx + 1;
           var locked = (n > 1 && !premium);
-          var dlKey = 'dl_' + currentCourse + '_ch' + n + '_mat';
+          var dlKey = 'dl_' + currentCourse + '_ch' + n + '_material';
           var isDl = !!localStorage.getItem(dlKey);
           var row = document.createElement('div');
           row.className = 'chapter-row';
@@ -5180,7 +5180,7 @@
     /* LOCAL-FIRST: always read from localStorage cache, never Firestore */
     try {
       var html = null;
-      var dlKey = 'dl_' + currentCourse + '_ch' + currentChapter + '_mat';
+      var dlKey = 'dl_' + currentCourse + '_ch' + currentChapter + '_material';
       try {
         var cached = localStorage.getItem(dlKey);
         if(cached){ var obj = JSON.parse(cached); html = obj['mat_' + num] || null; }
