@@ -5237,7 +5237,16 @@ var _uniListCache = null;
       return;
     }
     sel.innerHTML = '<option value="">Loading…</option>';
-    var chapters = await window.loadChaptersForCourse(course, section);
+    var chapters = [];
+    var isAdmin = !!document.getElementById('adminBox');
+    if(isAdmin){
+      var fns = _dbFns(); var db = _db();
+      try {
+        var snap = await fns.getDocs(fns.query(fns.collection(db,'adminChapters'),fns.where('course','==',course),fns.where('section','==',section)));
+        if(!snap.empty){ chapters = (snap.docs[0].data().chapters||[]).slice().sort(function(a,b){ return (a.order||0)-(b.order||0); }); }
+      } catch(e){}
+    }
+    if(!chapters.length) chapters = await window.loadChaptersForCourse(course, section);
     /* Fall back to questions section if requested section has no chapters */
     if(!chapters.length && section !== 'questions'){
       chapters = await window.loadChaptersForCourse(course, 'questions');
