@@ -2941,7 +2941,7 @@
       adminGoTo('adminUniMgmtDash');
       _loadAdminUniMgmtList();
     };
-
+var _uniListCache = null;
     async function _loadAdminUniMgmtList(){
       var list = document.getElementById('adminUniMgmtList');
       if(!list) return;
