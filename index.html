@@ -3096,7 +3096,7 @@
 
     // ── University & Year Management (needs db in scope) ──────────────
     var _selectedUniForYears = null;
-
+var _uniListCache = null;
     window.openAdminManageUniversities = function(){
       adminGoTo('adminUniMgmtDash');
       _loadAdminUniMgmtList();
