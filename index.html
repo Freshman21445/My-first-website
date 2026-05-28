@@ -5274,9 +5274,6 @@ var _uniListCache = null;
   window.cmSelectCourse = async function(course){
     if(!course){ showToast('Please select a course first.'); return; }
     _cmSelectedCourse = course;
-    var cacheKey = course + '__' + _cmSelectedSection;
-    delete _chaptersCache[cacheKey];
-    try { localStorage.removeItem('cache_chapters_' + cacheKey); } catch(e){}
     document.getElementById('cmEmptyState').style.display='none';
     document.getElementById('cmEditorSection').style.display='block';
     document.getElementById('cmEditorTitle').textContent = course + ' — ' + ({questions:'Questions',shortnote:'Short Notes',materials:'Materials'}[_cmSelectedSection]||_cmSelectedSection);
