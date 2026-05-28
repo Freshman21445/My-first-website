@@ -1132,6 +1132,8 @@
       editingExamId = null;
       document.getElementById('examFormTitle').textContent = '➕ Add New Question';
       resetExamForm(true);
+      var course = document.getElementById('ef_course').value;
+      if(course) loadChapterOptionsForForm('ef_chapter', course, true, 'questions');
       adminGoTo('adminExamFormDash');
     };
     window.openEditExam = async function(examId){
