@@ -5402,8 +5402,7 @@ var _uniListCache = null;
       var snap = await fns.getDocs(fns.query(
         fns.collection(db,'adminChapters'),
         fns.where('course','==',course),
-        fns.where('section','==',section)
-      ));
+        ));
       if(snap.empty){
         await fns.addDoc(fns.collection(db,'adminChapters'), {course:course, section:section, chapters:chapters, updatedAt:new Date()});
       } else {
