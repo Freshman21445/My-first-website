@@ -5284,12 +5284,7 @@ var _uniListCache = null;
   async function _renderCmChapters(course){
     var el = document.getElementById('cmChapterList');
     el.innerHTML = '<p style="color:#aaa;font-size:0.9em;padding:8px 0;">Loading…</p>';
-    var fns = _dbFns(); var db = _db();
-    var chapters = [];
-    try {
-      var snap = await fns.getDocs(fns.query(fns.collection(db,'adminChapters'),fns.where('course','==',course),fns.where('section','==',_cmSelectedSection)));
-      if(!snap.empty){ chapters = (snap.docs[0].data().chapters||[]).slice().sort(function(a,b){ return (a.order||0)-(b.order||0); }); }
-    } catch(e){}
+    var chapters = await window.loadChaptersForCourse(course, _cmSelectedSection);
     /* Auto-save chapters into this section in Firestore if they came from a fallback,
        so future edits are stored under the correct section */
     if(chapters.length){
