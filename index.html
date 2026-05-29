@@ -3101,8 +3101,6 @@ var _uniListCache = null;
       var name = (document.getElementById('newUniName')||{}).value;
       if(name) name = name.trim();
       if(!name){ showToast('Enter a university name.'); return; }
-      var course = (document.getElementById('newUniCourse')||{}).value || '';
-      var examType = (document.getElementById('newUniExamType')||{}).value || 'mid';
       try {
         await addDoc(collection(db,'adminUniversityList'),{name:name,course:course,examType:examType,createdAt:new Date()});
         document.getElementById('newUniName').value='';
@@ -4417,20 +4415,6 @@ var _uniListCache = null;
             <h3 style="color:#1e3c72;margin-bottom:14px;font-size:1em;">🏫 Universities</h3>
             <div style="display:flex;gap:8px;margin-bottom:8px;">
               <input type="text" id="newUniName" placeholder="University name (e.g. AAU)" style="flex:1;padding:10px 14px;border:2px solid #c5cae9;border-radius:10px;font-size:0.95em;outline:none;box-sizing:border-box;">
-            </div>
-            <div style="display:flex;gap:8px;margin-bottom:8px;">
-              <select id="newUniCourse" style="flex:1;padding:10px 14px;border:2px solid #c5cae9;border-radius:10px;font-size:0.95em;outline:none;background:white;color:#1e3c72;font-weight:700;">
-                <option value="medicine">Medicine</option>
-                <option value="nursing">Nursing</option>
-                <option value="pharmacy">Pharmacy</option>
-                <option value="health_officer">Health Officer</option>
-                <option value="dentistry">Dentistry</option>
-                <option value="anesthesia">Anesthesia</option>
-              </select>
-              <select id="newUniExamType" style="flex:1;padding:10px 14px;border:2px solid #c5cae9;border-radius:10px;font-size:0.95em;outline:none;background:white;color:#1e3c72;font-weight:700;">
-                <option value="mid">📝 Mid</option>
-                <option value="final">🎓 Final</option>
-              </select>
             </div>
             <div style="display:flex;gap:8px;margin-bottom:12px;">
               <button onclick="addUniversity()" style="width:100%;padding:10px 16px;background:linear-gradient(135deg,#1e3c72,#2a5298);color:white;border:none;border-radius:10px;cursor:pointer;font-weight:700;font-size:0.9em;white-space:nowrap;">➕ Add</button>
