@@ -5352,7 +5352,7 @@ var _uniListCache = null;
 
     // Root and direct children expanded, everything deeper collapsed
     function initExpanded(node, depth){
-      node.expanded = (depth <= 1);
+      node.expanded = false;
       node.children.forEach(function(c){ initExpanded(c, depth+1); });
     }
     initExpanded(tree,0);
