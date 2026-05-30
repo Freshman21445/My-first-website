@@ -5570,7 +5570,7 @@ var _uniListCache = null;
         var mid=getTouchMid(e.touches);
         var newScale=Math.max(0.15,Math.min(5,pinchStartScale*(dist/pinchStartDist)));
         // Pan delta (1:1 with finger movement) + focal zoom
-        var dx=(mid.x-pinchLastMid.x)*6, dy=(mid.y-pinchLastMid.y)*6;
+        var dx=(mid.x-pinchLastMid.x)*5, dy=(mid.y-pinchLastMid.y)*5;
         panX=mid.x-(mid.x-pinchLastMid._panX)*(newScale/scale)+dx;
         panY=mid.y-(mid.y-pinchLastMid._panY)*(newScale/scale)+dy;
         scale=newScale;
