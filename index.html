@@ -3737,7 +3737,7 @@ var _uniListCache = null;
       </div>
     </div>
         <div class="dash-panel" id="mindmapViewDash">
-      <div class="panel-card" style="background:#ffffff;backdrop-filter:none;min-height:100vh;display:flex;flex-direction:column;padding:0;box-shadow:none;border:none;border-radius:0;margin:0;">
+      <div class="panel-card" style="background:#FAF9F6;backdrop-filter:none;min-height:100vh;display:flex;flex-direction:column;padding:0;box-shadow:none;border:none;border-radius:0;margin:0;">
         <div class="panel-header" style="padding:12px 16px;">
           <button class="back-btn" onclick="goBack()">← Go Back</button>
           <h2 id="mindmapViewTitle" style="color:#6a1b9a;text-shadow:none;font-size:1em;">🧠 Mind Map</h2>
@@ -4741,7 +4741,7 @@ var _uniListCache = null;
     }
     document.getElementById(id).classList.add('active');
     document.body.style.backgroundImage = (id === 'mindmapViewDash') ? 'none' : '';
-    document.body.style.backgroundColor = (id === 'mindmapViewDash') ? '#ffffff' : '';
+    document.body.style.backgroundColor = (id === 'mindmapViewDash') ? '#FAF9F6' : '';
     var topSec = document.getElementById('topSection');
     if(topSec) topSec.style.display = (id === 'mainDash') ? 'none' : 'block';
     var bottomNavPanels = ['mainDash','examsDash','materialsDash','shortnoteDash','chaptersDash'];
@@ -5601,7 +5601,7 @@ var _uniListCache = null;
         var mid=getTouchMid(e.touches);
         var newScale=Math.max(0.15,Math.min(5,pinchStartScale*(dist/pinchStartDist)));
         // Pan delta (1:1 with finger movement) + focal zoom
-        var dx=(mid.x-pinchLastMid.x)*4, dy=(mid.y-pinchLastMid.y)*4;
+        var dx=(mid.x-pinchLastMid.x)*3, dy=(mid.y-pinchLastMid.y)*3;
         panX=mid.x-(mid.x-pinchLastMid._panX)*(newScale/scale)+dx;
         panY=mid.y-(mid.y-pinchLastMid._panY)*(newScale/scale)+dy;
         scale=newScale;
