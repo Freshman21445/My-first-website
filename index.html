@@ -1741,7 +1741,7 @@
     // Load chapters for a course from adminMindmapChapters
     async function _loadMmChapters(course){
       try {
-        var fns=_dbFns(); var db2=_db();
+        var fns=window._dbFns && window._dbFns(); var db2=window._db && window._db();
         var snap = await fns.getDocs(fns.query(fns.collection(db2,'adminMindmapChapters'), fns.where('course','==',course), fns.orderBy('order','asc')));
         return snap.docs.map(function(d){ return {id:d.id, ...d.data()}; });
       } catch(e){ return []; }
@@ -1776,7 +1776,7 @@
         delBtn.style.cssText='padding:5px 9px;background:#fce4ec;border:1.5px solid #f48fb1;border-radius:8px;cursor:pointer;font-size:0.85em;';
         delBtn.onclick=async function(){
           if(!confirm('Delete "'+ch.name+'"?')) return;
-          try { var fns=_dbFns(); var db2=_db(); await fns.deleteDoc(fns.doc(db2,'adminMindmapChapters',ch.id)); showToast('Deleted.'); loadMindmapChaptersForManager(course); } catch(e){ showToast('Error: '+e.message); }
+          try { var fns=window._dbFns&&window._dbFns(); var db2=window._db&&window._db(); await fns.deleteDoc(fns.doc(db2,'adminMindmapChapters',ch.id)); showToast('Deleted.'); loadMindmapChaptersForManager(course); } catch(e){ showToast('Error: '+e.message); }
         };
         row.appendChild(nameEl); row.appendChild(delBtn);
         list.appendChild(row);
@@ -1789,7 +1789,7 @@
       if(name) name=name.trim();
       if(!course||!name){ showToast('Select course and enter chapter name.'); return; }
       try {
-        var fns=_dbFns(); var db2=_db();
+        var fns=window._dbFns && window._dbFns(); var db2=window._db && window._db();
         var snap=await fns.getDocs(fns.query(fns.collection(db2,'adminMindmapChapters'),fns.where('course','==',course)));
         var order=snap.size+1;
         await fns.addDoc(fns.collection(db2,'adminMindmapChapters'),{course:course,name:name,order:order,createdAt:new Date()});
@@ -1809,7 +1809,7 @@
       if(!co||!chId){ showToast('Select course and chapter.'); return; }
       currentMmCourse=co; currentMmChapterId=chId;
       try {
-        var fns=_dbFns(); var db2=_db();
+        var fns=window._dbFns && window._dbFns(); var db2=window._db && window._db();
         var q2=fns.query(fns.collection(db2,'adminMindmaps'),fns.where('course','==',co),fns.where('chapterId','==',chId));
         var snap=await fns.getDocs(q2);
         if(!snap.empty && snap.docs[0].data().tree){
@@ -1888,7 +1888,7 @@
     window.saveMindmapContent = async function(){
       if(!_mmTree||!_mmTree.label.trim()){ showToast('Add at least a root node label.'); return; }
       try {
-        var fns=_dbFns(); var db2=_db();
+        var fns=window._dbFns && window._dbFns(); var db2=window._db && window._db();
         var treeJson=JSON.stringify(_mmTree);
         var q2=fns.query(fns.collection(db2,'adminMindmaps'),fns.where('course','==',currentMmCourse),fns.where('chapterId','==',currentMmChapterId));
         var snap=await fns.getDocs(q2);
@@ -1901,7 +1901,7 @@
     window.deleteMindmapContent = async function(){
       if(!confirm('Delete this mind map?')) return;
       try {
-        var fns=_dbFns(); var db2=_db();
+        var fns=window._dbFns && window._dbFns(); var db2=window._db && window._db();
         var q2=fns.query(fns.collection(db2,'adminMindmaps'),fns.where('course','==',currentMmCourse),fns.where('chapterId','==',currentMmChapterId));
         var snap=await fns.getDocs(q2);
         if(!snap.empty) await fns.deleteDoc(fns.doc(db2,'adminMindmaps',snap.docs[0].id));
