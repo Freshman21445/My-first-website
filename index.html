@@ -5575,7 +5575,7 @@ var _uniListCache = null;
       }
       if(node.expanded) node.children.forEach(function(c){ drawNode(c,node,depth+1); });
     }
-    redraw();
+    refreshLayout();
 
     // Mouse pan
     svg.addEventListener('mousedown',function(e){ dragging=true; startX=e.clientX; startY=e.clientY; svg.style.cursor='grabbing'; });
@@ -5615,7 +5615,7 @@ var _uniListCache = null;
       } else if(e.touches.length===2&&pinchStartDist&&pinchLastMid){
         var dist=getTouchDist(e.touches);
         var mid=getTouchMid(e.touches);
-        var newScale=Math.max(0.15,Math.min(5,pinchStartScale*(dist/pinchStartDist)));
+        var newScale=Math.max(0.15,Math.min(3.5,pinchStartScale*(dist/pinchStartDist)));
         // Pan delta (1:1 with finger movement) + focal zoom
         var dx=(mid.x-pinchLastMid.x)*4, dy=(mid.y-pinchLastMid.y)*4;
         panX=mid.x-(mid.x-pinchLastMid._panX)*(newScale/scale)+dx;
