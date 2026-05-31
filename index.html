@@ -5566,7 +5566,7 @@ var _uniListCache = null;
         togTxt.textContent=node.expanded?'<':'>';
         togTxt.style.cursor='pointer';
         var toggleFn=(function(nd){ return function(e){
-          e.stopPropagation(); nd.expanded=!nd.expanded; g.style.transition='none'; g.style.opacity='0'; setTimeout(function(){ refreshLayout(); g.style.transition='opacity 0.5s ease'; g.style.opacity='1'; },50);
+          e.stopPropagation(); nd.expanded=!nd.expanded; svg.style.transition='none'; svg.style.opacity='0'; setTimeout(function(){ refreshLayout(); svg.style.transition='opacity 0.5s ease'; svg.style.opacity='1'; },50);
         };})(node);
         togHit.addEventListener('click',toggleFn);
         togCircle.addEventListener('click',toggleFn);
