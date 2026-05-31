@@ -346,6 +346,7 @@
     .mindmap-chapters-list { display:flex; flex-direction:column; gap:10px; margin-top:4px; }
     .mindmap-ch-btn { padding:14px 20px; border-radius:14px; border:none; cursor:pointer; background:linear-gradient(135deg,#f3e5f5,#e1bee7); color:#4a148c; font-weight:700; font-size:1em; text-align:left; transition:all 0.22s; box-shadow:0 3px 10px rgba(0,0,0,0.07); }
     .mindmap-ch-btn:hover { transform:translateX(5px); background:linear-gradient(135deg,#e1bee7,#ce93d8); }
+    @keyframes mmFadeIn { from { opacity: 0; } to { opacity: 1; } }
     .shortnote-chapters { display:flex; flex-wrap:wrap; gap:10px; margin-top:4px; }
     .shortnote-ch-btn { padding:12px 22px; border-radius:40px; cursor:pointer; font-weight:800; font-size:0.98em; border:none; transition:all 0.28s; background:linear-gradient(135deg,#00acc1,#00838f); color:white; box-shadow:0 5px 14px rgba(0,172,193,0.4); }
     .shortnote-ch-btn:hover { transform:translateY(-3px); box-shadow:0 10px 24px rgba(0,172,193,0.5); }
@@ -5502,13 +5503,15 @@ var _uniListCache = null;
     };
 
     function refreshLayout(){
-      doLayout();
-      var b2={minX:Infinity,minY:Infinity,maxX:-Infinity,maxY:-Infinity};
-      bounds(tree,b2);
-      var W2=b2.maxX-b2.minX+80, H2=b2.maxY-b2.minY+80;
-      svg.setAttribute('viewBox',(b2.minX-40)+' '+(b2.minY-40)+' '+W2+' '+H2);
-      svg.setAttribute('width',W2); svg.setAttribute('height',H2);
-      redraw();
+  doLayout();
+  var b2={minX:Infinity,minY:Infinity,maxX:-Infinity,maxY:-Infinity};
+  bounds(tree,b2);
+  var W2=b2.maxX-b2.minX+80, H2=b2.maxY-b2.minY+80;
+  svg.setAttribute('viewBox',(b2.minX-40)+' '+(b2.minY-40)+' '+W2+' '+H2);
+  svg.setAttribute('width',W2); svg.setAttribute('height',H2);
+  redraw();
+  g.style.animation='none';
+  requestAnimationFrame(function(){ g.style.animation='mmFadeIn 0.5s ease'; });
     }
 
     function drawNode(node, parent, depth){
