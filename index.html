@@ -620,15 +620,24 @@
           var ts2=document.getElementById('topSection'); if(ts2) ts2.style.display='none';
           window.updateProfile();
           window.goTo("mainDash");
-          /* Load bank logos from Firestore */
-          try {
-            getDocs(collection(db,'settings')).then(function(snap){
-              var data = {};
-              snap.docs.forEach(function(d){ Object.assign(data, d.data()); });
-              if(data.cbe_logo) document.querySelectorAll('.cbe-logo').forEach(function(img){ img.src = data.cbe_logo; });
-              if(data.telebirr_logo) document.querySelectorAll('.telebirr-logo').forEach(function(img){ img.src = data.telebirr_logo; });
-            }).catch(function(){});
-          } catch(e){}
+          /* Load bank logos - cache in localStorage like university images */
+try {
+  var cachedLogos = localStorage.getItem('cache_bank_logos');
+  if(cachedLogos){
+    var logos = JSON.parse(cachedLogos);
+    if(logos.cbe_logo) document.querySelectorAll('.cbe-logo').forEach(function(img){ img.src = logos.cbe_logo; });
+    if(logos.telebirr_logo) document.querySelectorAll('.telebirr-logo').forEach(function(img){ img.src = logos.telebirr_logo; });
+  }
+  getDocs(collection(db,'settings')).then(function(snap){
+    var data = {};
+    snap.docs.forEach(function(d){ Object.assign(data, d.data()); });
+    if(data.cbe_logo || data.telebirr_logo){
+      localStorage.setItem('cache_bank_logos', JSON.stringify({cbe_logo: data.cbe_logo||'', telebirr_logo: data.telebirr_logo||''}));
+      if(data.cbe_logo) document.querySelectorAll('.cbe-logo').forEach(function(img){ img.src = data.cbe_logo; });
+      if(data.telebirr_logo) document.querySelectorAll('.telebirr-logo').forEach(function(img){ img.src = data.telebirr_logo; });
+    }
+  }).catch(function(){});
+} catch(e){}
           /* First-time setup: auto-fetch dynamic buttons if not cached yet */
           setTimeout(function(){
             var hasCache = !!localStorage.getItem('cache_chapters_Anthropology__questions');
