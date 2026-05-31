@@ -5566,7 +5566,7 @@ var _uniListCache = null;
         togTxt.textContent=node.expanded?'<':'>';
         togTxt.style.cursor='pointer';
         var toggleFn=(function(nd){ return function(e){
-          e.stopPropagation(); nd.expanded=!nd.expanded; var _s=document.getElementById('mindmapSvg'); _s.style.transition='none'; _s.style.opacity='0'; setTimeout(function(){ refreshLayout(); _s.style.transition='opacity 0.5s ease'; _s.style.opacity='1'; },50);
+        e.stopPropagation(); nd.expanded=!nd.expanded; var _s=document.getElementById('mindmapSvg'); _s.style.transition='none'; _s.style.opacity='0'; requestAnimationFrame(function(){ requestAnimationFrame(function(){ refreshLayout(); _s.style.transition='opacity 0.6s ease'; _s.style.opacity='1'; }); });
         };})(node);
         togHit.addEventListener('click',toggleFn);
         togCircle.addEventListener('click',toggleFn);
