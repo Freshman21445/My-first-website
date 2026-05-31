@@ -5805,7 +5805,7 @@ var _uniListCache = null;
       if(e.touches.length===1&&t0&&!pinchStartDist){
         // 1:1 pan speed with finger — delta per frame
         var dx=e.touches[0].clientX-t0.x, dy=e.touches[0].clientY-t0.y;
-        panX+=dx*2; panY+=dy*2;
+        panX+=dx; panY+=dy;
         t0={x:e.touches[0].clientX,y:e.touches[0].clientY};
         applyTransform();
       } else if(e.touches.length===2&&pinchStartDist&&pinchLastMid){
@@ -5813,7 +5813,7 @@ var _uniListCache = null;
         var mid=getTouchMid(e.touches);
         var newScale=Math.max(0.35,Math.min(3.5,pinchStartScale*(dist/pinchStartDist)));
         // Pan delta (1:1 with finger movement) + focal zoom
-        var dx=(mid.x-pinchLastMid.x)*4, dy=(mid.y-pinchLastMid.y)*4;
+        var dx=(mid.x-pinchLastMid.x), dy=(mid.y-pinchLastMid.y);
         panX=mid.x-(mid.x-pinchLastMid._panX)*(newScale/scale)+dx;
         panY=mid.y-(mid.y-pinchLastMid._panY)*(newScale/scale)+dy;
         scale=newScale;
