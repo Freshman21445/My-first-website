@@ -5691,13 +5691,14 @@ var x1=parent._x+parent._w+16, y1=parent._y+NODE_H/2;
           if(expanding){
             refreshLayout();
             function collectByLevel(node, relDepth, map){
-              if(!node.expanded || node.children.length===0) return;
-              map[relDepth] = map[relDepth]||[];
-              node.children.forEach(function(c){
-                if(c._grp) map[relDepth].push(c._grp);
-                collectByLevel(c, relDepth+1, map);
-              });
-            }
+  if(relDepth > 1) return;  // ← only direct children, no deeper
+  if(!node.expanded || node.children.length===0) return;
+  map[relDepth] = map[relDepth]||[];
+  node.children.forEach(function(c){
+    if(c._grp) map[relDepth].push(c._grp);
+    collectByLevel(c, relDepth+1, map);
+  });
+  }
             var lvlMap={};
             collectByLevel(nd, 1, lvlMap);
             var lvlKeys = Object.keys(lvlMap).map(Number).sort(function(a,b){return a-b;});
