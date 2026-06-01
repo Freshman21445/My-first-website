@@ -5612,6 +5612,27 @@ var _uniListCache = null;
         _setAllExpanded(tree, false, 0);
         tree.children.forEach(function(c){ c.expanded=false; });
         refreshLayout();
+        var clvlMap={};
+        function collectAllCollapse(node, depth){
+          if(node.children.length===0) return;
+          clvlMap[depth] = clvlMap[depth]||[];
+          node.children.forEach(function(c){
+            if(c._grp) clvlMap[depth].push(c._grp);
+            collectAllCollapse(c, depth+1);
+          });
+        }
+        collectAllCollapse(tree, 0);
+        var clvlKeys = Object.keys(clvlMap).map(Number).sort(function(a,b){return b-a;});
+        clvlKeys.forEach(function(lv, idx){
+          setTimeout(function(){
+            clvlMap[lv].forEach(function(grp){
+              grp.style.transition='opacity 1s ease, transform 1s cubic-bezier(0.36,0,0.66,0)';
+              grp.style.opacity='0';
+              grp.style.transform='scaleX(0)';
+            });
+          }, idx*1050);
+        });
+        setTimeout(function(){ refreshLayout(); }, clvlKeys.length*1050);
       } else {
         tree.children.forEach(function(c){ c.expanded = false; });
         _setAllExpanded(tree, true, 0);
