@@ -5633,8 +5633,7 @@ var _uniListCache = null;
       // Curved bezier — all lines fan from same parent right-center point
       if(parent){
         var togX=parent._x+parent._w-TOG_W;
-var x1=togX+TOG_W/2, y1=parent._y+NODE_H/2;
-        var x2=node._x, y2=node._y+NODE_H/2;
+var x1=parent._x+parent._w, y1=parent._y+NODE_H/2;
         var cpx=x1+(x2-x1)*0.45;
         var path=document.createElementNS('http://www.w3.org/2000/svg','path');
         path.setAttribute('d','M'+x1+','+y1+' C'+cpx+','+y1+' '+cpx+','+y2+' '+x2+','+y2);
