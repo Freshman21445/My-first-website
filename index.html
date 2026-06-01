@@ -5655,26 +5655,21 @@ var _uniListCache = null;
       txt.setAttribute('font-family','Arial,sans-serif'); txt.setAttribute('font-weight','600');
       txt.textContent=node.label;
       g.appendChild(txt);
-      // Toggle inside node on right edge
+      // Toggle OUTSIDE node — separate circle to the right
       if(node.children.length>0){
-        var togX=node._x+node._w-TOG_W;
-        var sep=document.createElementNS('http://www.w3.org/2000/svg','line');
-        sep.setAttribute('x1',togX); sep.setAttribute('y1',node._y+4);
-        sep.setAttribute('x2',togX); sep.setAttribute('y2',node._y+NODE_H-4);
-        sep.setAttribute('stroke',color); sep.setAttribute('stroke-width','1'); sep.setAttribute('opacity','0.4');
-        g.appendChild(sep);
         var togHit=document.createElementNS('http://www.w3.org/2000/svg','rect');
-        togHit.setAttribute('x',togX); togHit.setAttribute('y',node._y);
-        togHit.setAttribute('width',TOG_W); togHit.setAttribute('height',NODE_H);
+        togHit.setAttribute('x',node._x+node._w); togHit.setAttribute('y',node._y);
+        togHit.setAttribute('width',TOG_W+8); togHit.setAttribute('height',NODE_H);
         togHit.setAttribute('fill','transparent'); togHit.style.cursor='pointer';
-        var circR=10;
-        var circX=togX+TOG_W/2; var circY=node._y+NODE_H/2;
+        var circR=12;
+        var circX=node._x+node._w+circR+4; var circY=node._y+NODE_H/2;
         var togCircle=document.createElementNS('http://www.w3.org/2000/svg','circle');
         togCircle.setAttribute('cx',circX); togCircle.setAttribute('cy',circY);
         togCircle.setAttribute('r',circR);
         togCircle.setAttribute('fill',depth===0?'#5c6bc0':depth===1?'#90caf9':depth===2?'#80cbc4':'#a5d6a7');
         togCircle.style.cursor='pointer';
         g.appendChild(togCircle);
+        
         var togTxt=document.createElementNS('http://www.w3.org/2000/svg','text');
         togTxt.setAttribute('x',circX); togTxt.setAttribute('y',circY+4);
         togTxt.setAttribute('text-anchor','middle'); togTxt.setAttribute('font-size','11');
