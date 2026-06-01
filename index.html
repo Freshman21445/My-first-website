@@ -5609,13 +5609,46 @@ var _uniListCache = null;
     _mmToggleBtn.onclick = function(e){
       e.stopPropagation();
       if(_isAllExpanded(tree)){
-        // Collapse to root + direct children only
         _setAllExpanded(tree, false, 0);
         tree.children.forEach(function(c){ c.expanded=false; });
+        refreshLayout();
       } else {
+        tree.children.forEach(function(c){ c.expanded = false; });
         _setAllExpanded(tree, true, 0);
+        refreshLayout();
+        var lvlMap={};
+        function collectAll(node, depth){
+          if(node.children.length===0) return;
+          lvlMap[depth] = lvlMap[depth]||[];
+          node.children.forEach(function(c){
+            if(c._grp) lvlMap[depth].push(c._grp);
+            collectAll(c, depth+1);
+          });
+        }
+        collectAll(tree, 0);
+        var lvlKeys = Object.keys(lvlMap).map(Number).sort(function(a,b){return a-b;});
+        lvlKeys.forEach(function(lv){
+          lvlMap[lv].forEach(function(grp){
+            grp.style.opacity='0';
+            grp.style.transform='scaleX(0)';
+            grp.style.transition='none';
+          });
+        });
+        function animateLvl(idx){
+          if(idx>=lvlKeys.length) return;
+          lvlMap[lvlKeys[idx]].forEach(function(grp){
+            requestAnimationFrame(function(){
+              requestAnimationFrame(function(){
+                grp.style.transition='opacity 1s ease, transform 1s cubic-bezier(0.34,1.56,0.64,1)';
+                grp.style.opacity='1';
+                grp.style.transform='scaleX(1)';
+              });
+            });
+          });
+          setTimeout(function(){ animateLvl(idx+1); }, 1050);
+        }
+        animateLvl(0);
       }
-      refreshLayout();
     };
 
     function refreshLayout(){
