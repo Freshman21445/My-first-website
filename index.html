@@ -5630,18 +5630,24 @@ var _uniListCache = null;
 
     function drawNode(node, parent, depth){
       var color=COLORS[Math.min(depth,COLORS.length-1)];
-      // Curved bezier — all lines fan from same parent right-center point
-      if(parent){
-       var togX=parent._x+parent._w-TOG_W;
-        var x1=togX+TOG_W/2, y1=parent._y+NODE_H/2;
-        var x2=node._x, y2=node._y+NODE_H/2;
-        var cpx=x1+(x2-x1)*0.45;
-        var path=document.createElementNS('http://www.w3.org/2000/svg','path');
-        path.setAttribute('d','M'+x1+','+y1+' C'+cpx+','+y1+' '+cpx+','+y2+' '+x2+','+y2);
-        path.setAttribute('fill','none'); path.setAttribute('stroke',color);
-        path.setAttribute('stroke-width','1.6'); path.setAttribute('opacity','0.75');
-        g.appendChild(path);
-      }
+      // Curved bezier — all lines fan from the small button's right edge
+if(parent){
+  var togX = parent._x + parent._w - TOG_W;
+  
+  // CHANGED: Removed "/2" so x1 shifts to the exact right edge of the toggle button
+  var x1 = togX + TOG_W, y1 = parent._y + NODE_H / 2;
+  
+  var x2 = node._x, y2 = node._y + NODE_H / 2;
+  var cpx = x1 + (x2 - x1) * 0.45;
+  var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', 'M' + x1 + ',' + y1 + ' C' + cpx + ',' + y1 + ' ' + cpx + ',' + y2 + ' ' + x2 + ',' + y2);
+  path.setAttribute('fill', 'none'); 
+  path.setAttribute('stroke', color);
+  path.setAttribute('stroke-width', '1.6'); 
+  path.setAttribute('opacity', '0.75');
+  g.appendChild(path);
+  }
+  
       // Node rect — width fits text exactly
       var rect=document.createElementNS('http://www.w3.org/2000/svg','rect');
       rect.setAttribute('x',node._x); rect.setAttribute('y',node._y);
