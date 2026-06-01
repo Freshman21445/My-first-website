@@ -5689,6 +5689,7 @@ var x1=parent._x+parent._w+16, y1=parent._y+NODE_H/2;
           var expanding = !nd.expanded;
           nd.expanded = expanding;
           if(expanding){
+            nd.children.forEach(function(c){ c.expanded = false; });
             refreshLayout();
             function collectByLevel(node, relDepth, map){
   if(relDepth > 1) return;  // ← only direct children, no deeper
