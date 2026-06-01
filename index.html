@@ -5608,65 +5608,75 @@ var _uniListCache = null;
     }
     _mmToggleBtn.onclick = function(e){
       e.stopPropagation();
-      if(_isAllExpanded(tree)){
-        _setAllExpanded(tree, false, 0);
-        tree.children.forEach(function(c){ c.expanded=false; });
-        refreshLayout();
-        var clvlMap={};
-        function collectAllCollapse(node, depth){
-          if(node.children.length===0) return;
-          clvlMap[depth] = clvlMap[depth]||[];
-          node.children.forEach(function(c){
-            if(c._grp) clvlMap[depth].push(c._grp);
-            collectAllCollapse(c, depth+1);
-          });
-        }
-        collectAllCollapse(tree, 0);
-        var clvlKeys = Object.keys(clvlMap).map(Number).sort(function(a,b){return b-a;});
-        clvlKeys.forEach(function(lv, idx){
+      var expanding = !_isAllExpanded(tree);
+
+      // Collect all _grp references BEFORE changing state or redrawing
+      var lvlMap={};
+      function collectGrps(node, depth){
+        node.children.forEach(function(c){
+          if(c._grp){
+            lvlMap[depth] = lvlMap[depth]||[];
+            lvlMap[depth].push(c._grp);
+          }
+          collectGrps(c, depth+1);
+        });
+      }
+      collectGrps(tree, 0);
+      var lvlKeys = Object.keys(lvlMap).map(Number).sort(function(a,b){ return expanding ? a-b : b-a; });
+
+      if(!expanding){
+        // COLLAPSE: fade out all levels from deepest to shallowest, then update layout
+        lvlKeys.forEach(function(lv, idx){
           setTimeout(function(){
-            clvlMap[lv].forEach(function(grp){
-              grp.style.transition='opacity 1s ease, transform 1s cubic-bezier(0.36,0,0.66,0)';
+            lvlMap[lv].forEach(function(grp){
+              grp.style.transition='opacity 0.6s ease, transform 0.6s cubic-bezier(0.36,0,0.66,0)';
               grp.style.opacity='0';
               grp.style.transform='scaleX(0)';
             });
-          }, idx*1050);
+          }, idx*400);
         });
-        setTimeout(function(){ refreshLayout(); }, clvlKeys.length*1050);
+        setTimeout(function(){
+          _setAllExpanded(tree, false, 0);
+          refreshLayout();
+        }, lvlKeys.length*400+200);
       } else {
-        tree.children.forEach(function(c){ c.expanded = false; });
+        // EXPAND: update state and layout first, hide all, then animate in level by level
         _setAllExpanded(tree, true, 0);
         refreshLayout();
-        var lvlMap={};
-        function collectAll(node, depth){
-          if(node.children.length===0) return;
-          lvlMap[depth] = lvlMap[depth]||[];
+        // Re-collect grps after redraw
+        var lvlMap2={};
+        function collectGrps2(node, depth){
           node.children.forEach(function(c){
-            if(c._grp) lvlMap[depth].push(c._grp);
-            collectAll(c, depth+1);
+            if(c._grp){
+              lvlMap2[depth] = lvlMap2[depth]||[];
+              lvlMap2[depth].push(c._grp);
+            }
+            collectGrps2(c, depth+1);
           });
         }
-        collectAll(tree, 0);
-        var lvlKeys = Object.keys(lvlMap).map(Number).sort(function(a,b){return a-b;});
-        lvlKeys.forEach(function(lv){
-          lvlMap[lv].forEach(function(grp){
+        collectGrps2(tree, 0);
+        var lvlKeys2 = Object.keys(lvlMap2).map(Number).sort(function(a,b){ return a-b; });
+        // Hide all first
+        lvlKeys2.forEach(function(lv){
+          lvlMap2[lv].forEach(function(grp){
+            grp.style.transition='none';
             grp.style.opacity='0';
             grp.style.transform='scaleX(0)';
-            grp.style.transition='none';
           });
         });
+        // Animate in level by level
         function animateLvl(idx){
-          if(idx>=lvlKeys.length) return;
-          lvlMap[lvlKeys[idx]].forEach(function(grp){
+          if(idx>=lvlKeys2.length) return;
+          lvlMap2[lvlKeys2[idx]].forEach(function(grp){
             requestAnimationFrame(function(){
               requestAnimationFrame(function(){
-                grp.style.transition='opacity 1s ease, transform 1s cubic-bezier(0.34,1.56,0.64,1)';
+                grp.style.transition='opacity 0.6s ease, transform 0.6s cubic-bezier(0.34,1.56,0.64,1)';
                 grp.style.opacity='1';
                 grp.style.transform='scaleX(1)';
               });
             });
           });
-          setTimeout(function(){ animateLvl(idx+1); }, 1050);
+          setTimeout(function(){ animateLvl(idx+1); }, 400);
         }
         animateLvl(0);
       }
