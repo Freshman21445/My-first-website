@@ -5635,7 +5635,7 @@ if(parent){
   var togX = parent._x + parent._w - TOG_W;
   
   // CHANGED: Removed "/2" so x1 shifts to the exact right edge of the toggle button
-  var x1 = togX + TOG_W, y1 = parent._y + NODE_H / 2;
+var x1=parent._x+parent._w+16, y1=parent._y+NODE_H/2;
   
   var x2 = node._x, y2 = node._y + NODE_H / 2;
   var cpx = x1 + (x2 - x1) * 0.45;
