@@ -638,7 +638,19 @@
           window.updateProfile();
           window.goTo("mainDash");
           if (cu && cu.isSpecialUser) {
-            ExplanationSystem.showGeneratorPanel();
+            var panelEl = document.getElementById('explanationGeneratorPanel');
+            if (panelEl && window.ExplanationSystem) {
+              var panel = new ExplanationGeneratorPanel(
+                ExplanationSystem.aiManager,
+                ExplanationSystem.cloudflareHandler,
+                ExplanationSystem.firestoreHandler,
+                { panelId: 'explanationGeneratorPanel', theme: 'dark' }
+              );
+              panel.initialize().then(function() {
+                panelEl.style.display = 'block';
+                panel.loadProviderOptions();
+              });
+            }
           }
           /* Load bank logos from Firestore */
           try {
