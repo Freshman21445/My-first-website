@@ -2894,15 +2894,15 @@
             }
           }
           wrap.appendChild(expBox);
-          // Connect AI Explanation System
-          var aiExpContainer = document.createElement('div');
-          aiExpContainer.id = 'aiExp_' + index;
-          wrap.appendChild(aiExpContainer);
-          if (window.ExplanationSystem && window.ExplanationSystem.isInitialized && q.id) {
-            ExplanationSystem.initializeQuestionExplanations(q.id, aiExpContainer);
-          }
         }
-      }
+        // Connect AI Explanation System
+        var aiExpContainer = document.createElement('div');
+        aiExpContainer.id = 'aiExp_' + index;
+        wrap.appendChild(aiExpContainer);
+        if (window.ExplanationSystem && window.ExplanationSystem.isInitialized && q.id) {
+          ExplanationSystem.initializeQuestionExplanations(q.id, aiExpContainer);
+        }
+    }
       return wrap;
     }
     function _buildMatchingPairEls(index, lockAndColor, startQNum) {
