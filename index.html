@@ -545,6 +545,12 @@
 
 
 </style>
+  <script src="aiManager.js"></script>
+<script src="cloudflareHandler.js"></script>
+<script src="firestoreHandler.js"></script>
+<script src="explanationDisplaySystem.js"></script>
+<script src="explanationGeneratorPanel.js"></script>
+<script src="explanationSystem-init.js"></script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
     import { getFirestore, collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, orderBy, enableIndexedDbPersistence }
@@ -638,18 +644,8 @@
           window.updateProfile();
           window.goTo("mainDash");
           if (cu && cu.isSpecialUser) {
-            var panelEl = document.getElementById('explanationGeneratorPanel');
-            if (panelEl && window.ExplanationSystem) {
-              var panel = new ExplanationGeneratorPanel(
-                ExplanationSystem.aiManager,
-                ExplanationSystem.cloudflareHandler,
-                ExplanationSystem.firestoreHandler,
-                { panelId: 'explanationGeneratorPanel', theme: 'dark' }
-              );
-              panel.initialize().then(function() {
-                panelEl.style.display = 'block';
-                panel.loadProviderOptions();
-              });
+            if (window.ExplanationSystem && window.ExplanationSystem.isInitialized) {
+              ExplanationSystem.showGeneratorPanel();
             }
           }
           /* Load bank logos from Firestore */
@@ -3539,12 +3535,6 @@ var _uniListCache = null;
 
   </script>
   <link rel="stylesheet" href="explanationSystem.css">
-<script src="aiManager.js"></script>
-<script src="cloudflareHandler.js"></script>
-<script src="firestoreHandler.js"></script>
-<script src="explanationDisplaySystem.js"></script>
-<script src="explanationGeneratorPanel.js"></script>
-<script src="explanationSystem-init.js"></script>
 </head>
 <body>
 <script>
