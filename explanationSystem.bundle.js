@@ -126,15 +126,21 @@ class AIManager {
   }
 
   async _callClaude(provider, prompt) {
-  const response = await fetch('https://pdfstorageapp.abrahamtariku1997.workers.dev', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'generate', prompt: prompt })
-  });
+  const geminiKey = 'AQ.Ab8RN6JIPD0ulwPB8XsEMQictFFfQkNAijoeG_Aq6u3eBvZbrA';
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }]
+      })
+    }
+  );
   const data = await response.json();
-  console.warn('Claude worker response:', JSON.stringify(data));
-  if (!response.ok) throw new Error(`Claude via Worker error: ${response.status}`);
-  return data.content?.[0]?.text || '';
+  console.warn('Gemini response:', JSON.stringify(data).substring(0, 200));
+  if (!response.ok) throw new Error(`Gemini error: ${JSON.stringify(data.error)}`);
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
   }
 
   async _callOpenAI(provider, prompt) {
