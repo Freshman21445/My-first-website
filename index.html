@@ -6840,10 +6840,11 @@ window._spOpenModal = function(q){
   var l1GenBtn   = l1Section.genBtn;
   l1GenBtn.textContent = '⚡ Generate Level 1';
   l1GenBtn.onclick = async function(){
+    if(!window.ExplanationSystem || !window.ExplanationSystem.isInitialized){ statusEl.textContent = 'Still loading... wait 2 seconds and try again.'; return; }
     statusEl.textContent = 'Generating Level 1...';
     l1GenBtn.disabled = true;
     try {
-      var result = await ExplanationSystem.generateExplanation(questionText, answerText, 1, '');
+      var result = await window.ExplanationSystem.generateExplanation(questionText, answerText, 1, '');
       if(result.status==='success'){ l1Textarea.value = result.text; statusEl.textContent = '✅ Level 1 done'; }
       else { statusEl.textContent = 'Error: '+(result.error||'Unknown'); }
     } catch(e){ statusEl.textContent = 'Error: '+e.message; }
@@ -6856,10 +6857,11 @@ window._spOpenModal = function(q){
   var l2GenBtn   = l2Section.genBtn;
   l2GenBtn.textContent = '⚡ Generate Level 2';
   l2GenBtn.onclick = async function(){
+    if(!window.ExplanationSystem || !window.ExplanationSystem.isInitialized){ statusEl.textContent = 'Still loading... wait 2 seconds and try again.'; return; }
     statusEl.textContent = 'Generating Level 2...';
     l2GenBtn.disabled = true;
     try {
-      var result = await ExplanationSystem.generateExplanation(questionText, answerText, 2, '');
+      var result = await window.ExplanationSystem.generateExplanation(questionText, answerText, 2, '');
       if(result.status==='success'){ l2Textarea.value = result.text; statusEl.textContent = '✅ Level 2 done'; }
       else { statusEl.textContent = 'Error: '+(result.error||'Unknown'); }
     } catch(e){ statusEl.textContent = 'Error: '+e.message; }
@@ -6872,10 +6874,11 @@ window._spOpenModal = function(q){
   var l3GenBtn   = l3Section.genBtn;
   l3GenBtn.textContent = '⚡ Generate Level 3';
   l3GenBtn.onclick = async function(){
+    if(!window.ExplanationSystem || !window.ExplanationSystem.isInitialized){ statusEl.textContent = 'Still loading... wait 2 seconds and try again.'; return; }
     statusEl.textContent = 'Generating Level 3...';
     l3GenBtn.disabled = true;
     try {
-      var result = await ExplanationSystem.generateExplanation(questionText, answerText, 3, '');
+      var result = await window.ExplanationSystem.generateExplanation(questionText, answerText, 3, '');
       if(result.status==='success'){ l3Textarea.value = result.text; statusEl.textContent = '✅ Level 3 done'; }
       else { statusEl.textContent = 'Error: '+(result.error||'Unknown'); }
     } catch(e){ statusEl.textContent = 'Error: '+e.message; }
