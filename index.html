@@ -6788,7 +6788,7 @@ window.spLoadChapters = async function(course){
       select.innerHTML = '<option value="">No chapters found</option>';
     } else {
       select.innerHTML = '<option value="">-- Select Chapter --</option>' + chapters.map(function(c,i){
-        return '<option value="'+(i+1)+'">'+c.name+'</option>';
+        return '<option value="'+c.id+'">'+c.name+'</option>';
       }).join('');
     }
   } catch(e){
@@ -6806,7 +6806,7 @@ window.spLoadQuestions = async function(chapterNum){
     var snap = await fns.getDocs(fns.query(
       fns.collection(db,'adminExams'),
       fns.where('course','==',course),
-      fns.where('chapter','==',parseInt(chapterNum))
+      fns.where('chapter','==',chapterNum)
     ));
     if(snap.empty){ qSelect.innerHTML = '<option value="">No questions found</option>'; return; }
     window._spQuestions = [];
