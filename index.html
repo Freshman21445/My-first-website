@@ -6675,6 +6675,23 @@ var x1=parent._x+parent._w+16, y1=parent._y+NODE_H/2;
 </script>
 
 
+  <script>
+// TEMP TEST: force Special User panel visible
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.ExplanationSystem && window.ExplanationSystem.showGeneratorPanel) {
+        // Force display for testing
+        const panelDiv = document.getElementById('explanationGeneratorPanel');
+        if (panelDiv) {
+            panelDiv.style.display = 'block';
+        }
+
+        window.ExplanationSystem.showGeneratorPanel();
+        console.log('✅ Forced Explanation Generator Panel visible for test');
+    } else {
+        console.warn('ExplanationSystem not loaded yet');
+    }
+});
+  </script>
 
 
 </body>
