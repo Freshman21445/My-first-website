@@ -6779,20 +6779,18 @@ window.spInitDashboard = function(){
 window.spLoadChapters = async function(course){
   var select = document.getElementById('sp_chapterSelect');
   var qSelect = document.getElementById('sp_questionSelect');
-  select.innerHTML = '<option value="">Loading...</option>';
   qSelect.innerHTML = '<option value="">-- Select Question --</option>';
   if(!course){ select.innerHTML = '<option value="">-- Select Chapter --</option>'; return; }
-  var fns = _dbFns(); var db = _db();
+  select.innerHTML = '<option value="">Loading...</option>';
   try {
-    var snap = await fns.getDocs(fns.query(fns.collection(db,'adminChapters'), fns.where('course','==',course)));
-    var chapters = [];
-    snap.docs.forEach(function(d){
-      var data = d.data();
-      if(data.chapters) chapters = data.chapters;
-    });
-    select.innerHTML = '<option value="">-- Select Chapter --</option>' + chapters.map(function(c,i){
-      return '<option value="'+(i+1)+'">'+c.name+'</option>';
-    }).join('');
+    var chapters = await window.loadChaptersForCourse(course, 'questions');
+    if(!chapters.length){
+      select.innerHTML = '<option value="">No chapters found</option>';
+    } else {
+      select.innerHTML = '<option value="">-- Select Chapter --</option>' + chapters.map(function(c,i){
+        return '<option value="'+(i+1)+'">'+c.name+'</option>';
+      }).join('');
+    }
   } catch(e){
     select.innerHTML = '<option value="">Error: '+e.message+'</option>';
   }
