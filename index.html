@@ -6713,6 +6713,18 @@ var x1=parent._x+parent._w+16, y1=parent._y+NODE_H/2;
 <script defer src="js/explanationDisplaySystem.js"></script>
 <script defer src="js/explanationSystem-init.js"></script>
 
+  <script>
+window.addEventListener('load', function() {
+  var msg = '';
+  msg += 'AIManager: ' + (typeof AIManager !== 'undefined' ? '✅' : '❌') + '\n';
+  msg += 'CloudflareHandler: ' + (typeof CloudflareHandler !== 'undefined' ? '✅' : '❌') + '\n';
+  msg += 'FirestoreHandler: ' + (typeof FirestoreHandler !== 'undefined' ? '✅' : '❌') + '\n';
+  msg += 'ExplanationSystem: ' + (typeof ExplanationSystem !== 'undefined' ? '✅' : '❌') + '\n';
+  alert(msg);
+});
+  </script>
+
+  
 <!-- INITIALIZE AFTER ALL SCRIPTS LOAD -->
 <script defer>
   (async function() {
