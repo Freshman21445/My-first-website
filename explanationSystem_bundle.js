@@ -164,14 +164,17 @@ class AIManager {
 
   async _callHuggingFace(provider, prompt) {
     const response = await fetch(
-      `https://api-inference.huggingface.co/models/${provider.model}`,
+`https://router.huggingface.co/hf-inference/models/${provider.model}`
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${provider.apiKey}`
         },
-        body: JSON.stringify({ inputs: prompt, parameters: { max_new_tokens: provider.maxTokens } })
+        body: JSON.stringify({ 
+  inputs: prompt, 
+  parameters: { max_new_tokens: provider.maxTokens, return_full_text: false }
+})
       }
     );
     if (!response.ok) throw new Error(`HuggingFace API error: ${response.status}`);
