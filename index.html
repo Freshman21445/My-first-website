@@ -6636,7 +6636,7 @@ var x1=parent._x+parent._w+16, y1=parent._y+NODE_H/2;
       }
     }
   };
-  // ──────── INITIALIZE EXPLANATION SYSTEM ────────
+// ──────── INITIALIZE EXPLANATION SYSTEM ────────
   (async function() {
     try {
       await new Promise(r => setTimeout(r, 500));
@@ -6647,14 +6647,19 @@ var x1=parent._x+parent._w+16, y1=parent._y+NODE_H/2;
       let huggingFaceKey = '';
       
       try {
-        const configDoc = await fns.getDoc(fns.doc(db, 'config', 'apiKeys'));
-        if (configDoc.exists()) {
-          const data = configDoc.data();
-          openaiKey = data.openaiKey || '';
-          claudeKey = data.claudeKey || '';
-          huggingFaceKey = data.huggingFaceKey || '';
-          console.log('✅ API keys loaded from Firestore');
-        }
+        const fns = _dbFns();
+        const configRef = fns.query(fns.collection(db, 'config'));
+        const snapshot = await fns.getDocs(configRef);
+        
+        snapshot.forEach(doc => {
+          if (doc.id === 'apiKeys') {
+            const data = doc.data();
+            openaiKey = data.openaiKey || '';
+            claudeKey = data.claudeKey || '';
+            huggingFaceKey = data.huggingFaceKey || '';
+            console.log('✅ API keys loaded from Firestore');
+          }
+        });
       } catch(e) {
         console.warn('Could not load API keys from Firestore:', e);
       }
