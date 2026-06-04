@@ -126,23 +126,14 @@ class AIManager {
   }
 
   async _callClaude(provider, prompt) {
-    /* Route through the Anthropic API endpoint */
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': provider.apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: provider.model,
-        max_tokens: provider.maxTokens,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    if (!response.ok) throw new Error(`Claude API error: ${response.status}`);
-    const data = await response.json();
-    return data.content?.[0]?.text || '';
+  const response = await fetch('https://pdfstorageapp.abrahamtariku1997.workers.dev', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'generate', prompt: prompt })
+  });
+  if (!response.ok) throw new Error(`Claude via Worker error: ${response.status}`);
+  const data = await response.json();
+  return data.content?.[0]?.text || '';
   }
 
   async _callOpenAI(provider, prompt) {
