@@ -6706,58 +6706,43 @@ var x1=parent._x+parent._w+16, y1=parent._y+NODE_H/2;
 
 
 <!-- Explanation System Modules -->
-<script defer src="explanationSystem.bundle.js"></script>
+<script src="explanationSystem.bundle.js"></script>
 
 <!-- INITIALIZE AFTER ALL SCRIPTS LOAD -->
-<script defer>
+<script>
   (async function() {
     try {
-      console.log('🔄 Waiting for modules to load...');
-      /* Wait for both Firestore and ExplanationSystem — retry every 200ms, up to 15s */
       var waited = 0;
-      while((typeof ExplanationSystem === 'undefined' || !window._firestoreDb || !window._firestoreFns) && waited < 75){
+      while((!window._firestoreDb || !window._firestoreFns) && waited < 75){
         await new Promise(r => setTimeout(r, 200));
         waited++;
       }
       const db = window._firestoreDb;
       const fns = window._firestoreFns;
-      if (!db || !fns) {
-        console.error('❌ Firestore not ready');
-        return;
-      }
-      let openaiKey = '';
-      let claudeKey = '';
-      let huggingFaceKey = '';
+      if (!db || !fns) { console.error('Firestore not ready'); return; }
+
+      let claudeKey = '', openaiKey = '', huggingFaceKey = '';
       try {
-        const configRef = fns.query(fns.collection(db, 'config'));
-        const snapshot = await fns.getDocs(configRef);
-        snapshot.forEach(doc => {
+        const snap = await fns.getDocs(fns.collection(db, 'config'));
+        snap.forEach(doc => {
           if (doc.id === 'apiKeys') {
             const data = doc.data();
-            openaiKey = data.openaiKey || '';
             claudeKey = data.claudeKey || '';
+            openaiKey = data.openaiKey || '';
             huggingFaceKey = data.huggingFaceKey || '';
-            console.log('✅ API keys loaded');
           }
         });
-      } catch(e) {
-        console.warn('⚠️ Could not load API keys:', e);
-      }
-      if (typeof ExplanationSystem !== 'undefined') {
-        await ExplanationSystem.initialize(db, {
-          openaiKey: openaiKey,
-          claudeKey: claudeKey,
-          huggingFaceKey: huggingFaceKey,
-          cloudflareWorkerUrl: 'https://pdfstorageapp.abrahamtariku1997.workers.dev',
-          typingSpeed: 20,
-          cacheExplanations: true
-        });
-        console.log('✅ ExplanationSystem ready!');
-      } else {
-        console.error('❌ ExplanationSystem not found after 15s wait');
-      }
+      } catch(e) { console.warn('Could not load API keys:', e); }
+
+      await window.ExplanationSystem.initialize(db, {
+        claudeKey, openaiKey, huggingFaceKey,
+        cloudflareWorkerUrl: 'https://pdfstorageapp.abrahamtariku1997.workers.dev',
+        typingSpeed: 20,
+        cacheExplanations: true
+      });
+      console.log('✅ ExplanationSystem ready!');
     } catch(e) {
-      console.error('❌ Init error:', e);
+      console.error('Init error:', e);
     }
   })();
 </script>
