@@ -636,15 +636,26 @@ window.updateProfile();
 if(cu.isSpecial){
   window.goTo("specialDash");
   setTimeout(async function(){
-    if(typeof ExplanationSystem !== 'undefined' && ExplanationSystem.isInitialized){
-      await ExplanationSystem.generatorPanel.initialize();
-      await ExplanationSystem.generatorPanel.loadProviderOptions();
-      ExplanationSystem.showGeneratorPanel();
+    try {
+      if(typeof ExplanationSystem !== 'undefined' && ExplanationSystem.isInitialized){
+        // Rebuild the generator panel now that the div is visible
+        ExplanationSystem.generatorPanel = new ExplanationGeneratorPanel(
+          ExplanationSystem.aiManager,
+          ExplanationSystem.cloudflareHandler,
+          ExplanationSystem.firestoreHandler,
+          { panelId: 'explanationGeneratorPanel', theme: 'dark' }
+        );
+        await ExplanationSystem.generatorPanel.initialize();
+        await ExplanationSystem.generatorPanel.loadProviderOptions();
+        console.log('✅ Generator Panel ready');
+      }
+    } catch(e){
+      console.error('❌ Generator Panel error:', e);
     }
-  }, 1000);
+  }, 800);
 } else {
   window.goTo("mainDash");
-                                         }
+}
           /* Load bank logos from Firestore */
           try {
             getDocs(collection(db,'settings')).then(function(snap){
