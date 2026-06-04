@@ -635,9 +635,16 @@ var ts2=document.getElementById('topSection'); if(ts2) ts2.style.display='none';
 window.updateProfile();
 if(cu.isSpecial){
   window.goTo("specialDash");
+  setTimeout(async function(){
+    if(typeof ExplanationSystem !== 'undefined' && ExplanationSystem.isInitialized){
+      await ExplanationSystem.generatorPanel.initialize();
+      await ExplanationSystem.generatorPanel.loadProviderOptions();
+      ExplanationSystem.showGeneratorPanel();
+    }
+  }, 1000);
 } else {
   window.goTo("mainDash");
-}
+                                         }
           /* Load bank logos from Firestore */
           try {
             getDocs(collection(db,'settings')).then(function(snap){
