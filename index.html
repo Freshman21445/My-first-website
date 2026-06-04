@@ -6637,27 +6637,43 @@ var x1=parent._x+parent._w+16, y1=parent._y+NODE_H/2;
     }
   };
   // ──────── INITIALIZE EXPLANATION SYSTEM ────────
-    (async function() {
+  (async function() {
+    try {
+      await new Promise(r => setTimeout(r, 500));
+      
+      // Fetch API keys from Firestore
+      let openaiKey = '';
+      let claudeKey = '';
+      let huggingFaceKey = '';
+      
       try {
-        // Wait a moment for DOM to be ready
-        await new Promise(r => setTimeout(r, 500));
-        
-        // Initialize explanation system
-        if (typeof ExplanationSystem !== 'undefined') {
-          await ExplanationSystem.initialize(db, {
-            openaiKey: localStorage.getItem('openaiKey') || '',
-            claudeKey: localStorage.getItem('claudeKey') || '',
-            huggingFaceKey: localStorage.getItem('huggingFaceKey') || '',
-            cloudflareWorkerUrl: 'https://pdfstorageapp.abrahamtariku1997.workers.dev',
-            typingSpeed: 20,
-            cacheExplanations: true
-          });
-          console.log('✅ ExplanationSystem ready');
+        const configDoc = await fns.getDoc(fns.doc(db, 'config', 'apiKeys'));
+        if (configDoc.exists()) {
+          const data = configDoc.data();
+          openaiKey = data.openaiKey || '';
+          claudeKey = data.claudeKey || '';
+          huggingFaceKey = data.huggingFaceKey || '';
+          console.log('✅ API keys loaded from Firestore');
         }
       } catch(e) {
-        console.error('ExplanationSystem init error:', e);
+        console.warn('Could not load API keys from Firestore:', e);
       }
-    })();
+      
+      if (typeof ExplanationSystem !== 'undefined') {
+        await ExplanationSystem.initialize(db, {
+          openaiKey: openaiKey,
+          claudeKey: claudeKey,
+          huggingFaceKey: huggingFaceKey,
+          cloudflareWorkerUrl: 'https://pdfstorageapp.abrahamtariku1997.workers.dev',
+          typingSpeed: 20,
+          cacheExplanations: true
+        });
+        console.log('✅ ExplanationSystem ready');
+      }
+    } catch(e) {
+      console.error('ExplanationSystem init error:', e);
+    }
+  })();
 })();
 </script>
 
