@@ -6747,6 +6747,38 @@ var x1=parent._x+parent._w+16, y1=parent._y+NODE_H/2;
   })();
 </script>
 
+<div id="debugPanel" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999999;background:#000;color:#0f0;font-size:11px;font-family:monospace;max-height:40vh;overflow-y:auto;padding:8px;">
+  <button onclick="document.getElementById('debugPanel').style.display='none'" style="background:red;color:white;border:none;padding:4px 10px;margin-bottom:6px;border-radius:4px;">Close</button>
+  <div id="debugLog"></div>
+</div>
+<button onclick="document.getElementById('debugPanel').style.display='block'" style="position:fixed;bottom:80px;left:8px;z-index:999998;background:#333;color:white;border:none;padding:8px 12px;border-radius:20px;font-size:12px;font-weight:700;">🐛 Debug</button>
+
+<script>
+(function(){
+  var log = document.getElementById('debugLog');
+  function addLog(msg, color){
+    var line = document.createElement('div');
+    line.style.color = color || '#0f0';
+    line.style.borderBottom = '1px solid #222';
+    line.style.padding = '3px 0';
+    line.textContent = new Date().toLocaleTimeString() + ' — ' + msg;
+    log.appendChild(line);
+    log.scrollTop = log.scrollHeight;
+  }
+  window._debugLog = addLog;
+  var origConsoleLog   = console.log;
+  var origConsoleWarn  = console.warn;
+  var origConsoleError = console.error;
+  console.log   = function(){ addLog(Array.from(arguments).join(' '), '#0f0');   origConsoleLog.apply(console, arguments); };
+  console.warn  = function(){ addLog(Array.from(arguments).join(' '), '#ff0');   origConsoleWarn.apply(console, arguments); };
+  console.error = function(){ addLog(Array.from(arguments).join(' '), '#f44');   origConsoleError.apply(console, arguments); };
+  window.addEventListener('error', function(e){ addLog('ERROR: ' + e.message + ' (line ' + e.lineno + ')', '#f44'); });
+  window.addEventListener('unhandledrejection', function(e){ addLog('PROMISE ERROR: ' + e.reason, '#f44'); });
+  addLog('Debug panel ready', '#88f');
+})();
+</script>
+
+  
 </body>
 </html>
 
