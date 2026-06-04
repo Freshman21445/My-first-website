@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explanation System Debug Test</title>
+  <link rel="stylesheet" href="explanationSystem.css">
+  <script src="aiManager.js"></script>
+  <script src="cloudflareHandler.js"></script>
+  <script src="firestoreHandler.js"></script>
+  <script src="explanationDisplaySystem.js"></script>
+  <script src="explanationGeneratorPanel.js"></script>
+  <script src="explanationSystem-init.js"></script>
+  <style>
+    body { font-family: monospace; background: #111; color: #fff; padding: 20px; }
+    h1 { color: #ff9800; margin-bottom: 20px; }
+    .check { padding: 10px 16px; margin: 6px 0; border-radius: 8px; font-size: 1em; font-weight: bold; }
+    .yes { background: #1b5e20; color: #a5d6a7; }
+    .no  { background: #b71c1c; color: #ffcdd2; }
+    .error-box { background: #b71c1c; color: #fff; padding: 12px 16px; margin: 6px 0; border-radius: 8px; font-size: 0.9em; white-space: pre-wrap; word-break: break-all; }
+    #explanationGeneratorPanel { margin-top: 30px; border: 2px solid #ff9800; border-radius: 12px; padding: 16px; background: #1a1a2e; }
+    h2 { color: #ff9800; margin: 30px 0 10px; }
+  </style>
+</head>
+<body>
+
+  <h1>🔬 Explanation System Debug Test</h1>
+
+  <div id="checks"></div>
+
+  <h2>Errors</h2>
+  <div id="errors"><span style="color:#666">None so far...</span></div>
+
+  <h2>Explanation Generator Panel</h2>
+  <div id="explanationGeneratorPanel" style="display:none; padding:16px;"></div>
+
+  <script>
+    var checks = document.getElementById('checks');
+    var errorsBox = document.getElementById('errors');
+    var hasErrors = false;
+
+    // Catch all uncaught errors and display on page
+    window.addEventListener('error', function(e) {
+      hasErrors = true;
+      errorsBox.innerHTML = '';
+      var div = document.createElement('div');
+      div.className = 'error-box';
+      div.textContent = '❌ ' + e.message + '\n   File: ' + e.filename + '\n   Line: ' + e.lineno;
+      errorsBox.appendChild(div);
+    });
+
+    window.addEventListener('unhandledrejection', function(e) {
+      hasErrors = true;
+      errorsBox.innerHTML = '';
+      var div = document.createElement('div');
+      div.className = 'error-box';
+      div.textContent = '❌ Unhandled Promise Rejection: ' + (e.reason && e.reason.message ? e.reason.message : e.reason);
+      errorsBox.appendChild(div);
+    });
+
+    function addCheck(label, ok) {
+      var div = document.createElement('div');
+      div.className = 'check ' + (ok ? 'yes' : 'no');
+      div.textContent = label + ': ' + (ok ? '✅ YES' : '❌ NO');
+      checks.appendChild(div);
+    }
+
+    // Run checks after DOM ready
+    window.addEventListener('DOMContentLoaded', function() {
+
+      addCheck('AIManager Loaded',                  typeof AIManager !== 'undefined');
+      addCheck('CloudflareHandler Loaded',          typeof CloudflareHandler !== 'undefined');
+      addCheck('FirestoreHandler Loaded',           typeof FirestoreHandler !== 'undefined');
+      addCheck('ExplanationDisplaySystem Loaded',   typeof ExplanationDisplaySystem !== 'undefined');
+      addCheck('ExplanationGeneratorPanel Loaded',  typeof ExplanationGeneratorPanel !== 'undefined');
+      addCheck('ExplanationSystem Loaded',          typeof window.ExplanationSystem !== 'undefined');
+
+      // Force panel visible
+      var panel = document.getElementById('explanationGeneratorPanel');
+      if (panel) {
+        panel.style.display = 'block';
+        addCheck('Panel div found and forced visible', true);
+      } else {
+        addCheck('Panel div found and forced visible', false);
+      }
+
+      // Try to initialize ExplanationSystem without Firebase (no db)
+      if (typeof window.ExplanationSystem !== 'undefined') {
+        try {
+          // Initialize with null db just to test module loading
+          var fakeDb = {
+            collection: function() {
+              return {
+                doc: function() { return { update: function() { return Promise.resolve(); } }; },
+                where: function() { return { get: function() { return Promise.resolve({ empty: true, docs: [] }); } }; },
+                get: function() { return Promise.resolve({ empty: true, docs: [] }); }
+              };
+            }
+          };
+
+          ExplanationSystem.initialize(fakeDb, {
+            cloudflareWorkerUrl: 'https://pdfstorageapp.abrahamtariku1997.workers.dev',
+            typingSpeed: 20,
+            cacheExplanations: true
+          }).then(function(result) {
+            addCheck('ExplanationSystem.initialize() completed', result.status === 'initialized');
+            addCheck('generatorPanel is not null', !!ExplanationSystem.generatorPanel);
+            addCheck('aiManager is not null',      !!ExplanationSystem.aiManager);
+            addCheck('displaySystem is not null',  !!ExplanationSystem.displaySystem);
+
+            if (!hasErrors) {
+              errorsBox.innerHTML = '<span style="color:#a5d6a7;font-weight:bold;">✅ No errors detected.</span>';
+            }
+          }).catch(function(err) {
+            hasErrors = true;
+            errorsBox.innerHTML = '';
+            var div = document.createElement('div');
+            div.className = 'error-box';
+            div.textContent = '❌ initialize() failed: ' + err.message;
+            errorsBox.appendChild(div);
+          });
+
+        } catch(e) {
+          hasErrors = true;
+          errorsBox.innerHTML = '';
+          var div = document.createElement('div');
+          div.className = 'error-box';
+          div.textContent = '❌ Exception during initialize(): ' + e.message;
+          errorsBox.appendChild(div);
+        }
+      }
+
+    });
+  </script>
+
+</body>
+</html>
