@@ -131,8 +131,9 @@ class AIManager {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action: 'generate', prompt: prompt })
   });
-  if (!response.ok) throw new Error(`Claude via Worker error: ${response.status}`);
   const data = await response.json();
+  console.warn('Claude worker response:', JSON.stringify(data));
+  if (!response.ok) throw new Error(`Claude via Worker error: ${response.status}`);
   return data.content?.[0]?.text || '';
   }
 
