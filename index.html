@@ -571,15 +571,13 @@
     signInAnonymously(auth).catch(function(){});
     /* expose db + fns for Chapter Manager and other non-module scripts */
     window._firestoreDb = db;
-    // Initialize Explanation System
-    ExplanationSystem.initialize(db, {
-      cloudflareWorkerUrl: 'https://pdfstorageapp.abrahamtariku1997.workers.dev',
-      typingSpeed: 20,
-      cacheExplanations: true
-    }).then(function() {
-      if (cu && cu.isSpecialUser) {
-        ExplanationSystem.showGeneratorPanel();
-      }
+// Initialize Explanation System
+    document.addEventListener('DOMContentLoaded', function() {
+      ExplanationSystem.initialize(db, {
+        cloudflareWorkerUrl: 'https://pdfstorageapp.abrahamtariku1997.workers.dev',
+        typingSpeed: 20,
+        cacheExplanations: true
+      });
     });
     window._firestoreFns = { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, orderBy };
     let _storageModule = null;
@@ -3279,6 +3277,11 @@
           }
         } catch(e) {}
         if (!restored) window.goTo("mainDash");
+        if (cu && cu.isspacial) {
+          setTimeout(function() {
+            if (window.ExplanationSystem) ExplanationSystem.showGeneratorPanel();
+          }, 1000);
+        }
         setTimeout(window._silentUpdateCheck, 1500);
         // Kill all admin functions for regular users
         var _noop2 = function(){};
