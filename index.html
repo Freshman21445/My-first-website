@@ -6804,7 +6804,7 @@ window.spLoadQuestions = async function(chapterNum){
   var fns = _dbFns(); var db = _db();
   try {
     var snap = await fns.getDocs(fns.query(
-      fns.collection(db,'exams'),
+      fns.collection(db,'adminExams'),
       fns.where('course','==',course),
       fns.where('chapter','==',parseInt(chapterNum))
     ));
@@ -6814,6 +6814,7 @@ window.spLoadQuestions = async function(chapterNum){
       var data = d.data(); data.id = d.id;
       window._spQuestions.push(data);
     });
+    window._spQuestions.sort(function(a,b){ return (a.order||9999)-(b.order||9999); });
     qSelect.innerHTML = '<option value="">-- Select Question --</option>' + window._spQuestions.map(function(q,i){
       var text = (q.question||'').substring(0,60)+((q.question||'').length>60?'...':'');
       return '<option value="'+i+'">Q'+(i+1)+': '+text+'</option>';
