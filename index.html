@@ -6798,13 +6798,19 @@ window.spLoadChapters = async function(course){
   try {
     var snap = await fns.getDocs(fns.query(fns.collection(db,'adminChapters'), fns.where('course','==',course)));
     var chapters = [];
-    snap.docs.forEach(function(d){
-      var data = d.data();
-      if(data.chapters) chapters = data.chapters;
-    });
-    select.innerHTML = '<option value="">-- Select Chapter --</option>' + chapters.map(function(c,i){
-      return '<option value="'+(i+1)+'">'+c.name+'</option>';
-    }).join('');
+    if(!snap.empty){
+      var matchDoc = null;
+      snap.docs.forEach(function(d){ if(d.data().section==='questions') matchDoc=d; });
+      if(!matchDoc) matchDoc = snap.docs[0];
+      chapters = (matchDoc.data().chapters||[]).slice().sort(function(a,b){ return (a.order||0)-(b.order||0); });
+    }
+    if(!chapters.length){
+      select.innerHTML = '<option value="">No chapters found</option>';
+    } else {
+      select.innerHTML = '<option value="">-- Select Chapter --</option>' + chapters.map(function(c,i){
+        return '<option value="'+(i+1)+'">'+c.name+'</option>';
+      }).join('');
+    }
   } catch(e){
     select.innerHTML = '<option value="">Error: '+e.message+'</option>';
   }
