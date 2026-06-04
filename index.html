@@ -6767,25 +6767,13 @@ window._spCurrentQuestion = null;
 window._spCurrentAnswer = null;
 window._spCurrentQuestionId = null;
 
-window.spInitDashboard = async function(){
+window.spInitDashboard = function(){
   var select = document.getElementById('sp_courseSelect');
   if(!select) return;
-  select.innerHTML = '<option value="">Loading...</option>';
-  var fns = _dbFns(); var db = _db();
-  if(!fns || !db){ select.innerHTML = '<option value="">No connection</option>'; return; }
-  try {
-    var snap = await fns.getDocs(fns.collection(db,'adminChapters'));
-    var courses = [];
-    snap.docs.forEach(function(d){
-      var data = d.data();
-      if(data.course && !courses.includes(data.course)) courses.push(data.course);
-    });
-    select.innerHTML = '<option value="">-- Select Course --</option>' + courses.map(function(c){
-      return '<option value="'+c+'">'+c+'</option>';
-    }).join('');
-  } catch(e){
-    select.innerHTML = '<option value="">Error: '+e.message+'</option>';
-  }
+  var courses = ['Anthropology','Emerging Technology','Entrepreneurship','Applied Mathematics','Computer Programming','English','History of Ethiopia','Moral and Civic Education'];
+  select.innerHTML = '<option value="">-- Select Course --</option>' + courses.map(function(c){
+    return '<option value="'+c+'">'+c+'</option>';
+  }).join('');
 };
 
 window.spLoadChapters = async function(course){
