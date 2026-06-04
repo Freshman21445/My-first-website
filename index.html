@@ -545,6 +545,11 @@
 
 
 </style>
+<!-- ADD THIS CSS -->
+<link rel="stylesheet" href="js/explanations.css">
+
+  <script type="module">
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
     import { getFirestore, collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, orderBy, enableIndexedDbPersistence }
@@ -560,6 +565,9 @@
     };
     const app = initializeApp(cfg);
     const db  = getFirestore(app);
+    // ──────── EXPLANATION SYSTEM INITIALIZATION ────────
+window._firestoreDb = db;  // Already there, just make sure it's set
+window._explanationDb = db; // Expose for explanation system
     const auth = getAuth(app);
     try { enableIndexedDbPersistence(db).catch(function(){}); } catch(e){}
     signInAnonymously(auth).catch(function(){});
@@ -6628,11 +6636,42 @@ var x1=parent._x+parent._w+16, y1=parent._y+NODE_H/2;
       }
     }
   };
+  // ──────── INITIALIZE EXPLANATION SYSTEM ────────
+    (async function() {
+      try {
+        // Wait a moment for DOM to be ready
+        await new Promise(r => setTimeout(r, 500));
+        
+        // Initialize explanation system
+        if (typeof ExplanationSystem !== 'undefined') {
+          await ExplanationSystem.initialize(db, {
+            openaiKey: localStorage.getItem('openaiKey') || '',
+            claudeKey: localStorage.getItem('claudeKey') || '',
+            huggingFaceKey: localStorage.getItem('huggingFaceKey') || '',
+            cloudflareWorkerUrl: 'https://pdfstorageapp.abrahamtariku1997.workers.dev',
+            typingSpeed: 20,
+            cacheExplanations: true
+          });
+          console.log('✅ ExplanationSystem ready');
+        }
+      } catch(e) {
+        console.error('ExplanationSystem init error:', e);
+      }
+    })();
 })();
 </script>
 
 
+<!-- Explanation System Modules -->
+<script src="js/aiManager.js"></script>
+<script src="js/cloudflareHandler.js"></script>
+<script src="js/firestoreHandler.js"></script>
+<script src="js/explanationGeneratorPanel.js"></script>
+<script src="js/explanationDisplaySystem.js"></script>
+<script src="js/explanationSystem-init.js"></script>
 
+</body>
+</html>
 
 </body>
 </html>
