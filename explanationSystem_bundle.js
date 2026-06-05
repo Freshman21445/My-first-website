@@ -40,53 +40,33 @@ class CloudflareHandler {
     return `${this.config.storagePath}/${questionId}_level${level}_${timestamp}_${random}.txt`;
   }
 
-  async uploadExplanation(questionId, explanationText, level, provider) {
-    const fileId = this._generateFileId(questionId, level, provider);
-
-    for (let attempt = 1; attempt <= this.config.maxRetries; attempt++) {
-      try {
-        const response = await fetch(this.config.workerUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'upload',
-            fileId: fileId,
-            content: explanationText,
-            metadata: { questionId, level, provider, uploadedAt: new Date().toISOString() }
-          })
-        });
-
-        if (response.ok) {
-          const data = await response.json().catch(() => ({}));
-          const url = data.url || `${this.config.workerUrl}?file=${encodeURIComponent(fileId)}`;
-          this.cache.set(fileId, explanationText);
-          return { status: 'success', url, fileId, questionId, level, provider };
-        }
-
-        if (response.status === 404 || response.status === 405) {
-          console.error('Cloudflare Worker does not support upload action — check your Worker script.');
-          return {
-            status: 'error',
-            error: 'Cloudflare Worker upload not supported (HTTP ' + response.status + '). Check your Worker configuration.',
-            questionId, level, provider
-          };
-        }
-
-        throw new Error(`HTTP ${response.status}`);
-      } catch (err) {
-        if (attempt === this.config.maxRetries) {
-          console.error('All Cloudflare upload attempts failed:', err.message);
-          return {
-            status: 'error',
-            error: 'Cloudflare upload failed after ' + this.config.maxRetries + ' attempts: ' + err.message,
-            questionId, level, provider
-          };
-        }
-        await new Promise(r => setTimeout(r, this.config.retryDelay * attempt));
-      }
-    }
+ async uploadExplanation(questionId, explanationText, level, provider, course, chapter) {
+  const bundleKey = 'chapter_' + (course||'unknown') + '_ch' + (chapter||'0');
+  const workerUrl = this.config.workerUrl;
+  try {
+    // Read existing bundle
+    var existing = {};
+    try {
+      var getResp = await fetch(workerUrl + '?file=' + encodeURIComponent(bundleKey));
+      if(getResp.ok){ existing = JSON.parse(await getResp.text()); }
+    } catch(e){}
+    // Add/update this question's explanation
+    if(!existing[questionId]) existing[questionId] = {};
+    existing[questionId]['exp' + level] = explanationText;
+    // Save bundle back
+    var putResp = await fetch(workerUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'upload', fileId: bundleKey, content: JSON.stringify(existing) })
+    });
+    if(!putResp.ok) throw new Error('HTTP ' + putResp.status);
+    const bundleUrl = workerUrl + '?file=' + encodeURIComponent(bundleKey);
+    this.cache.set(bundleKey, existing);
+    return { status: 'success', url: bundleUrl, fileId: bundleKey, questionId, level, provider, bundleKey };
+  } catch(err) {
+    return { status: 'error', error: err.message, questionId, level, provider };
   }
-
+ }
   async retrieveExplanation(fileId) {
     if (this.cache.has(fileId)) return { status: 'success', content: this.cache.get(fileId), source: 'cache' };
 
