@@ -6892,7 +6892,8 @@ if(cf){
       }
       var cacheKey = course + '__' + section;
       _chaptersCache[cacheKey] = chapters;
-      localStorage.setItem('cache_chapters_' + cacheKey, JSON.stringify(chapters));
+      var publishedOnly = chapters.filter(function(ch){ return ch.published === true; });
+localStorage.setItem('cache_chapters_' + cacheKey, JSON.stringify(publishedOnly));
     } catch(e){ showToast('Error saving: '+e.message); }
   }
 
