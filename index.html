@@ -928,7 +928,7 @@ window.goTo("mainDash");
         for(var si=0; si<SECTIONS.length; si++){
           try {
             var course = COURSES[ci]; var section = SECTIONS[si];
-            var cSnap = await fns.getDocs(fns.query(fns.collection(db2,'adminChapters'),fns.where('course','==',course),fns.where('section','==',section)));
+            var cSnap = await fns.getDocs(fns.queryfns.query(fns.collection(db2,'adminChapters'), fns.where('course','==',course), fns.where('section','==',section), fns.where('published','==',true)));
             var chapters = [];
             if(!cSnap.empty){ chapters = (cSnap.docs[0].data().chapters||[]).slice().sort(function(a,b){ return (a.order||0)-(b.order||0); }); }
             else {
@@ -1122,6 +1122,11 @@ window.goTo("mainDash");
         var pdfBatch = pdfSnap.docs.map(function(d){
           return updateDoc(doc(db,'adminPdfMaterials',d.id), {published:true});
         });
+        var chapSnap = await getDocs(query(collection(db,'adminChapters'), where('published','==',false)));
+await Promise.all(chapSnap.docs.map(function(d){ return updateDoc(doc(db,'adminChapters',d.id), {published:true}); }));
+
+var uniListSnap = await getDocs(query(collection(db,'adminUniversityList'), where('published','==',false)));
+await Promise.all(uniListSnap.docs.map(function(d){ return updateDoc(doc(db,'adminUniversityList',d.id), {published:true}); }));
         await Promise.all([...examBatch, ...matBatch, ...uniBatch, ...pdfBatch]);
         /* Clear all user-facing localStorage caches so everyone gets fresh data on next load */
         try {
@@ -3484,7 +3489,7 @@ var _uniListCache = null;
       if(name) name = name.trim();
       if(!name){ showToast('Enter a university name.'); return; }
       try {
-        await addDoc(collection(db,'adminUniversityList'),{name:name,createdAt:new Date()});
+        await addDoc(collection(db,'adminUniversityList'),{name:name, published:false, createdAt:new Date()});
         document.getElementById('newUniName').value='';
         _uniListCache = null;
         await _loadAdminUniMgmtList();
@@ -6878,9 +6883,9 @@ if(cf){
       var matchDoc = null;
       if(!snap.empty){ snap.docs.forEach(function(d){ if(d.data().section===section) matchDoc=d; }); if(!matchDoc) matchDoc=snap.docs[0]; }
       if(!matchDoc){
-        await fns.addDoc(fns.collection(db,'adminChapters'), {course:course, section:section, chapters:chapters, updatedAt:new Date()});
+        await fns.addDoc(fns.collection(db,'adminChapters'), {course:course, section:section, chapters:chapters, published:false, updatedAt:new Date()});
       } else {
-        await fns.updateDoc(fns.doc(db,'adminChapters',matchDoc.id), {course:course, section:section, chapters:chapters, updatedAt:new Date()});
+        await fns.updateDoc(fns.doc(db,'adminChapters',matchDoc.id), {course:course, section:section, chapters:chapters, published:false, updatedAt:new Date()});
       }
       var cacheKey = course + '__' + section;
       _chaptersCache[cacheKey] = chapters;
