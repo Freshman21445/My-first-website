@@ -904,7 +904,7 @@ window.goTo("mainDash");
         return;
       }
       try {
-        var changed = await _syncDynamicButtons();
+        var changed = await _syncDynamicButtons(); window._chaptersCache = {};
         if(changed){
           showToast('✅ New content is available! Browse to see what\'s new.');
         } else {
