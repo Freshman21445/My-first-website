@@ -939,6 +939,7 @@ window.goTo("mainDash");
                 if(bestDoc) chapters = (bestDoc.data().chapters||[]).slice().sort(function(a,b){ return (a.order||0)-(b.order||0); });
               }
             }
+            chapters = chapters.filter(function(ch){ return ch.published === true; });
             var ck = course + '__' + section;
             var old = localStorage.getItem('cache_chapters_' + ck);
             var newVal = JSON.stringify(chapters);
@@ -6865,7 +6866,7 @@ if(cf){
       }
     } catch(e){}
     var newId = 'ch_'+ Date.now();
-    chapters.push({id:newId, name:name, order:chapters.length+1});
+    chapters.push({id:newId, name:name, order:chapters.length+1, published:false});
     await _saveChaptersToFirestore(_cmSelectedCourse, _cmSelectedSection, chapters);
     delete _chaptersCache[cacheKey];
     try { localStorage.removeItem('cache_chapters_' + cacheKey); } catch(e){}
