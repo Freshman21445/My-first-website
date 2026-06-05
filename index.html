@@ -1124,7 +1124,12 @@ window.goTo("mainDash");
           return updateDoc(doc(db,'adminPdfMaterials',d.id), {published:true});
         });
         var chapSnap = await getDocs(query(collection(db,'adminChapters'), where('published','==',false)));
-await Promise.all(chapSnap.docs.map(function(d){ return updateDoc(doc(db,'adminChapters',d.id), {published:true}); }));
+await Promise.all(chapSnap.docs.map(async function(d){
+  var chapters = (d.data().chapters || []).map(function(ch){
+    return Object.assign({}, ch, {published: true});
+  });
+  return updateDoc(doc(db,'adminChapters',d.id), {published:true, chapters:chapters});
+}));
 
 var uniListSnap = await getDocs(query(collection(db,'adminUniversityList'), where('published','==',false)));
 await Promise.all(uniListSnap.docs.map(function(d){ return updateDoc(doc(db,'adminUniversityList',d.id), {published:true}); }));
@@ -6598,7 +6603,10 @@ if(cf){
   window.loadChaptersForCourse = async function(course, section){
     section = section || 'questions';
     var cacheKey = course + '__' + section;
-    var isAdmin = !!document.getElementById('adminBox');
+ var isAdmin = (function(){
+  var el = document.getElementById('adminBox');
+  return el && el.style.display !== 'none';
+})();
     /* Admin: always fetch directly from Firestore, never use cache */
     if(isAdmin){
       var waited=0;
