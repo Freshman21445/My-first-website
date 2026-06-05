@@ -7020,7 +7020,7 @@ window._spCurrentQuestionId = null;
 
 // ── Special User Modal: Explanation Generator ──────────────────────────────
 
-window._spOpenModal = function(q, qNum){
+window._spOpenModal = async function(q, qNum){
   var existing = document.getElementById('spExpModal');
   if(existing) existing.remove();
 
