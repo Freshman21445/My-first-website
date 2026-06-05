@@ -2781,7 +2781,7 @@ window.goTo("mainDash");
       var imgs = q.imgs || {};
       var qText = document.createElement('div');
       qText.className = 'question-text';
-      qText.textContent = q.q;
+      qText.textContent = q.q || q.question || q.text || '';
       qText.style.fontSize = Math.round((q.textSize || 16) * _userTextScale) + 'px';
       wrap.appendChild(qText);
       if (imgs.question) {
