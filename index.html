@@ -1200,6 +1200,36 @@ await Promise.all(uniListSnap.docs.map(function(d){ return updateDoc(doc(db,'adm
       document.body.style.backgroundImage="linear-gradient(135deg,#009688,#00796b)";
       var ts=document.getElementById('topSection'); if(ts) ts.style.display='none';
       document.getElementById("adminPasswordInput").value="";
+     
+      // One-time migration: add published:true to all existing docs
+if(!localStorage.getItem('_chaptersMigrated')){
+  try {
+    // Chapters array items
+    var mSnap = await getDocs(collection(db,'adminChapters'));
+    for(var mDoc of mSnap.docs){
+      var mChapters = (mDoc.data().chapters||[]).map(function(ch){
+        if(ch.published === undefined) ch.published = true;
+        return ch;
+      });
+      await updateDoc(doc(db,'adminChapters',mDoc.id), {chapters: mChapters});
+    }
+    // University list
+    var uSnap = await getDocs(collection(db,'adminUniversityList'));
+    for(var uDoc of uSnap.docs){
+      if(uDoc.data().published === undefined){
+        await updateDoc(doc(db,'adminUniversityList',uDoc.id), {published:true});
+      }
+    }
+    // University exams
+    var ueSnap = await getDocs(collection(db,'adminUniversityExams'));
+    for(var ueDoc of ueSnap.docs){
+      if(ueDoc.data().published === undefined){
+        await updateDoc(doc(db,'adminUniversityExams',ueDoc.id), {published:true});
+      }
+    }
+    localStorage.setItem('_chaptersMigrated','1');
+  } catch(e){}
+}
       adminGoTo("adminMainDash");
     };
     window.adminLogout = function(){
