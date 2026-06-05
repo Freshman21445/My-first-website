@@ -7181,13 +7181,39 @@ window._spOpenModal = function(q, qNum){
   statusEl.style.cssText = 'text-align:center;color:#a78bfa;font-size:0.88em;font-weight:700;min-height:20px;margin-bottom:12px;';
   panel.appendChild(statusEl);
 
-  // ── Paste Section: Explanation (Level 1) ──────────────────────
+// ── Paste Section: Explanation (Level 1) ──────────────────────
   var l1Wrap = _spMakePasteSection('📌 Explanation', '#3b82f6', 'Paste the EXPLANATION section from your AI here...');
   panel.appendChild(l1Wrap.el);
 
   // ── Paste Section: Deep Explanation (Level 2) ─────────────────
   var l2Wrap = _spMakePasteSection('🌊 Deep Explanation', '#8b5cf6', 'Paste the DEEP EXPLANATION section from your AI here...');
   panel.appendChild(l2Wrap.el);
+
+  // ── Load existing explanation if available ─────────────────────
+  if(questionId && window.ExplanationSystem && window.ExplanationSystem.cloudflareHandler){
+    statusEl.textContent = '⏳ Loading existing explanation...';
+    try {
+      var cf = window.ExplanationSystem.cloudflareHandler;
+      var bundleKey = 'chapter_' + (window.currentCourse||'unknown') + '_ch' + (window.currentChapter||'0');
+      var bundleUrl = cf.config.workerUrl + '?file=' + encodeURIComponent(bundleKey);
+      var res = await cf.retrieveByUrl(bundleUrl);
+      if(res.status === 'success'){
+        var bundle = typeof res.content === 'string' ? JSON.parse(res.content) : res.content;
+        var qExp = bundle[questionId] || {};
+        if(qExp.exp1) l1Wrap.textarea.value = qExp.exp1;
+        if(qExp.exp2) l2Wrap.textarea.value = qExp.exp2;
+        if(qExp.exp1 || qExp.exp2){
+          statusEl.textContent = '✅ Existing explanation loaded — edit and save.';
+        } else {
+          statusEl.textContent = '📝 No existing explanation — paste new one below.';
+        }
+      } else {
+        statusEl.textContent = '📝 No existing explanation — paste new one below.';
+      }
+    } catch(e){
+      statusEl.textContent = '📝 Could not load existing — paste new one below.';
+    }
+  }
 
   // ── Save Button ────────────────────────────────────────────────
   var saveBtn = document.createElement('button');
