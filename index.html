@@ -6288,28 +6288,26 @@ var x1=parent._x+parent._w+16, y1=parent._y+NODE_H/2;
           eSnap.docs.forEach(function(d){ questions.push(Object.assign({id:d.id}, d.data())); });
           questions.sort(function(a,b){ return (a.order||9999)-(b.order||9999); });
 
-          // Fetch Cloudflare explanations silently and embed in each question
-          var cf = window.ExplanationSystem && window.ExplanationSystem.cloudflareHandler;
-          if(cf){
-            await Promise.all(questions.map(async function(q){
-              try {
-                var exps = q.explanations || {};
-                var url1 = exps.level1 && exps.level1.url;
-                if(url1 && !url1.startsWith('firestore://')){
-                  var r1 = await cf.retrieveByUrl(url1);
-                  if(r1.status === 'success') q._exp1 = r1.content;
-                }
-                var url2 = exps.level2 && exps.level2.url;
-                if(url2 && !url2.startsWith('firestore://')){
-                  var r2 = await cf.retrieveByUrl(url2);
-                  if(r2.status === 'success') q._exp2 = r2.content;
-                }
-                delete q.explanation;
-              } catch(e){}
-            }));
-          } else {
-            questions.forEach(function(q){ delete q.explanation; });
-          }
+          // Fetch chapter explanation bundle — 1 KV read for all questions
+var cf = window.ExplanationSystem && window.ExplanationSystem.cloudflareHandler;
+if(cf){
+  try {
+    var bundleKey = 'chapter_' + course + '_ch' + chNum;
+    var bundleUrl = cf.config.workerUrl + '?file=' + encodeURIComponent(bundleKey);
+    var bundleResp = await cf.retrieveByUrl(bundleUrl);
+    if(bundleResp.status === 'success'){
+      var bundle = typeof bundleResp.content === 'string' ? JSON.parse(bundleResp.content) : bundleResp.content;
+      questions.forEach(function(q){
+        var qExp = bundle[q.id] || {};
+        if(qExp.exp1) q._exp1 = qExp.exp1;
+        if(qExp.exp2) q._exp2 = qExp.exp2;
+        delete q.explanation;
+      });
+    }
+  } catch(e){}
+} else {
+  questions.forEach(function(q){ delete q.explanation; });
+}
 
           examCache['all'] = questions;
         } catch(e){
@@ -7207,13 +7205,13 @@ window._spOpenModal = function(q, qNum){
       var cf = window.ExplanationSystem.cloudflareHandler;
       var fs = window.ExplanationSystem.firestoreHandler;
       if(l1Text){
-        var r1 = await cf.uploadExplanation(questionId, l1Text, 1, 'manual');
-        if(r1.status==='success'){ await fs.saveExplanationLink(questionId, 1, r1.url, r1.fileId, 'manual'); saved++; }
+        var r1 = await cf.uploadExplanation(questionId, l1Text, 1, 'manual', currentCourse, currentChapter);
+        if(r1.status==='success'){ await fs.saveExplanationLink(questionId, 1, r1.url, r1.fileId, 'manual', currentCourse, currentChapter); saved++; }
         else { statusEl.textContent = 'Explanation save error: '+(r1.error||'unknown'); saveBtn.disabled=false; return; }
       }
       if(l2Text){
-        var r2 = await cf.uploadExplanation(questionId, l2Text, 2, 'manual');
-        if(r2.status==='success'){ await fs.saveExplanationLink(questionId, 2, r2.url, r2.fileId, 'manual'); saved++; }
+        var r2 = await cf.uploadExplanation(questionId, l2Text, 2, 'manual', currentCourse, currentChapter);
+        if(r2.status==='success'){ await fs.saveExplanationLink(questionId, 2, r2.url, r2.fileId, 'manual', currentCourse, currentChapter); saved++; }
         else { statusEl.textContent = 'Deep Explanation save error: '+(r2.error||'unknown'); saveBtn.disabled=false; return; }
       }
       statusEl.textContent = '✅ Saved ' + saved + ' explanation(s) successfully!';
