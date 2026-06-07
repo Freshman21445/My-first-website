@@ -2,8 +2,8 @@
   "name": "EthioMetric Exam System",
   "short_name": "EthioMetric",
   "description": "Ethiopian Exam Preparation & Learning Platform",
-"start_url": "/My-first-website/index.html",
-"scope": "/My-first-website/",
+  "start_url": "/My-first-website/",
+  "scope": "/My-first-website/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#1e3c72",
@@ -12,18 +12,15 @@
   "categories": ["education"],
   "icons": [
     {
-      "src": "https://via.placeholder.com/192x192/ff9800/ffffff?text=EM",
+      "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
-      "src": "https://via.placeholder.com/512x512/ff9800/ffffff?text=EM",
+      "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ],
-  "screenshots": [],
   "prefer_related_applications": false
 }
