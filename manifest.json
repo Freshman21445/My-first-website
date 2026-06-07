@@ -12,7 +12,7 @@
   "lang": "en",
   "categories": ["education"],
   "icons": [
-  { "src": "icons/maskable_icon_x512.jpg", "sizes": "512x512", "type": "image/jpeg", "purpose": "maskable" }
+  { "src": "icons/maskable_icon_x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "screenshots": [
     {
